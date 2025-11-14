@@ -1,0 +1,18 @@
+{
+  "id": "char-aria-1",
+  "name": "Aria Brightwind",
+  "summary": "A curious sorcerer traveling between small towns.",
+  "backstory": "Raised in a quiet fishing village, Aria discovered latent teleportation magic that carried her across the coast to new mysteries.",
+  "personality": "Curious, kind, but stubborn when pursuit of knowledge is involved.",
+  "goals": ["Find the lost portal", "Protect her hometown"],
+  "speakingStyle": "Measured and poetic",
+  "tags": ["sorcerer", "traveler"],
+  "style": {
+    "sentenceLength": "balanced",
+    "humor": "light",
+    "darkness": "low",
+    "pacing": "balanced",
+    "formality": "neutral",
+    "verbosity": "lavish"
+  }
+}

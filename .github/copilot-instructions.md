@@ -1,0 +1,63 @@
+# Copilot Instructions for Minimal RPG
+
+This monorepo uses pnpm + Turbo with three packages:
+- `packages/shared` — shared types and Zod schemas
+- `packages/api` — Hono-based Node API server
+- `packages/web` — Vite web client (scaffolded)
+- Data at repo root: `data/characters/*.json`, `data/settings/*.json`
+
+## Architecture & Conventions
+- TypeScript + ESM across the repo. `tsconfig.base.json` sets `verbatimModuleSyntax: true`.
+  - When importing local files, include the `.js` extension in TS code (e.g., `import { X } from './file.js'`).
+  - API overrides to `NodeNext` module/resolution; shared/web use `Bundler`.
+- Shared types are defined via Zod in `packages/shared/src/schemas.ts` and exported from `packages/shared/src/index.ts`.
+  - Exported: `CharacterProfileSchema`, `SettingProfileSchema` and inferred types `CharacterProfile`, `SettingProfile`.
+  - `packages/shared` emits runtime JS to `dist/` so other packages can import schemas at runtime.
+- Data loader lives in `packages/api/src/data/loader.ts`.
+  - Reads all JSON under `data/characters` and `data/settings` using `fs/promises`.
+  - Validates each file with the shared Zod schemas; on any error, logs and exits process non-zero (fail-fast).
+  - Uses `DATA_DIR` env var if provided, else `process.cwd()/data`.
+- Server startup in `packages/api/src/server.ts` calls the loader before binding the port.
+  - Keeps validated data in-memory for future endpoints and logs counts on startup.
+- If you start the server, you will be unable to proceed because the terminal command will hang. Make sure you start the server in either a separate terminal, in the background, or in a monitoring mode.
+
+## Developer Workflows
+- Install and build everything:
+  - `pnpm -w install`
+  - `pnpm -w build` (Turbo orchestrates `tsc` builds; outputs to `dist/`)
+- Typecheck and lint across packages:
+  - `pnpm -w typecheck`
+  - `pnpm -w lint`
+- Run packages individually:
+  - API (dev): `pnpm -F @minimal-rpg/api dev` (tsx watch)
+  - API (prod): `pnpm -F @minimal-rpg/api build && pnpm -F @minimal-rpg/api start`
+  - Web (dev): `pnpm -F @minimal-rpg/web dev`
+- Data validation helper (optional): `node ./scripts/validate-data.js`
+
+## Data & Schemas
+- Add character files to `data/characters/*.json`; settings to `data/settings/*.json`.
+- Must conform to shared schemas. Minimums include non-empty strings for names and summaries; character `goals` is an array of non-empty strings; optional arrays: `tags`, `constraints`.
+- Example validation usage:
+  ```ts
+  import { CharacterProfileSchema, type CharacterProfile } from '@minimal-rpg/shared'
+  const parsed = CharacterProfileSchema.parse(obj)
+  const character: CharacterProfile = parsed
+  ```
+- Run API with a custom data dir:
+  ```bash
+  DATA_DIR=/abs/path/to/data pnpm -F @minimal-rpg/api dev
+  ```
+
+## Patterns to Follow
+- Use shared Zod schemas for all runtime validation; avoid duplicating type definitions.
+- Keep imports ESM-correct with explicit `.js` for local paths due to `verbatimModuleSyntax`.
+- API errors on invalid data should be explicit and fail-fast during startup (see `loader.ts`).
+- Prefer small, self-contained JSON files; the loader treats missing directories as empty collections.
+
+## Key Files
+- Root: `turbo.json`, `pnpm-workspace.yaml`, `tsconfig.base.json`
+- Shared: `packages/shared/src/schemas.ts`, `packages/shared/src/index.ts`
+- API: `packages/api/src/data/loader.ts`, `packages/api/src/server.ts`
+- Data: `data/README.md`, `data/characters/example.json`, `data/settings/example.json`
+
+If anything here looks outdated or unclear (e.g., module import style or startup flow), tell me and I’ll adjust these instructions accordingly.
