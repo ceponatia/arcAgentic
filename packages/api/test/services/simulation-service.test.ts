@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import type { GameTime, NpcLocationState, NpcScheduleData } from '@minimal-rpg/schemas';
 import {
   runSimulationTick,
@@ -7,13 +7,6 @@ import {
   buildSimulationPriorities,
 } from '../../src/services/simulation-service.js';
 
-const scheduleMocks = vi.hoisted(() => ({
-  resolveNpcScheduleAtTimeMock: vi.fn(),
-}));
-
-vi.mock('../../src/services/schedule-service.js', () => ({
-  resolveNpcScheduleAtTime: scheduleMocks.resolveNpcScheduleAtTimeMock,
-}));
 
 const time: GameTime = {
   year: 1,
@@ -29,6 +22,13 @@ const locationState: NpcLocationState = {
   locationId: 'loc-1',
   activity: { type: 'idle', description: 'Waiting', engagement: 'casual' },
   arrivedAt: time,
+  interruptible: true,
+};
+
+const previousLocationState: NpcLocationState = {
+  locationId: 'loc-2',
+  activity: { type: 'idle', description: 'Waiting', engagement: 'casual' },
+  arrivedAt: { ...time, hour: 8 },
   interruptible: true,
 };
 
@@ -56,8 +56,6 @@ const scheduleDataBase = {
 
 describe('services/simulation-service', () => {
   it('simulates npc ticks and respects max limits', () => {
-    scheduleMocks.resolveNpcScheduleAtTimeMock.mockReturnValue({ locationState });
-
     const result = runSimulationTick(
       [
         { npcId: 'npc-1', tier: 'major', scheduleData: { ...scheduleDataBase, npcId: 'npc-1' } },
@@ -77,10 +75,15 @@ describe('services/simulation-service', () => {
   });
 
   it('simulates a time skip and reports state changes', () => {
-    scheduleMocks.resolveNpcScheduleAtTimeMock.mockReturnValue({ locationState });
-
     const result = runTimeSkipSimulation(
-      [{ npcId: 'npc-1', tier: 'major', scheduleData: { ...scheduleDataBase, npcId: 'npc-1' } }],
+      [
+        {
+          npcId: 'npc-1',
+          tier: 'major',
+          scheduleData: { ...scheduleDataBase, npcId: 'npc-1' },
+          currentState: previousLocationState,
+        },
+      ],
       time,
       { ...time, hour: 10 },
       {

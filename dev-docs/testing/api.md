@@ -119,10 +119,7 @@ World bus init, service start, data loading, CORS, route registration, error exi
 
 ## Missing or thin coverage by area
 
-### Data and type-only modules
-
-- src/db/sessionsClient.ts: re-exports only; low risk.
-- src/types/*: type-only or guards, minimal runtime behavior.
+None noted.
 
 ## Suggested next test targets (api package)
 
