@@ -76,9 +76,6 @@ importers:
       glob:
         specifier: 13.0.0
         version: 13.0.0
-      husky:
-        specifier: ^9.1.7
-        version: 9.1.7
       lint-staged:
         specifier: ^16.2.7
         version: 16.2.7
@@ -120,6 +117,115 @@ importers:
         version: 8.46.4(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3)
       vitest:
         specifier: ^4.0.18
+        version: 4.0.18(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(jiti@2.6.1)(jsdom@27.3.0(postcss@8.5.6))(tsx@4.20.6)(yaml@2.8.2)
+
+  apps/web:
+    dependencies:
+      '@mdx-js/rollup':
+        specifier: ^3.1.1
+        version: 3.1.1(rollup@4.53.2)
+      '@minimal-rpg/db':
+        specifier: workspace:*
+        version: link:../../packages/db
+      '@minimal-rpg/generator':
+        specifier: workspace:*
+        version: link:../../packages/generator
+      '@minimal-rpg/schemas':
+        specifier: workspace:*
+        version: link:../../packages/schemas
+      '@minimal-rpg/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      '@minimal-rpg/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils
+      '@preact/signals-react':
+        specifier: ^3.6.1
+        version: 3.6.1(react@19.2.0)
+      '@supabase/supabase-js':
+        specifier: ^2.57.4
+        version: 2.89.0
+      '@xyflow/react':
+        specifier: ^12.10.0
+        version: 12.10.0(@types/react@19.2.5)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      lucide-react:
+        specifier: ^0.561.0
+        version: 0.561.0(react@19.2.0)
+      react:
+        specifier: ^19.2.0
+        version: 19.2.0
+      react-dom:
+        specifier: ^19.2.0
+        version: 19.2.0(react@19.2.0)
+      react-markdown:
+        specifier: ^10.1.0
+        version: 10.1.0(@types/react@19.2.5)(react@19.2.0)
+      rehype-autolink-headings:
+        specifier: ^7.1.0
+        version: 7.1.0
+      rehype-highlight:
+        specifier: ^7.0.2
+        version: 7.0.2
+      rehype-slug:
+        specifier: ^6.0.0
+        version: 6.0.0
+      remark-frontmatter:
+        specifier: ^5.0.0
+        version: 5.0.0
+      remark-gfm:
+        specifier: ^4.0.1
+        version: 4.0.1
+      zod:
+        specifier: ^4.1.12
+        version: 4.1.12
+      zustand:
+        specifier: ^5.0.9
+        version: 5.0.9(@types/react@19.2.5)(react@19.2.0)(use-sync-external-store@1.6.0(react@19.2.0))
+    devDependencies:
+      '@playwright/test':
+        specifier: ^1.57.0
+        version: 1.57.0
+      '@tailwindcss/typography':
+        specifier: ^0.5.15
+        version: 0.5.19(tailwindcss@3.4.18(tsx@4.20.6)(yaml@2.8.2))
+      '@testing-library/jest-dom':
+        specifier: ^6.9.1
+        version: 6.9.1
+      '@testing-library/react':
+        specifier: ^16.3.0
+        version: 16.3.0(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.5))(@types/react@19.2.5)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@types/node':
+        specifier: ^24.10.1
+        version: 24.10.1
+      '@types/react':
+        specifier: ^19.2.5
+        version: 19.2.5
+      '@types/react-dom':
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.5)
+      '@vitejs/plugin-react':
+        specifier: ^5.1.2
+        version: 5.1.2(vite@7.2.2(@types/node@24.10.1)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.2))
+      '@vitest/coverage-v8':
+        specifier: ^4.0.16
+        version: 4.0.18(vitest@4.0.18(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(jiti@2.6.1)(jsdom@27.3.0(postcss@8.5.6))(tsx@4.20.6)(yaml@2.8.2))
+      autoprefixer:
+        specifier: ^10.4.20
+        version: 10.4.22(postcss@8.5.6)
+      jsdom:
+        specifier: ^27.3.0
+        version: 27.3.0(postcss@8.5.6)
+      postcss:
+        specifier: ^8.4.47
+        version: 8.5.6
+      tailwindcss:
+        specifier: ^3.4.14
+        version: 3.4.18(tsx@4.20.6)(yaml@2.8.2)
+      vite:
+        specifier: ^7.2.2
+        version: 7.2.2(@types/node@24.10.1)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.2)
+      vitest:
+        specifier: ^4.0.16
         version: 4.0.18(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(jiti@2.6.1)(jsdom@27.3.0(postcss@8.5.6))(tsx@4.20.6)(yaml@2.8.2)
 
   packages/actors:
@@ -563,112 +669,6 @@ importers:
       vitest:
         specifier: ^4.0.16
         version: 4.0.16(@opentelemetry/api@1.9.0)(@types/node@22.19.3)(jiti@2.6.1)(jsdom@27.3.0(postcss@8.5.6))(tsx@4.20.6)(yaml@2.8.2)
-
-  packages/web:
-    dependencies:
-      '@mdx-js/rollup':
-        specifier: ^3.1.1
-        version: 3.1.1(rollup@4.53.2)
-      '@minimal-rpg/db':
-        specifier: workspace:*
-        version: link:../db
-      '@minimal-rpg/generator':
-        specifier: workspace:*
-        version: link:../generator
-      '@minimal-rpg/schemas':
-        specifier: workspace:*
-        version: link:../schemas
-      '@minimal-rpg/ui':
-        specifier: workspace:*
-        version: link:../ui
-      '@minimal-rpg/utils':
-        specifier: workspace:*
-        version: link:../utils
-      '@preact/signals-react':
-        specifier: ^3.6.1
-        version: 3.6.1(react@19.2.0)
-      '@supabase/supabase-js':
-        specifier: ^2.57.4
-        version: 2.89.0
-      '@xyflow/react':
-        specifier: ^12.10.0
-        version: 12.10.0(@types/react@19.2.5)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
-      lucide-react:
-        specifier: ^0.561.0
-        version: 0.561.0(react@19.2.0)
-      react:
-        specifier: ^19.2.0
-        version: 19.2.0
-      react-dom:
-        specifier: ^19.2.0
-        version: 19.2.0(react@19.2.0)
-      react-markdown:
-        specifier: ^10.1.0
-        version: 10.1.0(@types/react@19.2.5)(react@19.2.0)
-      rehype-autolink-headings:
-        specifier: ^7.1.0
-        version: 7.1.0
-      rehype-highlight:
-        specifier: ^7.0.2
-        version: 7.0.2
-      rehype-slug:
-        specifier: ^6.0.0
-        version: 6.0.0
-      remark-frontmatter:
-        specifier: ^5.0.0
-        version: 5.0.0
-      remark-gfm:
-        specifier: ^4.0.1
-        version: 4.0.1
-      zustand:
-        specifier: ^5.0.9
-        version: 5.0.9(@types/react@19.2.5)(react@19.2.0)(use-sync-external-store@1.6.0(react@19.2.0))
-    devDependencies:
-      '@playwright/test':
-        specifier: ^1.57.0
-        version: 1.57.0
-      '@tailwindcss/typography':
-        specifier: ^0.5.15
-        version: 0.5.19(tailwindcss@3.4.18(tsx@4.20.6)(yaml@2.8.2))
-      '@testing-library/jest-dom':
-        specifier: ^6.9.1
-        version: 6.9.1
-      '@testing-library/react':
-        specifier: ^16.3.0
-        version: 16.3.0(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.5))(@types/react@19.2.5)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
-      '@types/node':
-        specifier: ^24.10.1
-        version: 24.10.1
-      '@types/react':
-        specifier: ^19.2.5
-        version: 19.2.5
-      '@types/react-dom':
-        specifier: ^19.2.3
-        version: 19.2.3(@types/react@19.2.5)
-      '@vitejs/plugin-react':
-        specifier: ^5.1.2
-        version: 5.1.2(vite@7.2.2(@types/node@24.10.1)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.2))
-      '@vitest/coverage-v8':
-        specifier: ^4.0.16
-        version: 4.0.16(vitest@4.0.16(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(jiti@2.6.1)(jsdom@27.3.0(postcss@8.5.6))(tsx@4.20.6)(yaml@2.8.2))
-      autoprefixer:
-        specifier: ^10.4.20
-        version: 10.4.22(postcss@8.5.6)
-      jsdom:
-        specifier: ^27.3.0
-        version: 27.3.0(postcss@8.5.6)
-      postcss:
-        specifier: ^8.4.47
-        version: 8.5.6
-      tailwindcss:
-        specifier: ^3.4.14
-        version: 3.4.18(tsx@4.20.6)(yaml@2.8.2)
-      vite:
-        specifier: ^7.2.2
-        version: 7.2.2(@types/node@24.10.1)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.2)
-      vitest:
-        specifier: ^4.0.16
-        version: 4.0.16(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(jiti@2.6.1)(jsdom@27.3.0(postcss@8.5.6))(tsx@4.20.6)(yaml@2.8.2)
 
   packages/workers:
     dependencies:
@@ -2832,11 +2832,6 @@ packages:
   https-proxy-agent@7.0.6:
     resolution: {integrity: sha512-vK9P5/iUfdl95AI+JVyUuIcVtd4ofvtrOr3HNtM2yxC9bnMbEdp3x01OhQNnjb8IJYi38VlTE3mBXwcfvywuSw==}
     engines: {node: '>= 14'}
-
-  husky@9.1.7:
-    resolution: {integrity: sha512-5gs5ytaNjBrh5Ow3zrvdUUY+0VxIuWVL4i9irt6friV+BqdCfmV11CQTWMiBYWHbXhco+J1kHfTOUkePhCDvMA==}
-    engines: {node: '>=18'}
-    hasBin: true
 
   iceberg-js@0.8.1:
     resolution: {integrity: sha512-1dhVQZXhcHje7798IVM+xoo/1ZdVfzOMIc8/rgVSijRK38EDqOJoGula9N/8ZI5RD8QTxNQtK/Gozpr+qUqRRA==}
@@ -6816,8 +6811,6 @@ snapshots:
       debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
-
-  husky@9.1.7: {}
 
   iceberg-js@0.8.1: {}
 
