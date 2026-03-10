@@ -16,7 +16,7 @@ In-app MDX-based documentation with contextual help components.
 ### Files Structure
 
 ```tree
-packages/web/src/
+apps/web/src/
   docs/                         # MDX documentation files
     index.mdx                   # Landing page
     quick-start.mdx
@@ -39,7 +39,7 @@ packages/web/src/
 
 ### Adding New Documentation
 
-1. Create a new `.mdx` file in `packages/web/src/docs/`
+1. Create a new `.mdx` file in `apps/web/src/docs/`
 2. Add the page to the navigation structure in `DocNavigation.tsx`
 3. Link to it using `#/docs/your-page-name`
 
@@ -89,7 +89,7 @@ import { HelpIcon, HelpPopover } from '@minimal-rpg/ui';
 
 ### Navigation Structure
 
-Edit `packages/web/src/features/docs/components/DocNavigation.tsx`:
+Edit `apps/web/src/features/docs/components/DocNavigation.tsx`:
 
 ```ts
 const NAV_STRUCTURE: NavSection[] = [

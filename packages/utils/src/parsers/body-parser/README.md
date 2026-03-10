@@ -123,13 +123,13 @@ Barrel export re-exporting all public functions from keywords, parsers, and form
 
 ### Direct Consumers
 
-#### packages/web/src/features/character-builder/CharacterBuilder.tsx
+#### apps/web/src/features/character-builder/CharacterBuilder.tsx
 
 - Imports `parseBodyEntries` from `@minimal-rpg/utils`
 - Parses raw body text input from character builder form
 - Converts natural language into `BodyMap` for CharacterProfile
 
-#### packages/web/src/features/character-builder/hooks/useCharacterBuilderForm.ts
+#### apps/web/src/features/character-builder/hooks/useCharacterBuilderForm.ts
 
 - Imports `formatScent`, `formatTexture`, `formatVisual`, `formatFlavor` from `@minimal-rpg/utils`
 - Converts structured `BodyMap` data back to editable text entries in form state
@@ -148,7 +148,7 @@ Barrel export re-exporting all public functions from keywords, parsers, and form
 
 - Notes that bodyParser was moved from schemas to utils to maintain package purity (schemas should only contain data structures, not parsing logic)
 
-#### packages/web/src/features/character-builder/README.md
+#### apps/web/src/features/character-builder/README.md
 
 - References `parseBodyEntries` in dependency table (though references outdated `@minimal-rpg/schemas` import)
 
@@ -270,8 +270,8 @@ Potential areas for expansion:
 
 **Completed migrations:**
 
-- packages/web/src/features/character-builder/CharacterBuilder.tsx ✓
-- packages/web/src/features/character-builder/hooks/useCharacterBuilderForm.ts ✓
+- apps/web/src/features/character-builder/CharacterBuilder.tsx ✓
+- apps/web/src/features/character-builder/hooks/useCharacterBuilderForm.ts ✓
 
 ## Architecture Context
 
@@ -279,7 +279,7 @@ This module is part of the **character creation and representation system**. Rel
 
 - **packages/schemas/src/character/body.ts**: Defines `BodyMap`, `BodyRegion`, sensory data schemas
 - **packages/schemas/src/character/appearance.ts**: Defines `Physique` schema for height/build/age
-- **packages/web/src/features/character-builder**: UI for character creation using bodyParser
+- **@minimal-rpg/web character builder feature**: UI for character creation using bodyParser
 - **packages/agents/src/sensory**: Future agent using `containsSensoryKeyword` for command detection
 
 See [dev-docs/19-body-map-and-sensory-system.md](../../../../dev-docs/19-body-map-and-sensory-system.md) for broader architectural context.

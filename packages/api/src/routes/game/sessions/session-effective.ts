@@ -11,6 +11,7 @@ import { notFound, serverError } from '../../../utils/responses.js';
 import { findCharacter, findSetting } from './shared.js';
 import { getOwnerEmail } from '../../../auth/ownerEmail.js';
 import { toSessionId } from '../../../utils/uuid.js';
+import { validateParamId } from '../../../utils/request-validation.js';
 
 interface SessionRecord {
   id: string;
@@ -25,7 +26,9 @@ export async function handleGetEffective(
   const loaded = getLoaded();
   if (!loaded) return serverError(c, 'data not loaded');
 
-  const id = c.req.param('id');
+  const idResult = validateParamId(c, 'id');
+  if (!idResult.success) return idResult.errorResponse;
+  const id = idResult.data;
   const ownerEmail = getOwnerEmail(c);
   // getSession(id, ownerEmail) from @minimal-rpg/db/node
   const session = (await getSession(toSessionId(id), ownerEmail)) as SessionRecord | null;

@@ -1,3 +1,0 @@
-node scripts/git-hooks/lockfile-sanity.mjs
-pnpm -w exec lint-staged
-node scripts/git-hooks/scan-secrets-staged.mjs

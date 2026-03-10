@@ -18,7 +18,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@hono/node-server": "^1.19.6",
+    "@hono/node-server": "^1.19.10",
     "@minimal-rpg/actors": "workspace:*",
     "@minimal-rpg/bus": "workspace:*",
     "@minimal-rpg/characters": "workspace:*",
@@ -32,7 +32,7 @@
     "dotenv": "^17.2.3",
     "drizzle-orm": "^0.45.1",
     "effect": "3.10.13",
-    "hono": "^4.11.4",
+    "hono": "^4.12.4",
     "jose": "^6.1.0"
   },
   "devDependencies": {

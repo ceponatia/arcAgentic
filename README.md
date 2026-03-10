@@ -1,8 +1,8 @@
-# Minimal RPG (ArcAgentic)
+# ArcAgentic
 
 A monorepo for a roleplaying chat app with a Hono API server, a React/Vite web UI, and supporting packages for schemas, persistence, LLM providers, and game services.
 
-This README focuses on what is true in this repository today (scripts, ports, and where to look for implementation details). For deeper design/roadmap docs, see the files under `dev-docs/`.
+This README focuses on what is true in this repository today (scripts, ports, and where to look for implementation details).
 
 ## 1. Quick start (Docker)
 
@@ -158,7 +158,7 @@ pnpm db:migrate
 
 ## 6. Packages
 
-Packages live under `packages/`:
+Most shared workspaces live under `packages/`. The web app workspace lives under `apps/web` while keeping the package name `@minimal-rpg/web`:
 
 - `@minimal-rpg/api`: Hono HTTP server (routes, auth, validation)
 - `@minimal-rpg/web`: React + Vite SPA
@@ -226,5 +226,5 @@ REDIS_URL=redis://localhost:6379
 
 ## 10. Documentation
 
-- In-app docs are authored as MDX under `packages/web/src/docs/` and are reachable in the UI at `#/docs`.
+- In-app docs are authored as MDX under `apps/web/src/docs/` and are reachable in the UI at `#/docs`.
 - Developer notes and plans live under `dev-docs/`.

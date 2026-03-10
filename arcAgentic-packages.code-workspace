@@ -59,7 +59,7 @@
     },
     {
       "name": "@minimal-rpg/web",
-      "path": "packages/web"
+      "path": "apps/web"
     },
     {
       "name": "@minimal-rpg/workers",

@@ -42,7 +42,7 @@ module.exports = {
         path: '^packages/(db|bus|llm)/',
       },
       to: {
-        path: '^packages/(generator|retrieval|projections|characters|services|actors|ui|api|web|workers)/',
+        path: '^(packages/(generator|retrieval|projections|characters|services|actors|ui|api|workers)/|apps/web/)',
         pathNot: 'node_modules',
       },
     },
@@ -54,7 +54,7 @@ module.exports = {
         path: '^packages/(generator|retrieval|projections|characters)/',
       },
       to: {
-        path: '^packages/(services|actors|ui|api|web|workers)/',
+        path: '^(packages/(services|actors|ui|api|workers)/|apps/web/)',
         pathNot: 'node_modules',
       },
     },
@@ -66,7 +66,7 @@ module.exports = {
         path: '^packages/services/',
       },
       to: {
-        path: '^packages/(actors|ui|api|web|workers)/',
+        path: '^(packages/(actors|ui|api|workers)/|apps/web/)',
         pathNot: 'node_modules',
       },
     },
@@ -78,7 +78,7 @@ module.exports = {
         path: '^packages/(actors|ui)/',
       },
       to: {
-        path: '^packages/(api|web|workers)/',
+        path: '^(packages/(api|workers)/|apps/web/)',
         pathNot: 'node_modules',
       },
     },
@@ -198,7 +198,7 @@ module.exports = {
         path: '^packages/api/',
       },
       to: {
-        path: '^packages/(web|workers)/',
+        path: '^(packages/workers/|apps/web/)',
         pathNot: 'node_modules',
       },
     },
@@ -207,7 +207,7 @@ module.exports = {
       severity: 'error',
       comment: 'web must not depend on same-layer packages',
       from: {
-        path: '^packages/web/',
+        path: '^apps/web/',
       },
       to: {
         path: '^packages/(api|workers)/',
@@ -222,7 +222,7 @@ module.exports = {
         path: '^packages/workers/',
       },
       to: {
-        path: '^packages/(api|web)/',
+        path: '^(packages/api/|apps/web/)',
         pathNot: 'node_modules',
       },
     },
@@ -244,9 +244,10 @@ module.exports = {
     },
     reporterOptions: {
       dot: {
-        /* Collapse every file under packages/<name> into one node per package */
+        /* Collapse every file under each workspace root into one node per workspace */
         collapsePattern: [
           'packages/[^/]+',
+          'apps/[^/]+',
           'node_modules/(@[^/]+/[^/]+|[^/]+)',
         ],
         theme: {
@@ -275,7 +276,7 @@ module.exports = {
             penwidth: '1.5',
           },
           modules: [
-            /* Collapsed nodes use paths like 'packages/schemas' (no trailing slash) */
+            /* Collapsed nodes use paths like 'packages/schemas' or 'apps/web' (no trailing slash) */
             {
               criteria: { source: 'packages/schemas$' },
               attributes: { fillcolor: '#d4edda', shape: 'octagon', color: '#28a745', fontcolor: '#155724' },
@@ -301,7 +302,7 @@ module.exports = {
               attributes: { fillcolor: '#d1ecf1', shape: 'house', color: '#17a2b8', fontcolor: '#0c5460' },
             },
             {
-              criteria: { source: 'packages/(api|web|workers)$' },
+              criteria: { source: '(packages/(api|workers)|apps/web)$' },
               attributes: { fillcolor: '#d6d8db', shape: 'doubleoctagon', color: '#6c757d', fontcolor: '#1b1e21' },
             },
           ],

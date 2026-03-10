@@ -18,6 +18,6 @@ export default [
   'packages/services/vitest.config.ts',
   'packages/ui/vitest.config.ts',
   'packages/utils/vitest.config.ts',
-  'packages/web/vitest.config.ts',
+  'apps/web/vitest.config.ts',
   'packages/workers/vitest.config.ts',
 ];

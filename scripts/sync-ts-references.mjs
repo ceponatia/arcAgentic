@@ -3,7 +3,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const ROOT = process.cwd();
-const PACKAGES_DIR = path.join(ROOT, 'packages');
+const WORKSPACE_ROOTS = [
+  { rootName: 'packages', absolutePath: path.join(ROOT, 'packages') },
+  { rootName: 'apps', absolutePath: path.join(ROOT, 'apps') },
+];
 
 function readJson(filePath) {
   const txt = fs.readFileSync(filePath, 'utf8');
@@ -29,6 +32,10 @@ function isWorkspaceDepVersion(version) {
   return typeof version === 'string' && version.startsWith('workspace:');
 }
 
+function toPosixPath(value) {
+  return value.split(path.sep).join('/');
+}
+
 function getWorkspaceDeps(pkgJson) {
   const deps = {
     ...(pkgJson.dependencies ?? {}),
@@ -42,24 +49,45 @@ function getWorkspaceDeps(pkgJson) {
     .map(([name]) => name);
 }
 
-function loadPackagesMap() {
-  // Map package name -> directory (packages/<dir>)
-  const map = new Map();
+function listWorkspaceEntries() {
+  const entries = [];
 
-  if (!exists(PACKAGES_DIR)) {
-    throw new Error(`Expected packages/ directory at: ${PACKAGES_DIR}`);
+  for (const workspaceRoot of WORKSPACE_ROOTS) {
+    if (!exists(workspaceRoot.absolutePath)) continue;
+
+    const dirs = fs
+      .readdirSync(workspaceRoot.absolutePath, { withFileTypes: true })
+      .filter((dirent) => dirent.isDirectory())
+      .map((dirent) => dirent.name);
+
+    for (const dir of dirs) {
+      const absoluteDir = path.join(workspaceRoot.absolutePath, dir);
+      const packageJsonPath = path.join(absoluteDir, 'package.json');
+      const tsconfigPath = path.join(absoluteDir, 'tsconfig.json');
+
+      if (!exists(packageJsonPath)) continue;
+
+      entries.push({
+        dir,
+        rootName: workspaceRoot.rootName,
+        relativeDir: `${workspaceRoot.rootName}/${dir}`,
+        absoluteDir,
+        packageJsonPath,
+        tsconfigPath,
+      });
+    }
   }
 
-  const dirs = fs
-    .readdirSync(PACKAGES_DIR, { withFileTypes: true })
-    .filter((d) => d.isDirectory())
-    .map((d) => d.name);
+  return entries;
+}
 
-  for (const dir of dirs) {
-    const pkgPath = path.join(PACKAGES_DIR, dir, 'package.json');
-    if (!exists(pkgPath)) continue;
-    const pkg = readJson(pkgPath);
-    if (pkg?.name) map.set(pkg.name, dir);
+function loadPackagesMap() {
+  // Map package name -> workspace entry
+  const map = new Map();
+
+  for (const entry of listWorkspaceEntries()) {
+    const pkg = readJson(entry.packageJsonPath);
+    if (pkg?.name) map.set(pkg.name, entry);
   }
 
   return map;
@@ -73,53 +101,44 @@ function normalizeReferences(tsconfig, refs) {
 
 function main() {
   const nameToDir = loadPackagesMap();
-
-  const packageDirs = fs
-    .readdirSync(PACKAGES_DIR, { withFileTypes: true })
-    .filter((d) => d.isDirectory())
-    .map((d) => d.name);
+  const workspaceEntries = Array.from(nameToDir.values());
 
   let changedCount = 0;
   const warnings = [];
 
-  for (const dir of packageDirs) {
-    const pkgJsonPath = path.join(PACKAGES_DIR, dir, 'package.json');
-    const tsconfigPath = path.join(PACKAGES_DIR, dir, 'tsconfig.json');
+  for (const entry of workspaceEntries) {
+    if (!exists(entry.tsconfigPath)) continue;
 
-    if (!exists(pkgJsonPath) || !exists(tsconfigPath)) continue;
-
-    const pkgJson = readJson(pkgJsonPath);
-    const tsconfig = readJson(tsconfigPath);
+    const pkgJson = readJson(entry.packageJsonPath);
+    const tsconfig = readJson(entry.tsconfigPath);
 
     // Only touch composite projects (your intended target set)
     if (!tsconfig?.compilerOptions?.composite) continue;
 
     const wsDepNames = getWorkspaceDeps(pkgJson);
 
-    const refDirs = wsDepNames
+    const refs = wsDepNames
       .map((depName) => {
-        const depDir = nameToDir.get(depName);
-        if (!depDir) {
+        const depEntry = nameToDir.get(depName);
+        if (!depEntry) {
           warnings.push(
-            `[WARN] ${pkgJson.name}: dependency ${depName} is workspace:* but no packages/<dir>/package.json named ${depName} was found`
+            `[WARN] ${pkgJson.name}: dependency ${depName} is workspace:* but no workspace package.json named ${depName} was found`
           );
           return null;
         }
-        return depDir;
+        return toPosixPath(path.relative(entry.absoluteDir, depEntry.absoluteDir));
       })
-      .filter(Boolean);
-
-    // Convert to tsconfig references: "../<depDir>"
-    const refs = refDirs.map((depDir) => `../${depDir}`).sort((a, b) => a.localeCompare(b));
+      .filter(Boolean)
+      .sort((a, b) => a.localeCompare(b));
 
     const before = JSON.stringify(tsconfig.references ?? []);
     normalizeReferences(tsconfig, refs);
     const after = JSON.stringify(tsconfig.references);
 
     if (before !== after) {
-      writeJsonPretty(tsconfigPath, tsconfig);
+      writeJsonPretty(entry.tsconfigPath, tsconfig);
       changedCount++;
-      console.log(`[UPDATED] packages/${dir}/tsconfig.json references (${refs.length})`);
+      console.log(`[UPDATED] ${entry.relativeDir}/tsconfig.json references (${refs.length})`);
     }
   }
 

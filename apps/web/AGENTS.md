@@ -33,7 +33,7 @@ This app uses hash routing and a long-lived controller (`useAppController`) whic
 
 To keep all views consistent (data is fresh when you enter a view), prefer the shared hook `useRefreshOnViewEnter` in the controller instead of adding per-view inline `useEffect` refresh logic.
 
-- Hook: `packages/web/src/shared/hooks/useRefreshOnViewEnter.ts`
-- Usage: `packages/web/src/layouts/hooks/useAppController.ts`
+- Hook: `apps/web/src/shared/hooks/useRefreshOnViewEnter.ts`
+- Usage: `apps/web/src/layouts/hooks/useAppController.ts`
 
 This package is the frontend entry point. All backend communication goes through the API package.

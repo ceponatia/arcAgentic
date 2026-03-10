@@ -19,7 +19,7 @@ COPY packages/schemas/package.json packages/schemas/package.json
 COPY packages/services/package.json packages/services/package.json
 COPY packages/ui/package.json packages/ui/package.json
 COPY packages/utils/package.json packages/utils/package.json
-COPY packages/web/package.json packages/web/package.json
+COPY apps/web/package.json apps/web/package.json
 COPY packages/workers/package.json packages/workers/package.json
 
 RUN corepack enable && CI=true pnpm -r install --frozen-lockfile

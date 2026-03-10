@@ -36,8 +36,8 @@ export default defineConfig(() => {
     ],
     resolve: {
       alias: {
-        '@minimal-rpg/schemas': path.resolve(__dirname, '../schemas/src'),
-        '@minimal-rpg/utils': path.resolve(__dirname, '../utils/src'),
+        '@minimal-rpg/schemas': path.resolve(__dirname, '../../packages/schemas/src'),
+        '@minimal-rpg/utils': path.resolve(__dirname, '../../packages/utils/src'),
       },
     },
     server: {

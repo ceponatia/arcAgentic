@@ -18,9 +18,9 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@minimal-rpg/schemas': resolveFromRoot('../schemas/src'),
-      '@minimal-rpg/ui': resolveFromRoot('../ui/src'),
-      '@minimal-rpg/utils': resolveFromRoot('../utils/src'),
+      '@minimal-rpg/schemas': resolveFromRoot('../../packages/schemas/src'),
+      '@minimal-rpg/ui': resolveFromRoot('../../packages/ui/src'),
+      '@minimal-rpg/utils': resolveFromRoot('../../packages/utils/src'),
     },
   },
 });

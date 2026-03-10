@@ -17,7 +17,10 @@ import path from 'node:path';
 import { execSync } from 'node:child_process';
 
 const ROOT = process.cwd();
-const PACKAGES_DIR = path.join(ROOT, 'packages');
+const WORKSPACE_ROOTS = [
+  { rootName: 'packages', absolutePath: path.join(ROOT, 'packages') },
+  { rootName: 'apps', absolutePath: path.join(ROOT, 'apps') },
+];
 
 // ---------------------------------------------------------------------------
 // Architecture layers - order matters (bottom = foundation, top = entry points)
@@ -140,33 +143,53 @@ function exists(p) {
 }
 
 /**
- * Returns the short directory name for a package, or null if unknown.
- * @param {string} fullName - e.g. "@minimal-rpg/schemas"
- * @param {Map<string, string>} nameToDir
- * @returns {string | null}
+ * Lists workspace entries from supported workspace roots.
+ * @returns {Array<{ dir: string; relativeDir: string; packageJsonPath: string }>}
  */
-function dirFromName(fullName, nameToDir) {
-  return nameToDir.get(fullName) ?? null;
+function listWorkspaceEntries() {
+  const entries = [];
+
+  for (const workspaceRoot of WORKSPACE_ROOTS) {
+    if (!exists(workspaceRoot.absolutePath)) continue;
+
+    const dirs = fs
+      .readdirSync(workspaceRoot.absolutePath, { withFileTypes: true })
+      .filter((dirent) => dirent.isDirectory())
+      .map((dirent) => dirent.name);
+
+    for (const dir of dirs) {
+      const relativeDir = path.posix.join(workspaceRoot.rootName, dir);
+      const packageJsonPath = path.join(workspaceRoot.absolutePath, dir, 'package.json');
+      if (!exists(packageJsonPath)) continue;
+
+      entries.push({ dir, relativeDir, packageJsonPath });
+    }
+  }
+
+  return entries;
 }
 
 /**
- * Loads a map of package name -> directory name for all workspace packages.
- * @returns {Map<string, string>}
+ * Returns the workspace entry for a package, or null if unknown.
+ * @param {string} fullName - e.g. "@minimal-rpg/schemas"
+ * @param {Map<string, { dir: string; relativeDir: string; packageJsonPath: string }>} nameToEntry
+ * @returns {{ dir: string; relativeDir: string; packageJsonPath: string } | null}
+ */
+function entryFromName(fullName, nameToEntry) {
+  return nameToEntry.get(fullName) ?? null;
+}
+
+/**
+ * Loads a map of package name -> workspace entry for all workspace packages.
+ * @returns {Map<string, { dir: string; relativeDir: string; packageJsonPath: string }>}
  */
 function loadPackagesMap() {
   const map = new Map();
-  if (!exists(PACKAGES_DIR)) return map;
-
-  const dirs = fs
-    .readdirSync(PACKAGES_DIR, { withFileTypes: true })
-    .filter((d) => d.isDirectory())
-    .map((d) => d.name);
-
-  for (const dir of dirs) {
-    const pkgPath = path.join(PACKAGES_DIR, dir, 'package.json');
-    if (!exists(pkgPath)) continue;
-    const pkg = readJson(pkgPath);
-    if (pkg?.name) map.set(/** @type {string} */(pkg.name), dir);
+  for (const entry of listWorkspaceEntries()) {
+    const pkg = readJson(entry.packageJsonPath);
+    if (pkg?.name) {
+      map.set(/** @type {string} */(pkg.name), entry);
+    }
   }
   return map;
 }
@@ -189,21 +212,20 @@ function getWorkspaceDeps(pkgJson) {
 
 /**
  * Builds the full dependency graph as { dirName -> [depDirName, ...] }.
- * @param {Map<string, string>} nameToDir
+ * @param {Map<string, { dir: string; relativeDir: string; packageJsonPath: string }>} nameToEntry
  * @returns {Map<string, string[]>}
  */
-function buildGraph(nameToDir) {
+function buildGraph(nameToEntry) {
   /** @type {Map<string, string[]>} */
   const graph = new Map();
 
-  for (const [name, dir] of nameToDir.entries()) {
-    const pkgPath = path.join(PACKAGES_DIR, dir, 'package.json');
-    const pkg = readJson(pkgPath);
+  for (const entry of nameToEntry.values()) {
+    const pkg = readJson(entry.packageJsonPath);
     const wsDeps = getWorkspaceDeps(pkg);
     const depDirs = wsDeps
-      .map((depName) => dirFromName(depName, nameToDir))
+      .map((depName) => entryFromName(depName, nameToEntry)?.dir ?? null)
       .filter(/** @returns {d is string} */(d) => d !== null);
-    graph.set(dir, depDirs);
+    graph.set(entry.dir, depDirs);
   }
   return graph;
 }

@@ -5,6 +5,22 @@ import { getVersion } from '../../utils/version.js';
 
 // Registers /hello, /config, /health routes on the provided app
 export function registerConfigRoutes(app: Hono) {
+  app.get('/', (c) => {
+    return c.json(
+      {
+        ok: true,
+        service: 'api',
+        message: 'ArcAgentic API server is running',
+        endpoints: {
+          health: '/health',
+          config: '/config',
+          hello: '/hello',
+        },
+      },
+      200
+    );
+  });
+
   // Simple sanity check endpoint
   app.get('/hello', (c) => {
     const body: HelloResponse = { ok: true, message: 'hello' };
