@@ -19,5 +19,13 @@
     "noFallthroughCasesInSwitch": true,
     "incremental": true,
     "tsBuildInfoFile": "./node_modules/.cache/tsbuildinfo"
-  }
+  },
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    "coverage",
+    "temp",
+    "tmp"
+  ],
 }
