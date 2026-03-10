@@ -1,0 +1,100 @@
+{
+  "folders": [
+    {
+      "name": "repo",
+      "path": ".",
+      "root": true
+    },
+    {
+      "name": "@minimal-rpg/actors",
+      "path": "packages/actors"
+    },
+    {
+      "name": "@minimal-rpg/api",
+      "path": "packages/api"
+    },
+    {
+      "name": "@minimal-rpg/bus",
+      "path": "packages/bus"
+    },
+    {
+      "name": "@minimal-rpg/characters",
+      "path": "packages/characters"
+    },
+    {
+      "name": "@minimal-rpg/db",
+      "path": "packages/db"
+    },
+    {
+      "name": "@minimal-rpg/generator",
+      "path": "packages/generator"
+    },
+    {
+      "name": "@minimal-rpg/llm",
+      "path": "packages/llm"
+    },
+    {
+      "name": "@minimal-rpg/projections",
+      "path": "packages/projections"
+    },
+    {
+      "name": "@minimal-rpg/retrieval",
+      "path": "packages/retrieval"
+    },
+    {
+      "name": "@minimal-rpg/schemas",
+      "path": "packages/schemas"
+    },
+    {
+      "name": "@minimal-rpg/services",
+      "path": "packages/services"
+    },
+    {
+      "name": "@minimal-rpg/ui",
+      "path": "packages/ui"
+    },
+    {
+      "name": "@minimal-rpg/utils",
+      "path": "packages/utils"
+    },
+    {
+      "name": "@minimal-rpg/web",
+      "path": "packages/web"
+    },
+    {
+      "name": "@minimal-rpg/workers",
+      "path": "packages/workers"
+    },
+    {
+      "name": "Developer Documentation",
+      "path": "../dev-docs/arcAgentic",
+      "root": false
+    }
+  ],
+  "settings": {
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "explicit"
+    },
+    "editor.folding": false,
+    "editor.foldingStrategy": "indentation",
+    "[javascript]": {
+      "editor.defaultFormatter": "vscode.typescript-language-features"
+    },
+    "[typescript]": {
+      "editor.defaultFormatter": "vscode.typescript-language-features"
+    },
+    "[json]": {
+      "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false,
+    "editor.trimAutoWhitespace": true,
+    "editor.renderWhitespace": "selection",
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": true,
+    "vitest.maximumConfigs": 20
+  }
+}
