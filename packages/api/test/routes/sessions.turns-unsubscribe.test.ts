@@ -7,7 +7,7 @@ const busMocks = vi.hoisted(() => ({
   emit: vi.fn(),
 }));
 
-vi.mock('@minimal-rpg/bus', () => ({
+vi.mock('/bus', () => ({
   worldBus: {
     subscribe: busMocks.subscribe,
     unsubscribe: busMocks.unsubscribe,
@@ -27,18 +27,18 @@ const dbNodeMocks = vi.hoisted(() => ({
   listActorStatesForSession: vi.fn(),
 }));
 
-vi.mock('@minimal-rpg/db/node', () => ({
+vi.mock('/db/node', () => ({
   listActorStatesForSession: dbNodeMocks.listActorStatesForSession,
 }));
 
-vi.mock('@minimal-rpg/actors', () => ({
+vi.mock('/actors', () => ({
   actorRegistry: {
     has: vi.fn(() => false),
     spawn: vi.fn(),
   },
 }));
 
-vi.mock('@minimal-rpg/services', () => ({
+vi.mock('/services', () => ({
   dialogueService: { start: vi.fn() },
   physicsService: { start: vi.fn() },
   timeService: { start: vi.fn() },

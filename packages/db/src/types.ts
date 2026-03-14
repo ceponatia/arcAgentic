@@ -5,10 +5,10 @@ import type {
   ConversationMessageRole,
   MessageSpeaker,
   DbTableOverview,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
 
 export type { MessageSpeaker };
-export type { DbColumn, DbTableOverview } from '@minimal-rpg/schemas';
+export type { DbColumn, DbTableOverview } from '@arcagentic/schemas';
 
 export interface PgPoolLike {
   query: (sql: string, params?: unknown[]) => Promise<unknown>;

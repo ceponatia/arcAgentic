@@ -1,4 +1,4 @@
-import { WireWorldEventSchema, type WorldEvent } from '@minimal-rpg/schemas';
+import { WireWorldEventSchema, type WorldEvent } from '/schemas';
 import { pubRedis, subRedis } from '../core/redis-client.js';
 
 export type EventHandler = (event: WorldEvent) => void | Promise<void>;

@@ -11,7 +11,7 @@ import {
   eq,
   and,
   getEventsForSession,
-} from '@minimal-rpg/db/node';
+} from '/db/node';
 import { notFound } from '../../../utils/responses.js';
 import { MessageRequestSchema } from './shared.js';
 import { getOwnerEmail } from '../../../auth/ownerEmail.js';

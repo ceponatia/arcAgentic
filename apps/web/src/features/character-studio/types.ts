@@ -17,7 +17,7 @@ export type {
   FormFieldErrors,
   UpdateFieldFn,
   FormSensoryType,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
 
 export {
   MODE_CONFIGS,
@@ -34,4 +34,4 @@ export {
   createStressBehaviorEntry,
   createPersonalityFormState,
   createInitialState,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';

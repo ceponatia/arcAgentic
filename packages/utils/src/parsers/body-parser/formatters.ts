@@ -9,8 +9,8 @@ import type {
   RegionTexture,
   RegionVisual,
   RegionFlavor,
-} from '@minimal-rpg/schemas';
-import { BODY_REGIONS, getRecordOptional } from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
+import { BODY_REGIONS, getRecordOptional } from '@arcagentic/schemas';
 
 /**
  * Format a RegionScent back to human-readable text.

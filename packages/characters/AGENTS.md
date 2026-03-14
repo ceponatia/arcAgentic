@@ -1,4 +1,4 @@
-# @minimal-rpg/characters
+# @arcagentic/characters
 
 ## Purpose
 

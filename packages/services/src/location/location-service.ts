@@ -7,7 +7,7 @@
  * @see dev-docs/schemas/05-locations-schema.md
  * @see packages/schemas/src/location/locationMap.ts
  */
-import type { LocationMap, LocationNode, LocationConnection } from '@minimal-rpg/schemas';
+import type { LocationMap, LocationNode, LocationConnection } from '@arcagentic/schemas';
 
 // =============================================================================
 // Types

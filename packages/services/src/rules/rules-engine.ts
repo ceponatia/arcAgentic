@@ -1,12 +1,12 @@
-import { worldBus } from '@minimal-rpg/bus';
-import { type WorldEvent } from '@minimal-rpg/schemas';
+import { worldBus } from '@arcagentic/bus';
+import { type WorldEvent } from '@arcagentic/schemas';
 import { Validators, type ValidationContext } from './validators.js';
 import {
   getActorState,
   getActorsAtLocation,
   getInventoryItems,
   getSessionGameTime,
-} from '@minimal-rpg/db';
+} from '@arcagentic/db';
 
 /**
  * Rules Engine Service

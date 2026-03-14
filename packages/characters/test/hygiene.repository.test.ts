@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import type { BodyPartHygieneState } from '@minimal-rpg/schemas';
+import type { BodyPartHygieneState } from '@arcagentic/schemas';
 import { ActorStateHygieneRepository } from '../src/hygiene/actorStateRepository.js';
 
 function buildStore(state?: {

@@ -13,7 +13,7 @@ const messageMocks = vi.hoisted(() => ({
 
 const eventsTable = { sessionId: 'sessionId', sequence: 'sequence', type: 'type' };
 
-vi.mock('@minimal-rpg/db/node', () => ({
+vi.mock('/db/node', () => ({
   getSession: messageMocks.getSessionMock,
   drizzle: {
     select: messageMocks.selectMock,

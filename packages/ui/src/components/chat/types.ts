@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react';
-import type { Speaker } from '@minimal-rpg/schemas';
+import type { Speaker } from '@arcagentic/schemas';
 
 /**
  * Speaker metadata for assistant messages.
- * Re-exported from @minimal-rpg/schemas for backward compatibility.
+ * Re-exported from @arcagentic/schemas for backward compatibility.
  */
 export type ChatViewSpeaker = Speaker;
 

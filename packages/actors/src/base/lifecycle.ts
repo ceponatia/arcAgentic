@@ -1,5 +1,5 @@
-import type { WorldEvent } from '@minimal-rpg/schemas';
-import { worldBus } from '@minimal-rpg/bus';
+import type { WorldEvent } from '/schemas';
+import { worldBus } from '/bus';
 import type { Actor } from './types.js';
 
 /**

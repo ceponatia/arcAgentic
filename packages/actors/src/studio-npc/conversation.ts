@@ -1,4 +1,4 @@
-import type { LLMProvider, LLMMessage } from '@minimal-rpg/llm';
+import type { LLMProvider, LLMMessage } from '/llm';
 import { Effect } from 'effect';
 import type { ConversationMessage } from './types.js';
 

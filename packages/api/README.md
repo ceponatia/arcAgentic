@@ -1,4 +1,4 @@
-# @minimal-rpg/api
+# /api
 
 Backend API package for Minimal RPG.
 

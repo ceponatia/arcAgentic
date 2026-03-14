@@ -4,9 +4,9 @@
  * These types define the shape of the JSON stored in actor_states.state column.
  * The column is typed as `unknown` in Drizzle, so we need these types to safely access properties.
  */
-import type { ActorState, NpcActorState, PlayerActorState } from '@minimal-rpg/schemas';
+import type { ActorState, NpcActorState, PlayerActorState } from '/schemas';
 
-export type { ActorState, AffinityRecord, NpcActorState, PlayerActorState } from '@minimal-rpg/schemas';
+export type { ActorState, AffinityRecord, NpcActorState, PlayerActorState } from '/schemas';
 
 /**
  * Type guard to check if an actor state is an NPC state.

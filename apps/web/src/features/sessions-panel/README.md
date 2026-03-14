@@ -4,13 +4,13 @@ Session list panel re-exported from the UI package.
 
 ## Exports
 
-- `SessionsPanel` — Re-exports from `@minimal-rpg/ui`
+- `SessionsPanel` — Re-exports from `@arcagentic/ui`
 
 ## Cross-Package Imports
 
-| Import          | Source Package    | Usage                                                               |
-| --------------- | ----------------- | ------------------------------------------------------------------- |
-| `SessionsPanel` | `@minimal-rpg/ui` | Presentational component for session list with selection and delete |
+| Import          | Source Package   | Usage                                                               |
+| --------------- | ---------------- | ------------------------------------------------------------------- |
+| `SessionsPanel` | `@arcagentic/ui` | Presentational component for session list with selection and delete |
 
 ## Tracing Notes
 

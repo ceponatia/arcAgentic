@@ -34,8 +34,8 @@ function getPackageFromPath(filePath) {
  * @param {string} importPath
  * @returns {string | null}
  */
-function parseMinimalRpgImport(importPath) {
-  const match = importPath.match(/^@minimal-rpg\/([^/]+)/);
+function parseArcAgenticImport(importPath) {
+  const match = importPath.match(/^@arcagentic\/([^/]+)/);
   return match ? match[1] : null;
 }
 
@@ -85,7 +85,7 @@ const rule = {
         const importPath = node.source.value;
         if (typeof importPath !== 'string') return;
 
-        const importedPackage = parseMinimalRpgImport(importPath);
+        const importedPackage = parseArcAgenticImport(importPath);
 
         if (!importedPackage || !(importedPackage in packageLayers)) {
           return;

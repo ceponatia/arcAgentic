@@ -1,5 +1,5 @@
 import type { Context } from 'hono';
-import { presenceService } from '@minimal-rpg/services';
+import { presenceService } from '/services';
 
 /**
  * Handle session disconnect requests.

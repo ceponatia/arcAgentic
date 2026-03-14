@@ -8,7 +8,7 @@ import type {
   AppearanceHeight,
   AppearanceLegsBuild,
   AppearanceTorso,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
 import type { WeightedValue } from '../../types.js';
 
 // ============================================================================

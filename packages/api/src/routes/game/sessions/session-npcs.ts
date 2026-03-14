@@ -4,10 +4,10 @@
  * POST /sessions/:id/npcs - create additional NPC instance
  */
 import type { Context } from 'hono';
-import { getSession, listActorStatesForSession, upsertActorState } from '@minimal-rpg/db/node';
+import { getSession, listActorStatesForSession, upsertActorState } from '/db/node';
 import type { LoadedDataGetter } from '../../../loaders/types.js';
 import { notFound, serverError, conflict } from '../../../utils/responses.js';
-import { generateInstanceId } from '@minimal-rpg/utils';
+import { generateInstanceId } from '/utils';
 import { CreateNpcInstanceRequestSchema, findCharacter } from './shared.js';
 import { getOwnerEmail } from '../../../auth/ownerEmail.js';
 import { toId, toSessionId } from '../../../utils/uuid.js';

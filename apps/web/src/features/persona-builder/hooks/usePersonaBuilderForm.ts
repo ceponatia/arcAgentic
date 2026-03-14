@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { PersonaProfile, Gender } from '@minimal-rpg/schemas';
+import type { PersonaProfile, Gender } from '@arcagentic/schemas';
 import {
   type PersonaFormState,
   type PersonaFormFieldErrors,

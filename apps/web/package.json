@@ -1,5 +1,5 @@
 {
-  "name": "@minimal-rpg/web",
+  "name": "@arcagentic/web",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -13,11 +13,11 @@
   },
   "dependencies": {
     "@mdx-js/rollup": "^3.1.1",
-    "@minimal-rpg/db": "workspace:*",
-    "@minimal-rpg/generator": "workspace:*",
-    "@minimal-rpg/schemas": "workspace:*",
-    "@minimal-rpg/ui": "workspace:*",
-    "@minimal-rpg/utils": "workspace:*",
+    "@arcagentic/db": "workspace:*",
+    "@arcagentic/generator": "workspace:*",
+    "@arcagentic/schemas": "workspace:*",
+    "@arcagentic/ui": "workspace:*",
+    "@arcagentic/utils": "workspace:*",
     "@preact/signals-react": "^3.6.1",
     "@xyflow/react": "^12.10.0",
     "lucide-react": "^0.561.0",

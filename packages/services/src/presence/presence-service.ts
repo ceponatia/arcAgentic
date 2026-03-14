@@ -1,4 +1,4 @@
-import { updateSessionHeartbeat } from '@minimal-rpg/db';
+import { updateSessionHeartbeat } from '@arcagentic/db';
 import type {
   PresenceRecord,
   PresenceScheduler,

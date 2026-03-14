@@ -1,7 +1,7 @@
 import { Effect } from 'effect';
-import type { ToolCall, ToolDefinition, MessageRole } from '@minimal-rpg/schemas';
+import type { ToolCall, ToolDefinition, MessageRole } from '@arcagentic/schemas';
 
-export type { MessageRole } from '@minimal-rpg/schemas';
+export type { MessageRole } from '@arcagentic/schemas';
 
 /** LLM Message. */
 export interface LLMMessage {

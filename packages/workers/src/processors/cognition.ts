@@ -1,12 +1,12 @@
 import { type Processor, type Job } from 'bullmq';
 import { Effect } from 'effect';
-import { WorldBus } from '@minimal-rpg/bus';
+import { WorldBus } from '@arcagentic/bus';
 import {
   TieredCognitionRouter,
   type LlmCognitionTask,
   type LLMMessage,
-} from '@minimal-rpg/llm';
-import type { WorldEvent } from '@minimal-rpg/schemas';
+} from '@arcagentic/llm';
+import type { WorldEvent } from '@arcagentic/schemas';
 import type { JobData, CognitionTask, JobResult } from '../types.js';
 
 /**

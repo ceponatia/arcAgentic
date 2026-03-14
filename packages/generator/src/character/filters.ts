@@ -8,7 +8,7 @@ import {
   type Gender,
   type BodyRegion,
   type AppearanceRegion,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
 import type { GenderRegionConfig, GenderAppearanceRegionConfig } from './types.js';
 
 // ============================================================================

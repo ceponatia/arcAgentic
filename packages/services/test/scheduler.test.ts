@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Scheduler } from '../src/time/scheduler.js';
-import type { NpcLocationState } from '@minimal-rpg/schemas';
+import type { NpcLocationState } from '@arcagentic/schemas';
 
 const {
   emitMock,
@@ -78,14 +78,14 @@ const {
   };
 });
 
-vi.mock('@minimal-rpg/bus', () => ({
+vi.mock('@arcagentic/bus', () => ({
   worldBus: {
     emit: emitMock,
     subscribe: vi.fn(async () => undefined),
   },
 }));
 
-vi.mock('@minimal-rpg/db', () => ({
+vi.mock('@arcagentic/db', () => ({
   getActiveSessions: getActiveSessionsMock,
   getSessionNpcsWithSchedules: getSessionNpcsWithSchedulesMock,
   getSessionGameTime: getSessionGameTimeMock,

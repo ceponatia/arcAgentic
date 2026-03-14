@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { pruneBodyMap } from '../src/character/character-cleanup.js';
-import type { BodyMap } from '@minimal-rpg/schemas';
+import type { BodyMap } from '@arcagentic/schemas';
 
 describe('pruneBodyMap', () => {
   it('retains skin/overall and removes invalid keys', () => {

@@ -9,7 +9,7 @@ import type {
   Speaker,
   ApiError,
   JsonPatchOperation,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
 import type { CreateFullSessionRequest } from './shared/api/types.js';
 import type { UseFetchOnceResult } from './shared/hooks/useFetchOnce.js';
 
@@ -20,9 +20,9 @@ export type {
   PersonaSummary,
   ItemSummary,
   RuntimeConfigResponse,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
 
-/** @deprecated Use ApiError from @minimal-rpg/schemas */
+/** @deprecated Use ApiError from @arcagentic/schemas */
 export type ApiErrorShape = ApiError;
 
 

@@ -17,7 +17,7 @@ const handlerMocks = vi.hoisted(() => ({
   eventRows: [] as Record<string, unknown>[],
 }));
 
-vi.mock('@minimal-rpg/db/node', () => ({
+vi.mock('/db/node', () => ({
   getSessionTagsWithDefinitions: handlerMocks.getSessionTagsWithDefinitionsMock,
   drizzle: { select: handlerMocks.drizzleSelectMock },
   actorStates: handlerMocks.actorStatesTable,

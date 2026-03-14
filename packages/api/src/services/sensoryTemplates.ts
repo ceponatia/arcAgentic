@@ -5,7 +5,7 @@ import {
   SensoryTemplateSchema,
   type SensoryTemplate,
   getSensoryTemplates,
-} from '@minimal-rpg/schemas';
+} from '/schemas';
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(currentDir, '..', '..', '..', '..');

@@ -10,7 +10,7 @@ const streamMocks = vi.hoisted(() => ({
 
 let capturedHandler: ((event: Record<string, unknown>) => void) | null = null;
 
-vi.mock('@minimal-rpg/bus', () => ({
+vi.mock('/bus', () => ({
   worldBus: {
     subscribe: (handler: (event: Record<string, unknown>) => void) => {
       capturedHandler = handler;

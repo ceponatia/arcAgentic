@@ -35,7 +35,7 @@ import {
   ProximityStateSchema,
   createDefaultProximityState,
   makeEngagementKey,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
 
 const state = createDefaultProximityState();
 const key = makeEngagementKey('taylor', 'hair', 'smell');

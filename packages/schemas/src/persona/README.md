@@ -40,7 +40,7 @@ Main composite schema combining:
 ## Usage Example
 
 ```typescript
-import { PersonaProfileSchema, type PersonaProfile } from '@minimal-rpg/schemas';
+import { PersonaProfileSchema, type PersonaProfile } from '@arcagentic/schemas';
 
 // Minimal persona
 const minimalPersona: PersonaProfile = {
@@ -87,7 +87,7 @@ const validated = PersonaProfileSchema.parse(detailedPersona);
 
 ## Integration Points
 
-1. **Persona Builder UI** (`@minimal-rpg/web`) - Form for creating/editing personas
+1. **Persona Builder UI** (`@arcagentic/web`) - Form for creating/editing personas
 2. **Session API** (`packages/api/src/sessions`) - Load persona at session start
 3. **Context Injection** - Include persona in LLM prompts for consistent character representation
 4. **State Manager** - Store active persona in session state

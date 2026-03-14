@@ -1,4 +1,4 @@
-import type { Physique } from '@minimal-rpg/schemas';
+import type { Physique } from '@arcagentic/schemas';
 import type { CharacterId } from '../types.js';
 
 export interface AppearanceProfile {

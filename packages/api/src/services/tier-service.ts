@@ -12,7 +12,7 @@ import type {
   InteractionEvent,
   PromotionCheck,
   InterestConfig,
-} from '@minimal-rpg/schemas';
+} from '/schemas';
 
 /** NPC tier type alias */
 type NpcTierType = 'major' | 'minor' | 'background' | 'transient';
@@ -23,8 +23,8 @@ import {
   isMeaningfulInteraction,
   DEFAULT_INTEREST_CONFIG,
   createInitialInterestScore,
-} from '@minimal-rpg/schemas';
-import { getActorState, listActorStatesForSession, upsertActorState } from '@minimal-rpg/db/node';
+} from '/schemas';
+import { getActorState, listActorStatesForSession, upsertActorState } from '/db/node';
 import { toSessionId } from '../utils/uuid.js';
 import { asNpcState } from '../types/index.js';
 

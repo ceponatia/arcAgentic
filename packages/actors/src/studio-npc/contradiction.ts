@@ -1,4 +1,4 @@
-import type { CharacterProfile } from '@minimal-rpg/schemas';
+import type { CharacterProfile } from '/schemas';
 import type { InferredTrait, Contradiction } from './types.js';
 
 /**

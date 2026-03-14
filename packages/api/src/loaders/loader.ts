@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { CharacterProfileSchema, SettingProfileSchema } from '@minimal-rpg/schemas';
-import type { CharacterProfile, SettingProfile } from '@minimal-rpg/schemas';
+import { CharacterProfileSchema, SettingProfileSchema } from '/schemas';
+import type { CharacterProfile, SettingProfile } from '/schemas';
 import type { LoadedData } from './types.js';
 import { getEnvValue } from '../utils/env.js';
 

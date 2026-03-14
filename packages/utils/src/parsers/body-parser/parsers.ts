@@ -9,8 +9,8 @@ import type {
   RegionTexture,
   RegionVisual,
   RegionFlavor,
-} from '@minimal-rpg/schemas';
-import { BODY_REGIONS, resolveBodyRegion, getArraySafe, setPartialRecord, getRecordOptional } from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
+import { BODY_REGIONS, resolveBodyRegion, getArraySafe, setPartialRecord, getRecordOptional } from '@arcagentic/schemas';
 import {
   detectSensoryType,
   extractIntensity,

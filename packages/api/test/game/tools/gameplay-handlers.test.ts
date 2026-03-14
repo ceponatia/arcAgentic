@@ -25,7 +25,7 @@ const gameplayMocks = vi.hoisted(() => ({
   locationServiceSearchLocationsMock: vi.fn(),
 }));
 
-vi.mock('@minimal-rpg/db/node', () => ({
+vi.mock('/db/node', () => ({
   getActorState: gameplayMocks.getActorStateMock,
   listActorStatesForSession: gameplayMocks.listActorStatesForSessionMock,
   getSessionProjection: gameplayMocks.getSessionProjectionMock,
@@ -45,13 +45,13 @@ vi.mock('@minimal-rpg/db/node', () => ({
   },
 }));
 
-vi.mock('@minimal-rpg/bus', () => ({
+vi.mock('/bus', () => ({
   worldBus: {
     emit: gameplayMocks.worldBusEmitMock,
   },
 }));
 
-vi.mock('@minimal-rpg/services', () => ({
+vi.mock('/services', () => ({
   LocationService: {
     getExitsForLocation: gameplayMocks.locationServiceGetExitsMock,
     formatExitsForPrompt: gameplayMocks.locationServiceFormatExitsMock,

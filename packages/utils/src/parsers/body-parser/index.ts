@@ -21,4 +21,4 @@ export {
   resolveBodyRegion,
   isBodyReference,
   type BodyRegion,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';

@@ -1,10 +1,10 @@
-# @minimal-rpg/projections
+# @arcagentic/projections
 
 ## Purpose
 
 Event-sourced read models ("projections") for a game session.
 
-This package replays persisted `WorldEvent`s from `@minimal-rpg/db` into in-memory state using pure reducers, and can persist the resulting state back into the database as snapshots for faster startup.
+This package replays persisted `WorldEvent`s from `@arcagentic/db` into in-memory state using pure reducers, and can persist the resulting state back into the database as snapshots for faster startup.
 
 ## Core Responsibilities
 
@@ -16,10 +16,10 @@ This package replays persisted `WorldEvent`s from `@minimal-rpg/db` into in-memo
 
 ## How It Is Used
 
-Typical server-side flow (see `@minimal-rpg/api`):
+Typical server-side flow (see `@arcagentic/api`):
 
 ```ts
-import { ProjectionManager } from '@minimal-rpg/projections';
+import { ProjectionManager } from '@arcagentic/projections';
 
 const manager = new ProjectionManager(sessionId);
 await manager.init(); // loads snapshots + replays missing events
@@ -91,11 +91,11 @@ Projection snapshots are persisted via `saveProjectionState()`; because `session
 1. Add a new reducer/projection in `src/reducers/`.
 2. Export it from `src/reducers/index.ts`.
 3. Add a `Projector` to `ProjectionManager`.
-4. Add or map a snapshot column in `@minimal-rpg/db` (`session_projections`) and update `src/snapshot/store.ts` mapping.
+4. Add or map a snapshot column in `@arcagentic/db` (`session_projections`) and update `src/snapshot/store.ts` mapping.
 
 ## Package Connections
 
-- **@minimal-rpg/db**: Reads from `events` and reads/writes `session_projections` (Drizzle).
-- **@minimal-rpg/schemas**: Uses `WorldEventSchema`/`WorldEvent` and shared helpers (`getRecordOptional`, `setRecord`, NPC location defaults).
-- **@minimal-rpg/api**: Uses `ProjectionManager` to provide read-model state to routes/services.
+- **@arcagentic/db**: Reads from `events` and reads/writes `session_projections` (Drizzle).
+- **@arcagentic/schemas**: Uses `WorldEventSchema`/`WorldEvent` and shared helpers (`getRecordOptional`, `setRecord`, NPC location defaults).
+- **@arcagentic/api**: Uses `ProjectionManager` to provide read-model state to routes/services.
 - **fast-json-patch**: Used by the `patchReducer` for generic JSON state domains.

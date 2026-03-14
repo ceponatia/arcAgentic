@@ -1,1 +1,1 @@
-export * from '@minimal-rpg/db/node';
+export * from '/db/node';

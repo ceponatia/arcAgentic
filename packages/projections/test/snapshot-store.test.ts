@@ -4,7 +4,7 @@ const insertMock = vi.fn().mockReturnThis();
 const valuesMock = vi.fn().mockReturnThis();
 const onConflictMock = vi.fn();
 
-vi.mock('@minimal-rpg/db', () => ({
+vi.mock('@arcagentic/db', () => ({
   db: {
     insert: () => ({
       values: valuesMock,

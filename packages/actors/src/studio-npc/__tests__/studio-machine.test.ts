@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
 import { createActor, type ActorRefFrom } from 'xstate';
 import { Effect } from 'effect';
-import type { CharacterProfile } from '@minimal-rpg/schemas';
-import type { LLMProvider, LLMResponse, LLMStreamChunk } from '@minimal-rpg/llm';
+import type { CharacterProfile } from '/schemas';
+import type { LLMProvider, LLMResponse, LLMStreamChunk } from '/llm';
 import { createStudioMachine } from '../studio-machine.js';
 import type { StudioMachineContext, StudioResponse, ConversationMessage } from '../types.js';
 

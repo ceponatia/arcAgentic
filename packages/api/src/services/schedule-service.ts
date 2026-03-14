@@ -3,10 +3,10 @@ export {
   resolveNpcSchedulesBatch,
   checkNpcAvailability,
   getNpcsAtLocationBySchedule,
-} from '@minimal-rpg/services';
+} from '/services';
 
 export type {
   NpcScheduleData,
   ScheduleResolutionOptions,
   ScheduleResolutionResult,
-} from '@minimal-rpg/services';
+} from '/services';

@@ -11,7 +11,7 @@ import {
   APPEARANCE_REGIONS,
   APPEARANCE_REGION_ATTRIBUTES,
   BODY_REGIONS,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
 
 describe('character studio utils', () => {
   it('tracks appearance combinations', () => {

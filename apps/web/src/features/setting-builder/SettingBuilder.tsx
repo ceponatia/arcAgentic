@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { SettingBackgroundSchema } from '@minimal-rpg/schemas';
-import { mapZodErrorsToFields } from '@minimal-rpg/utils';
+import { SettingBackgroundSchema } from '@arcagentic/schemas';
+import { mapZodErrorsToFields } from '@arcagentic/utils';
 import { saveSetting, deleteSetting } from '../../shared/api/client.js';
 import { PreviewSidebar } from './components/PreviewSidebar.js';
 import { SettingGeneralForm } from './components/SettingGeneralForm.js';

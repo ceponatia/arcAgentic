@@ -1,4 +1,4 @@
-# @minimal-rpg/generator
+# @arcagentic/generator
 
 Random content generator for Minimal RPG. Generates complete or partial game entities using themed value pools.
 
@@ -15,7 +15,7 @@ Random content generator for Minimal RPG. Generates complete or partial game ent
 ## Usage
 
 ```typescript
-import { generateCharacter, THEMES } from '@minimal-rpg/generator';
+import { generateCharacter, THEMES } from '@arcagentic/generator';
 
 // Generate a complete character from scratch (modern woman theme)
 const character = generateCharacter({

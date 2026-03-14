@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSignals } from '@preact/signals-react/runtime';
-import type { TemplateSelection } from '@minimal-rpg/schemas';
+import type { TemplateSelection } from '@arcagentic/schemas';
 import { IdentityCard } from './IdentityCard.js';
 import { TemplateCardGrid } from './sensory/TemplateCardGrid.js';
 import { SensoryPreviewWithAttribution } from './sensory/SensoryPreviewWithAttribution.js';

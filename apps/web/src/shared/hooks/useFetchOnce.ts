@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { getErrorMessage, isAbortError } from '@minimal-rpg/utils';
+import { getErrorMessage, isAbortError } from '@arcagentic/utils';
 
 export interface FetchState<TData> {
   loading: boolean;

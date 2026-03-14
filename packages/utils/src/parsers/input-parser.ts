@@ -1,4 +1,4 @@
-import type { ParsedPlayerInput, ParsedSegment } from '@minimal-rpg/schemas';
+import type { ParsedPlayerInput, ParsedSegment } from '@arcagentic/schemas';
 
 /**
  * Deterministically parses player input into segments based on markers.

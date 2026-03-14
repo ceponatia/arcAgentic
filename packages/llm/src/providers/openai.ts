@@ -8,7 +8,7 @@ import type {
   LLMStreamChunk,
 } from '../types.js';
 import { getOpenRouterEnvSettings, type OpenRouterEnvConfig } from '../config.js';
-import type { ToolCall } from '@minimal-rpg/schemas';
+import type { ToolCall } from '@arcagentic/schemas';
 
 export interface ProviderRouting {
   order?: string[];

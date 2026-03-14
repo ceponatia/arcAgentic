@@ -8,7 +8,7 @@ import type {
   LocationNode as LocationNodeData,
   LocationType,
   LocationPort,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
 import { MapPin, Building2, DoorOpen } from 'lucide-react';
 
 /** Node data structure passed to React Flow */

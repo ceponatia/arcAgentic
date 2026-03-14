@@ -18,7 +18,7 @@ describe('bus persistence middleware', () => {
     const next = vi.fn(async () => undefined);
 
     await persistenceMiddleware(
-      { type: 'TICK', tick: 1, timestamp: new Date() } as unknown as import('@minimal-rpg/schemas').WorldEvent,
+      { type: 'TICK', tick: 1, timestamp: new Date() } as unknown as import('/schemas').WorldEvent,
       next
     );
 
@@ -37,7 +37,7 @@ describe('bus persistence middleware', () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
     await persistenceMiddleware(
-      { type: 'TICK', tick: 1, timestamp: new Date() } as unknown as import('@minimal-rpg/schemas').WorldEvent,
+      { type: 'TICK', tick: 1, timestamp: new Date() } as unknown as import('/schemas').WorldEvent,
       next
     );
 

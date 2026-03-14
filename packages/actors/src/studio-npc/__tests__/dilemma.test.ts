@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { Effect } from 'effect';
-import type { CharacterProfile } from '@minimal-rpg/schemas';
-import type { LLMProvider, LLMResponse, LLMStreamChunk } from '@minimal-rpg/llm';
+import type { CharacterProfile } from '/schemas';
+import type { LLMProvider, LLMResponse, LLMStreamChunk } from '/llm';
 import { DilemmaEngine } from '../dilemma.js';
 import type { Dilemma } from '../types.js';
 

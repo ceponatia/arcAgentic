@@ -5,7 +5,7 @@ const adminSessionMocks = vi.hoisted(() => ({
   getEventsForSessionMock: vi.fn(),
 }));
 
-vi.mock('@minimal-rpg/db/node', () => ({
+vi.mock('/db/node', () => ({
   getEventsForSession: adminSessionMocks.getEventsForSessionMock,
 }));
 

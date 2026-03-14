@@ -7,7 +7,7 @@ const listMocks = vi.hoisted(() => ({
   getOwnerEmailMock: vi.fn(),
 }));
 
-vi.mock('@minimal-rpg/db/node', () => ({
+vi.mock('/db/node', () => ({
   listSessions: listMocks.listSessionsMock,
   getEntityProfile: listMocks.getEntityProfileMock,
 }));

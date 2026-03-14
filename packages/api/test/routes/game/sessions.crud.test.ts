@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Context } from 'hono';
-import type { CharacterProfile, SettingProfile } from '@minimal-rpg/schemas';
+import type { CharacterProfile, SettingProfile } from '/schemas';
 
 const crudMocks = vi.hoisted(() => ({
   createSessionMock: vi.fn(),
@@ -23,7 +23,7 @@ const actorStatesTable = { name: 'actorStates' };
 const sessionTagsTable = { name: 'sessionTags' };
 const promptTagsTable = { name: 'promptTags' };
 
-vi.mock('@minimal-rpg/db/node', () => ({
+vi.mock('/db/node', () => ({
   createSession: crudMocks.createSessionMock,
   deleteSession: crudMocks.deleteSessionMock,
   getPromptTag: crudMocks.getPromptTagMock,
@@ -54,8 +54,8 @@ vi.mock('../../../src/auth/middleware.js', () => ({
 
 const sessionId = '11111111-1111-4111-8111-111111111111';
 
-vi.mock('@minimal-rpg/utils', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@minimal-rpg/utils')>();
+vi.mock('/utils', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('/utils')>();
   return {
     ...actual,
     generateId: () => sessionId,

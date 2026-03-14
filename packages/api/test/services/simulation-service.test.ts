@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { GameTime, NpcLocationState, NpcScheduleData } from '@minimal-rpg/schemas';
+import type { GameTime, NpcLocationState, NpcScheduleData } from '/schemas';
 import {
   runSimulationTick,
   runTimeSkipSimulation,

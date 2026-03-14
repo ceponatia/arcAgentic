@@ -1,4 +1,4 @@
-import type { ToolDefinition } from '@minimal-rpg/schemas';
+import type { ToolDefinition } from '@arcagentic/schemas';
 
 export class ToolRegistry {
   private tools = new Map<string, ToolDefinition>();

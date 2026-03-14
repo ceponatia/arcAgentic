@@ -30,7 +30,7 @@ vi.mock('@opentelemetry/api', () => ({
   },
 }));
 
-import type { WorldEvent } from '@minimal-rpg/schemas';
+import type { WorldEvent } from '/schemas';
 import { telemetryMiddleware } from '../src/middleware/telemetry.js';
 
 describe('bus telemetry middleware', () => {

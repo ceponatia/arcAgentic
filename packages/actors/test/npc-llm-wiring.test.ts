@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { Effect } from 'effect';
 import { actorRegistry } from '../src/registry/actor-registry.js';
-import type { LLMProvider, LLMMessage, LLMResponse, LLMStreamChunk } from '@minimal-rpg/llm';
-import type { CharacterProfile, WorldEvent } from '@minimal-rpg/schemas';
+import type { LLMProvider, LLMMessage, LLMResponse, LLMStreamChunk } from '/llm';
+import type { CharacterProfile, WorldEvent } from '/schemas';
 import { CognitionLayer } from '../src/npc/cognition.js';
 
 function createMockProvider(content: string): LLMProvider {

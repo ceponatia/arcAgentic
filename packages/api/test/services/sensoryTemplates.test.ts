@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { SensoryTemplate } from '@minimal-rpg/schemas';
+import type { SensoryTemplate } from '/schemas';
 
 const templateMocks = vi.hoisted(() => ({
   existsSyncMock: vi.fn(),
@@ -16,9 +16,9 @@ vi.mock('node:fs', () => ({
   },
 }));
 
-vi.mock('@minimal-rpg/schemas', async () => {
-  const actual = await vi.importActual<typeof import('@minimal-rpg/schemas')>(
-    '@minimal-rpg/schemas'
+vi.mock('/schemas', async () => {
+  const actual = await vi.importActual<typeof import('/schemas')>(
+    '/schemas'
   );
   return {
     ...actual,

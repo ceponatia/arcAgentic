@@ -8,7 +8,7 @@
  * Uses SpatialIndex internally for low-level state operations.
  *
  * @see SpatialIndex for the underlying spatial operations
- * @see @minimal-rpg/schemas/state/proximity for type definitions
+ * @see @arcagentic/schemas/state/proximity for type definitions
  */
 import {
   type ProximityState,
@@ -17,7 +17,7 @@ import {
   type SenseType,
   type EngagementIntensity,
   createDefaultProximityState,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
 
 import {
   SpatialIndex,

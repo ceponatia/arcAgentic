@@ -1,1 +1,1 @@
-export type { AuthTokenPayload, AuthUser, UserRole } from '@minimal-rpg/schemas';
+export type { AuthTokenPayload, AuthUser, UserRole } from '/schemas';

@@ -12,7 +12,7 @@ import {
   LocationNodeSchema,
   type LocationConnection,
   type LocationNode,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
 import type { ZodIssue } from 'zod';
 
 export type LocationDataEntity = 'map' | 'prefab';

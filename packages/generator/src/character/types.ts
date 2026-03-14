@@ -21,7 +21,7 @@ import type {
   AppearanceArmsBuild,
   AppearanceLegsBuild,
   AppearanceFeetSize,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
 import type { BaseGeneratorOptions, ValuePool, GenerationMeta } from '../types.js';
 
 // ============================================================================

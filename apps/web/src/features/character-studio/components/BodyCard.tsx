@@ -11,7 +11,7 @@ import {
   type RegionScent,
   type RegionTexture,
   type RegionVisual,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
 import { characterProfile, updateProfile } from '../signals.js';
 import { IdentityCard } from './IdentityCard.js';
 

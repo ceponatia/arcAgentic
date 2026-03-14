@@ -1,11 +1,11 @@
 {
-  "name": "minimal-rpg",
+  "name": "arcagentic",
   "private": true,
   "type": "module",
   "scripts": {
     "build": "node scripts/turbo.mjs run build",
     "build:watch": "node scripts/turbo.mjs run build --watch",
-    "db:migrate": "pnpm --filter @minimal-rpg/db run db:migrate",
+    "db:migrate": "pnpm --filter @arcagentic/db run db:migrate",
     "db:migrate:fresh": "bash scripts/fresh-migration.sh",
     "dev": "node scripts/turbo.mjs run dev",
     "dev:kill": "node scripts/kill-ports.mjs 3001 5173",

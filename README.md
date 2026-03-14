@@ -1,4 +1,4 @@
-# ArcAgentic
+# arcagentic
 
 A monorepo for a roleplaying chat app with a Hono API server, a React/Vite web UI, and supporting packages for schemas, persistence, LLM providers, and game services.
 
@@ -83,8 +83,8 @@ pnpm dev
 Or run them individually:
 
 ```bash
-pnpm -F @minimal-rpg/api dev
-pnpm -F @minimal-rpg/web dev
+pnpm -F @arcagentic/api dev
+pnpm -F @arcagentic/web dev
 ```
 
 Defaults:
@@ -132,9 +132,9 @@ pnpm test
 Run a single package:
 
 ```bash
-pnpm -F @minimal-rpg/api test
-pnpm -F @minimal-rpg/web test
-pnpm -F @minimal-rpg/llm test
+pnpm -F @arcagentic/api test
+pnpm -F @arcagentic/web test
+pnpm -F @arcagentic/llm test
 ```
 
 Streaming smoke test (SSE and provider streaming):
@@ -158,23 +158,23 @@ pnpm db:migrate
 
 ## 6. Packages
 
-Most shared workspaces live under `packages/`. The web app workspace lives under `apps/web` while keeping the package name `@minimal-rpg/web`:
+Most shared workspaces live under `packages/`. The web app workspace lives under `apps/web` while keeping the package name `@arcagentic/web`:
 
-- `@minimal-rpg/api`: Hono HTTP server (routes, auth, validation)
-- `@minimal-rpg/web`: React + Vite SPA
-- `@minimal-rpg/db`: Drizzle ORM + migrations + repositories
-- `@minimal-rpg/schemas`: Zod schemas and shared types (contracts)
-- `@minimal-rpg/llm`: LLM provider adapters (OpenRouter/OpenAI-style + Ollama)
-- `@minimal-rpg/bus`: World event bus (Redis pub/sub adapter)
-- `@minimal-rpg/services`: Domain services used by turns
-- `@minimal-rpg/actors`: Runtime actor logic
-- `@minimal-rpg/projections`: Read models and projections
-- `@minimal-rpg/retrieval`: Retrieval/scoring utilities
-- `@minimal-rpg/characters`: Character-related helpers
-- `@minimal-rpg/generator`: Content generation utilities
-- `@minimal-rpg/utils`: Shared utilities
-- `@minimal-rpg/ui`: Shared UI components
-- `@minimal-rpg/workers`: Background workers
+- `@arcagentic/api`: Hono HTTP server (routes, auth, validation)
+- `@arcagentic/web`: React + Vite SPA
+- `@arcagentic/db`: Drizzle ORM + migrations + repositories
+- `@arcagentic/schemas`: Zod schemas and shared types (contracts)
+- `@arcagentic/llm`: LLM provider adapters (OpenRouter/OpenAI-style + Ollama)
+- `@arcagentic/bus`: World event bus (Redis pub/sub adapter)
+- `@arcagentic/services`: Domain services used by turns
+- `@arcagentic/actors`: Runtime actor logic
+- `@arcagentic/projections`: Read models and projections
+- `@arcagentic/retrieval`: Retrieval/scoring utilities
+- `@arcagentic/characters`: Character-related helpers
+- `@arcagentic/generator`: Content generation utilities
+- `@arcagentic/utils`: Shared utilities
+- `@arcagentic/ui`: Shared UI components
+- `@arcagentic/workers`: Background workers
 
 For a recent package breakdown and dependency layering, see `dev-docs/inventory.md`.
 

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import type { CharacterProfile } from '@minimal-rpg/schemas';
+import type { CharacterProfile } from '/schemas';
 import {
   buildStudioSystemPrompt,
   buildInternalMonologuePrompt,

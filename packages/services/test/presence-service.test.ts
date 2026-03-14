@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { PresenceService } from '../src/presence/presence-service.js';
 import type { PresenceScheduler } from '../src/presence/types.js';
 
-vi.mock('@minimal-rpg/db', () => ({
+vi.mock('@arcagentic/db', () => ({
   updateSessionHeartbeat: vi.fn(async () => ({ id: 'session-1', lastHeartbeatAt: new Date() })),
 }));
 

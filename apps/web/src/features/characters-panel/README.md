@@ -4,13 +4,13 @@ List panel for selecting characters in the session setup flow.
 
 ## Exports
 
-- `CharactersPanel` — Re-exports from `@minimal-rpg/ui`
+- `CharactersPanel` — Re-exports from `@arcagentic/ui`
 
 ## Cross-Package Imports
 
-| Import            | Source Package    | Usage                                                      |
-| ----------------- | ----------------- | ---------------------------------------------------------- |
-| `CharactersPanel` | `@minimal-rpg/ui` | Presentational component for character list with selection |
+| Import            | Source Package   | Usage                                                      |
+| ----------------- | ---------------- | ---------------------------------------------------------- |
+| `CharactersPanel` | `@arcagentic/ui` | Presentational component for character list with selection |
 
 ## API Client Imports
 

@@ -1,4 +1,4 @@
-# @minimal-rpg/actors
+# @arcagentic/actors
 
 ## Purpose
 
@@ -45,6 +45,7 @@ XState-based autonomous actors with perception, cognition, and action loops. Imp
 ## Actor State Machine
 
 NPCs cycle through these states:
+
 1. **idle** - Waiting for relevant events
 2. **perceiving** - Processing incoming events
 3. **thinking** - Deciding on actions (may call LLM)

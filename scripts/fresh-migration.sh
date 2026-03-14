@@ -53,7 +53,7 @@ for i in {1..30}; do
 done
 
 echo -e "${YELLOW}Step 4: Running fresh migrations...${NC}"
-pnpm --filter @minimal-rpg/db run db:migrate:fresh
+pnpm --filter @arcagentic/db run db:migrate:fresh
 
 echo -e "${YELLOW}Step 5: Verifying tables...${NC}"
 TABLE_COUNT=$("${DOCKER_COMPOSE[@]}" exec -T db psql -U postgres -d minirpg -t -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public' AND table_type = 'BASE TABLE';")

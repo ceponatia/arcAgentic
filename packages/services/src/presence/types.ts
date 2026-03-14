@@ -1,4 +1,4 @@
-import type { PresenceRecord, PresenceScheduler } from '@minimal-rpg/schemas';
+import type { PresenceRecord, PresenceScheduler } from '@arcagentic/schemas';
 
 export type PresenceStatus = 'running' | 'resumed';
 

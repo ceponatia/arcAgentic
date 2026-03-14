@@ -1,5 +1,5 @@
 /** Assign NPC location tool definition. */
-import type { ToolDefinition } from '@minimal-rpg/schemas';
+import type { ToolDefinition } from '@arcagentic/schemas';
 
 export const ASSIGN_NPC_LOCATION_TOOL: ToolDefinition = {
   type: 'function',

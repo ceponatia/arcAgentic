@@ -1,16 +1,16 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 const { subscribers, publishMock, subscribeMock, unsubscribeMock } = vi.hoisted(() => {
-  const subscribers = new Set<(event: import('@minimal-rpg/schemas').WorldEvent) => void | Promise<void>>();
-  const publishMock = vi.fn(async (event: import('@minimal-rpg/schemas').WorldEvent) => {
+  const subscribers = new Set<(event: import('/schemas').WorldEvent) => void | Promise<void>>();
+  const publishMock = vi.fn(async (event: import('/schemas').WorldEvent) => {
     for (const handler of subscribers) {
       await handler(event);
     }
   });
-  const subscribeMock = vi.fn(async (handler: (event: import('@minimal-rpg/schemas').WorldEvent) => void | Promise<void>) => {
+  const subscribeMock = vi.fn(async (handler: (event: import('/schemas').WorldEvent) => void | Promise<void>) => {
     subscribers.add(handler);
   });
-  const unsubscribeMock = vi.fn((handler: (event: import('@minimal-rpg/schemas').WorldEvent) => void | Promise<void>) => {
+  const unsubscribeMock = vi.fn((handler: (event: import('/schemas').WorldEvent) => void | Promise<void>) => {
     subscribers.delete(handler);
   });
   return { subscribers, publishMock, subscribeMock, unsubscribeMock };
@@ -30,7 +30,7 @@ import {
   persistenceMiddleware,
   registerPersistenceHandler,
 } from '../src/index.js';
-import type { WorldEvent } from '@minimal-rpg/schemas';
+import type { WorldEvent } from '/schemas';
 
 describe('Phase 1 & 2 Integration', () => {
   const capturedEvents: WorldEvent[] = [];

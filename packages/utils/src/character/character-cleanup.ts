@@ -1,4 +1,4 @@
-import { type BodyMap, getFilteredHierarchy, REGION_GROUPS, getRecordOptional, setPartialRecord, type BodyRegion } from '@minimal-rpg/schemas';
+import { type BodyMap, getFilteredHierarchy, REGION_GROUPS, getRecordOptional, setPartialRecord, type BodyRegion } from '@arcagentic/schemas';
 
 /**
  * Prunes a BodyMap by removing keys that are not valid for the given race and gender.

@@ -4,7 +4,7 @@ import {
   type BodyRegion,
   type AppearanceRegion,
   type FormSensoryType,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
 
 /**
  * Form entry for body sensory data.

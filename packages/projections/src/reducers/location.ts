@@ -1,4 +1,4 @@
-import { getRecordOptional, setRecord } from '@minimal-rpg/schemas';
+import { getRecordOptional, setRecord } from '@arcagentic/schemas';
 import type { Reducer, Projection } from '../types.js';
 
 export interface LocationState {

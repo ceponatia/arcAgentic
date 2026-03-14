@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Context } from 'hono';
-import type { CharacterProfile, SettingProfile } from '@minimal-rpg/schemas';
+import type { CharacterProfile, SettingProfile } from '/schemas';
 
 const effectiveMocks = vi.hoisted(() => ({
   getSessionMock: vi.fn(),
@@ -12,7 +12,7 @@ const effectiveMocks = vi.hoisted(() => ({
   getEffectiveSettingMock: vi.fn(),
 }));
 
-vi.mock('@minimal-rpg/db/node', () => ({
+vi.mock('/db/node', () => ({
   getSession: effectiveMocks.getSessionMock,
 }));
 

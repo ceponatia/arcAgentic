@@ -9,8 +9,8 @@ import {
   LocationConnectionSchema,
   type LocationMap,
   type LocationPrefab,
-} from '@minimal-rpg/schemas';
-import { LocationDataValidationError } from '@minimal-rpg/db/node';
+} from '/schemas';
+import { LocationDataValidationError } from '/db/node';
 import {
   createLocationMap,
   getLocationMap,

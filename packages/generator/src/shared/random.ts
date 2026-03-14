@@ -2,7 +2,7 @@
  * Shared random selection utilities.
  */
 
-import { getArraySafe } from '@minimal-rpg/schemas';
+import { getArraySafe } from '@arcagentic/schemas';
 import type { ValuePool, WeightedValue } from '../types.js';
 
 /**

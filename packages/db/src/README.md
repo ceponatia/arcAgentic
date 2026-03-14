@@ -64,7 +64,7 @@ DATABASE_URL=postgres://user:pass@localhost:5432/minirpg
 SQL migrations are stored in `sql/` and run in alphabetical order:
 
 ```bash
-pnpm -F @minimal-rpg/db migrate
+pnpm -F @arcagentic/db migrate
 ```
 
 ## pgvector Support

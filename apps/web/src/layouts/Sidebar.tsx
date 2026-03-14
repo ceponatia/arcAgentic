@@ -19,7 +19,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ controller, isAdmin }) => {
           onClick={() => controller.navigateToHome()}
           className="text-lg font-semibold text-slate-100 hover:text-violet-400 transition-colors"
         >
-          ArcAgentic
+          arcagentic
         </button>
       </div>
       <nav className="flex-1 p-3 space-y-1">

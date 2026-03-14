@@ -1,5 +1,5 @@
 import { createActor, type ActorRefFrom } from 'xstate';
-import type { WorldEvent } from '@minimal-rpg/schemas';
+import type { WorldEvent } from '/schemas';
 import type { Actor, BaseActorState, NpcActorConfig } from '../base/types.js';
 import { BaseActorLifecycle } from '../base/lifecycle.js';
 import { createNpcMachine } from './npc-machine.js';

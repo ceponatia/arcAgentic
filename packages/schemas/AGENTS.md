@@ -1,4 +1,4 @@
-# @minimal-rpg/schemas
+# @arcagentic/schemas
 
 ## Purpose
 

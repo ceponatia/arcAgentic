@@ -3,10 +3,10 @@ import type {
   ConversationMessage,
   InferredTrait,
   SuggestedPrompt,
-} from '@minimal-rpg/schemas';
-import type { LLMProvider } from '@minimal-rpg/llm';
+} from '/schemas';
+import type { LLMProvider } from '/llm';
 
-export type { ConversationMessage, InferredTrait, SuggestedPrompt } from '@minimal-rpg/schemas';
+export type { ConversationMessage, InferredTrait, SuggestedPrompt } from '/schemas';
 
 // ============================================================================
 // Core Types

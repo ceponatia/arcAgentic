@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import type { PersonalityMap } from '@minimal-rpg/schemas';
+import type { PersonalityMap } from '@arcagentic/schemas';
 import { PersonalityService } from '../src/personality/service.js';
 import type { PersonalityRepository } from '../src/personality/types.js';
 

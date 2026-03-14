@@ -14,7 +14,7 @@ import {
   createDefaultProximityState,
   getRecordOptional,
   setRecord,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
 
 // =============================================================================
 // Types

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { ActorState, NpcActorState, PlayerActorState } from '@minimal-rpg/schemas';
+import type { ActorState, NpcActorState, PlayerActorState } from '/schemas';
 import {
   asActorState,
   asNpcState,

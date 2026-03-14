@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { TagResponse } from '@minimal-rpg/schemas';
+import type { TagResponse } from '@arcagentic/schemas';
 import { loadTag } from '../api.js';
 import {
   createInitialState,

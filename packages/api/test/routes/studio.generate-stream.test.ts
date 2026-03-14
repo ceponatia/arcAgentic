@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { Effect } from 'effect';
 import { Hono } from 'hono';
 
-import type { LLMMessage, LLMStreamChunk, LLMResponse } from '@minimal-rpg/llm';
+import type { LLMMessage, LLMStreamChunk, LLMResponse } from '/llm';
 import { registerStudioRoutes, type StudioLlmProvider } from '../../src/routes/studio.js';
 import { collectSseEvents } from '../utils/sse.js';
 

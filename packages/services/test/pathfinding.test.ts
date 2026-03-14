@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { PathfindingService } from '../src/physics/pathfinding.js';
-import type { LocationMap } from '@minimal-rpg/schemas';
+import type { LocationMap } from '@arcagentic/schemas';
 
 const map = {
   nodes: [

@@ -1,4 +1,4 @@
-import type { TagActivationMode, TagTargetType } from '@minimal-rpg/schemas';
+import type { TagActivationMode, TagTargetType } from '@arcagentic/schemas';
 
 import {
   ACTIVATION_MODE_LABELS,

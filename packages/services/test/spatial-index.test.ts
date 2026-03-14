@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { SpatialIndex } from '../src/physics/spatial-index.js';
-import { makeEngagementKey } from '@minimal-rpg/schemas';
+import { makeEngagementKey } from '@arcagentic/schemas';
 
 const state = SpatialIndex.createDefault();
 

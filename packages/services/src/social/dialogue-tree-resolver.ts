@@ -7,22 +7,22 @@ import {
   DialogueStateSchema,
   DialogueTreeSchema,
   DialogueTriggerSchema,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
 import type {
   DialogueCondition,
   DialogueEffect,
   DialogueNode,
   DialogueTree,
   DialogueTrigger,
-} from '@minimal-rpg/schemas';
-import { getRecordOptional } from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
+import { getRecordOptional } from '@arcagentic/schemas';
 import {
   clearDialogueState,
   getDialogueTrees,
   updateDialogueState,
   type DialogueStateRecord,
   type DialogueTreeRecord,
-} from '@minimal-rpg/db';
+} from '@arcagentic/db';
 import { FactionService } from './faction.js';
 import type { DialogueContext } from './dialogue-types.js';
 import type { DialogueConditionContext } from './dialogue-tree-types.js';

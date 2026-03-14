@@ -42,7 +42,7 @@ const rule = {
   meta: {
     type: 'problem',
     docs: {
-      description: 'Exported Zod schemas must be defined in @minimal-rpg/schemas',
+      description: 'Exported Zod schemas must be defined in @arcagentic/schemas',
     },
     schema: [
       {
@@ -55,7 +55,7 @@ const rule = {
     ],
     messages: {
       schemaOutsidePackage:
-        "Exported Zod schema '{{name}}' should be defined in @minimal-rpg/schemas. Create the schema there and import it here for local use.",
+        "Exported Zod schema '{{name}}' should be defined in @arcagentic/schemas. Create the schema there and import it here for local use.",
     },
   },
   /**

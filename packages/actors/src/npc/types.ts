@@ -1,7 +1,7 @@
-import type { WorldEvent } from '@minimal-rpg/schemas';
+import type { WorldEvent } from '/schemas';
 import type { BaseActorState } from '../base/types.js';
-import type { LLMProvider } from '@minimal-rpg/llm';
-import type { CharacterProfile } from '@minimal-rpg/schemas';
+import type { LLMProvider } from '/llm';
+import type { CharacterProfile } from '/schemas';
 
 /**
  * NPC-specific state extensions.

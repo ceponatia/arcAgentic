@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Hono } from 'hono';
-import type { CharacterProfile, SettingProfile } from '@minimal-rpg/schemas';
+import type { CharacterProfile, SettingProfile } from '/schemas';
 
 const profileRouteMocks = vi.hoisted(() => ({
   listEntityProfilesMock: vi.fn(),
@@ -12,7 +12,7 @@ const profileRouteMocks = vi.hoisted(() => ({
   getOwnerEmailMock: vi.fn(),
 }));
 
-vi.mock('@minimal-rpg/db/node', () => ({
+vi.mock('/db/node', () => ({
   listEntityProfiles: profileRouteMocks.listEntityProfilesMock,
   getEntityProfile: profileRouteMocks.getEntityProfileMock,
   createEntityProfile: profileRouteMocks.createEntityProfileMock,

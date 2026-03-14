@@ -1,4 +1,4 @@
-# @minimal-rpg/utils
+# @arcagentic/utils
 
 ## Purpose
 
@@ -20,4 +20,4 @@ This package should remain domain-agnostic. Domain-specific logic belongs in the
 
 ## Note on Record Helpers
 
-Type-safe record access helpers (`getRecord`, `setRecord`, etc.) have been moved to `@minimal-rpg/schemas` to avoid circular dependencies. Import them from `@minimal-rpg/schemas` instead of `@minimal-rpg/utils`.
+Type-safe record access helpers (`getRecord`, `setRecord`, etc.) have been moved to `@arcagentic/schemas` to avoid circular dependencies. Import them from `@arcagentic/schemas` instead of `@arcagentic/utils`.

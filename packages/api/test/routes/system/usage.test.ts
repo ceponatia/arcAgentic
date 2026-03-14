@@ -17,7 +17,7 @@ const usageRouteMocks = vi.hoisted(() => {
   };
 });
 
-vi.mock('@minimal-rpg/db/node', () => ({
+vi.mock('/db/node', () => ({
   drizzle: {
     select: usageRouteMocks.selectMock,
   },

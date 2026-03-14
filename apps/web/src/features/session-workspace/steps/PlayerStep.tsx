@@ -5,7 +5,7 @@
 import React, { useState } from 'react';
 import { useWorkspaceStore, usePlayerState } from '../store.js';
 import type { PersonaSummary } from '../../../types.js';
-import type { PersonaProfile } from '@minimal-rpg/schemas';
+import type { PersonaProfile } from '@arcagentic/schemas';
 
 interface PlayerStepProps {
   personas: PersonaSummary[];

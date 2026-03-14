@@ -1,4 +1,4 @@
-# @minimal-rpg/actors
+# @arcagentic/actors
 
 XState-based autonomous actors with perception, cognition, and action loops.
 
@@ -26,7 +26,7 @@ This package implements the actor model for the World Bus architecture. Actors a
 ## Usage
 
 ```typescript
-import { actorRegistry } from '@minimal-rpg/actors';
+import { actorRegistry } from '@arcagentic/actors';
 
 // Spawn an NPC actor
 const barkeep = actorRegistry.spawn({
@@ -60,6 +60,7 @@ idle → perceiving → thinking → acting → waiting → idle
 ## Phase 3 Implementation
 
 Current implementation uses simple rule-based cognition:
+
 - Respond to speech from other actors
 - Acknowledge when someone enters the location
 - Ignore irrelevant events

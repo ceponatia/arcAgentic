@@ -1,5 +1,5 @@
-import type { BodyPartHygieneState, NpcHygieneState } from '@minimal-rpg/schemas';
-import { getRecordOptional, setRecord } from '@minimal-rpg/schemas';
+import type { BodyPartHygieneState, NpcHygieneState } from '@arcagentic/schemas';
+import { getRecordOptional, setRecord } from '@arcagentic/schemas';
 import type { HygieneRepository } from './types.js';
 import type { CharacterId, SessionId } from '../types.js';
 
@@ -48,7 +48,7 @@ function setHygieneOnState(state: unknown, hygiene: Record<string, BodyPartHygie
  * Hygiene repository backed by `actor_states.state.hygiene`.
  */
 export class ActorStateHygieneRepository implements HygieneRepository {
-  constructor(private readonly store: ActorStateStore) {}
+  constructor(private readonly store: ActorStateStore) { }
 
   async getState(sessionId: SessionId, npcId: CharacterId): Promise<NpcHygieneState> {
     const actorState = await this.store.getActorState(sessionId, npcId);

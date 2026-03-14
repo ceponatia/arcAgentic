@@ -1,4 +1,4 @@
-import type { CharacterProfile } from '@minimal-rpg/schemas';
+import type { CharacterProfile } from '@arcagentic/schemas';
 import { validateRequiredString } from './required.js';
 import type { StudioFieldErrors } from './types.js';
 

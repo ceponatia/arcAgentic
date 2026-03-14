@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import type { WorldEvent } from '@minimal-rpg/schemas';
+import type { WorldEvent } from '/schemas';
 import { PerceptionLayer } from '../src/npc/perception.js';
 import type { NpcRuntimeState } from '../src/npc/types.js';
 

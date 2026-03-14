@@ -2,8 +2,8 @@ import { drizzle as db } from '../connection/index.js';
 import { entityProfiles } from '../schema/index.js';
 import { eq, and, or } from 'drizzle-orm';
 import type { UUID } from '../types.js';
-import { CharacterProfileSchema, type CharacterProfile } from '@minimal-rpg/schemas';
-import { isUuid } from '@minimal-rpg/utils';
+import { CharacterProfileSchema, type CharacterProfile } from '@arcagentic/schemas';
+import { isUuid } from '@arcagentic/utils';
 
 export interface CreateEntityProfileInput {
   id?: UUID;

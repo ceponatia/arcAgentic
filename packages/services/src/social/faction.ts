@@ -3,7 +3,7 @@ import {
   getFactionRelationship,
   setFactionRelationship,
   updateActorReputation,
-} from '@minimal-rpg/db';
+} from '@arcagentic/db';
 import type { FactionRelationship, ReputationLevel } from './types.js';
 import { REPUTATION_LEVELS } from './types.js';
 

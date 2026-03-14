@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { WorldEvent } from '@minimal-rpg/schemas';
+import type { WorldEvent } from '/schemas';
 import { PlayerActor } from '../src/player/player-actor.js';
 
 describe('player/player-actor', () => {

@@ -1,5 +1,5 @@
 {
-  "name": "@minimal-rpg/db",
+  "name": "@arcagentic/db",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -27,8 +27,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@minimal-rpg/schemas": "workspace:*",
-    "@minimal-rpg/utils": "workspace:*",
+    "@arcagentic/schemas": "workspace:*",
+    "@arcagentic/utils": "workspace:*",
     "drizzle-orm": "^0.45.1",
     "ioredis": "^5.4.1",
     "pg": "^8.13.1",

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, type Dispatch, type SetStateAction } from 'react';
-import { getErrorMessage } from '@minimal-rpg/utils';
+import { getErrorMessage } from '@arcagentic/utils';
 import { useSignals } from '@preact/signals-react/runtime';
 import {
   createSession,

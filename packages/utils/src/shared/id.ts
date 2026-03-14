@@ -122,7 +122,7 @@ export function isUuid(value: string): boolean {
 
 /**
  * Coerce a plain string to a SessionId branded type.
- * Use when passing session IDs to @minimal-rpg/db functions.
+ * Use when passing session IDs to @arcagentic/db functions.
  *
  * Note: This is a type-level coercion only. The runtime value remains a string.
  */
@@ -132,7 +132,7 @@ export function toSessionId<T extends string>(id: T): T {
 
 /**
  * Coerce a plain string to an EntityProfileId branded type.
- * Use when passing entity profile IDs to @minimal-rpg/db functions.
+ * Use when passing entity profile IDs to @arcagentic/db functions.
  *
  * Note: This is a type-level coercion only. The runtime value remains a string.
  */
@@ -142,7 +142,7 @@ export function toEntityProfileId<T extends string>(id: T): T {
 
 /**
  * Coerce a plain string to a generic ID branded type.
- * Use when passing generic IDs to @minimal-rpg/db functions.
+ * Use when passing generic IDs to @arcagentic/db functions.
  *
  * Note: This is a type-level coercion only. The runtime value remains a string.
  */

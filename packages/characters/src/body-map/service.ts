@@ -1,4 +1,4 @@
-import type { BodyMap, BodyRegion, BodyRegionData } from '@minimal-rpg/schemas';
+import type { BodyMap, BodyRegion, BodyRegionData } from '@arcagentic/schemas';
 import type { BodyMapRepository, BodyMapServiceDeps } from './types.js';
 
 export class BodyMapService {

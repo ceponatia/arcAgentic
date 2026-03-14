@@ -3,7 +3,7 @@ import type {
   Speaker,
   ApiError,
   RuntimeConfigResponse,
-} from '@minimal-rpg/schemas';
+} from '/schemas';
 
 export type { SessionTagInstance, Speaker, ApiError, RuntimeConfigResponse };
 

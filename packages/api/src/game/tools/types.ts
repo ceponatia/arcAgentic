@@ -10,10 +10,10 @@ export type {
   ToolParameterSchema,
   ToolCall,
   ToolResult,
-} from '@minimal-rpg/schemas';
+} from '/schemas';
 
 // Tool-adjacent types still owned by utils
-export type { ChatMessageWithTools, StatePatches } from '@minimal-rpg/utils';
+export type { ChatMessageWithTools, StatePatches } from '/utils';
 
 // =============================================================================
 // Session Tool Argument Types

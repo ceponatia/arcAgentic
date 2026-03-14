@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSignals } from '@preact/signals-react/runtime';
-import { CORE_VALUES, type ValueEntry, createValueEntry } from '@minimal-rpg/schemas';
+import { CORE_VALUES, type ValueEntry, createValueEntry } from '@arcagentic/schemas';
 import { characterProfile, updatePersonalityMap } from '../../signals.js';
 import { SelectInput } from '../../../../shared/components/common.js';
 

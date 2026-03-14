@@ -3,7 +3,7 @@ import { TimeService } from '../src/time/time-service.js';
 
 const emitMock = vi.fn();
 
-vi.mock('@minimal-rpg/bus', () => ({
+vi.mock('@arcagentic/bus', () => ({
   worldBus: { emit: emitMock },
 }));
 

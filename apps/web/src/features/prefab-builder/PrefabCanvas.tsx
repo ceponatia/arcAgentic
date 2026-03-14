@@ -24,7 +24,7 @@ import type {
   PrefabLocationInstance,
   PrefabConnection,
   PrefabEntryPoint,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
 import { nodeTypes } from './CanvasNodes.js';
 import type { Location, LocationNodeData, EntryNodeData, PrefabCanvasProps } from './types.js';
 import { isVerticalDirection } from './types.js';
@@ -179,7 +179,9 @@ export function PrefabCanvas({
     };
 
     window.addEventListener('keydown', handleKeyDown);
-    return () => { window.removeEventListener('keydown', handleKeyDown); };
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, [selectedNodeId, selectedEdgeId, onDeleteNode, onDeleteEdge]);
 
   // Convert data to React Flow format

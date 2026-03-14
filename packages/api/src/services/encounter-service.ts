@@ -12,7 +12,7 @@ import type {
   EncounterNarrationOptions,
   EncounterNpcInfo,
   NpcActivity,
-} from '@minimal-rpg/schemas';
+} from '/schemas';
 
 export type { EncounterNarration, EncounterNarrationOptions, EncounterNpcInfo };
 

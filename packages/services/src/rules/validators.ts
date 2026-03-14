@@ -1,10 +1,10 @@
-import type { ActionValidationResult, GameTime, WorldEvent } from '@minimal-rpg/schemas';
+import type { ActionValidationResult, GameTime, WorldEvent } from '@arcagentic/schemas';
 import {
   getLocationConnections,
   getActorState,
   getInventoryItem,
   LocationDataValidationError,
-} from '@minimal-rpg/db';
+} from '@arcagentic/db';
 
 /**
  * Validation result for an action.

@@ -32,7 +32,7 @@ const sessionsClientMocks = vi.hoisted(() => ({
   upsertActorState: vi.fn(),
 }));
 
-vi.mock('@minimal-rpg/db/node', () => ({
+vi.mock('/db/node', () => ({
   createSession: sessionsClientMocks.createSession,
   getSession: sessionsClientMocks.getSession,
   listSessions: sessionsClientMocks.listSessions,

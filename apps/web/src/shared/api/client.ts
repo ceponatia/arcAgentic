@@ -1,4 +1,4 @@
-import { isAbortError } from '@minimal-rpg/utils';
+import { isAbortError } from '@arcagentic/utils';
 import type {
   CharacterSummary,
   SettingSummary,
@@ -27,7 +27,7 @@ import type {
   DbOverview,
   UserPreferences,
   WorkspaceMode,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
 import { API_BASE_URL, MESSAGE_TIMEOUT_MS } from '../../config.js';
 import { getAccessToken } from '../auth/accessToken.js';
 import type { AuthLoginResponse, AuthMeResponse } from '../auth/types.js';

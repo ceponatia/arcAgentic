@@ -1,5 +1,5 @@
 import React from 'react';
-import { getInlineErrorProps } from '@minimal-rpg/utils';
+import { getInlineErrorProps } from '@arcagentic/utils';
 import type { SettingFormState, SettingFormFieldErrors, SettingFormKey } from '../types.js';
 
 interface SettingGeneralFormProps {

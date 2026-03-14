@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import type { ItemDefinition } from '@minimal-rpg/schemas';
+import type { ItemDefinition } from '/schemas';
 import { mapItemSummary } from '../../src/mappers/item-mappers.js';
 
 describe('mappers/item-mappers', () => {

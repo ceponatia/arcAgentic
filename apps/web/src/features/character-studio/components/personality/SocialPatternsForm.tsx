@@ -7,7 +7,7 @@ import {
   CONFLICT_STYLES,
   CRITICISM_RESPONSES,
   BOUNDARY_TYPES,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
 import { characterProfile, updatePersonalityMap } from '../../signals.js';
 import { SelectInput } from '../../../../shared/components/common.js';
 

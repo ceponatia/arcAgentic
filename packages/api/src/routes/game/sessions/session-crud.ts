@@ -8,11 +8,11 @@ import {
   upsertActorState,
   getSessionProjection,
   getEventsForSession,
-} from '@minimal-rpg/db/node';
+} from '/db/node';
 import type { LoadedDataGetter } from '../../../loaders/types.js';
 import { notFound, badRequest, serverError } from '../../../utils/responses.js';
 import { jsonifyBigInts } from '../../../utils/json.js';
-import { generateId } from '@minimal-rpg/utils';
+import { generateId } from '/utils';
 import { CreateSessionRequestSchema, findCharacter, findSetting } from './shared.js';
 import { getOwnerEmail } from '../../../auth/ownerEmail.js';
 import { toId, toSessionId } from '../../../utils/uuid.js';
@@ -29,7 +29,7 @@ export async function handleGetSession(c: Context): Promise<Response> {
   if (!idResult.success) return idResult.errorResponse;
   const id = idResult.data;
   const ownerEmail = getOwnerEmail(c);
-  // getSession(id, ownerEmail) is from @minimal-rpg/db/node (sessions repository)
+  // getSession(id, ownerEmail) is from /db/node (sessions repository)
   const session = await getSession(toSessionId(id), ownerEmail);
   if (!session) return notFound(c, 'session not found');
 

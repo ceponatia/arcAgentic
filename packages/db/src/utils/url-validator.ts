@@ -5,4 +5,4 @@
  * to avoid code duplication and maintain a single source of truth.
  */
 
-export { isUrlDomain, redactUrlForLogging } from '@minimal-rpg/utils';
+export { isUrlDomain, redactUrlForLogging } from '@arcagentic/utils';

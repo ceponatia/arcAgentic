@@ -2,12 +2,12 @@
  * Gameplay tool handlers - execute tool calls that change game state.
  */
 import type { ToolResult } from './types.js';
-import type { InventoryItem, LocationMap, LocationNode } from '@minimal-rpg/schemas';
+import type { InventoryItem, LocationMap, LocationNode } from '/schemas';
 import {
   InventoryStateSchema,
   LocationConnectionSchema,
   LocationNodeSchema,
-} from '@minimal-rpg/schemas';
+} from '/schemas';
 import {
   getActorState,
   getActorsAtLocation,
@@ -19,9 +19,9 @@ import {
   listActorStatesForSession,
   updateActorState,
   upsertProjection,
-} from '@minimal-rpg/db/node';
-import { worldBus } from '@minimal-rpg/bus';
-import { LocationService } from '@minimal-rpg/services';
+} from '/db/node';
+import { worldBus } from '/bus';
+import { LocationService } from '/services';
 import { toSessionId } from '../../utils/uuid.js';
 import {
   ExamineObjectArgsSchema,

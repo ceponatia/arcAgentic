@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSignals } from '@preact/signals-react/runtime';
-import type { CharacterProfile } from '@minimal-rpg/schemas';
+import type { CharacterProfile } from '@arcagentic/schemas';
 import { characterProfile, updateProfile } from '../signals.js';
 import { IdentityCard } from './IdentityCard.js';
 import { SelectInput } from '../../../shared/components/common.js';

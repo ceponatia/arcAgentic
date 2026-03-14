@@ -1,7 +1,7 @@
 import { eq, and, or, lt, gt, isNull, isNotNull } from 'drizzle-orm';
 import { drizzle as db } from '../connection/index.js';
 import { sessions, sessionProjections } from '../schema/index.js';
-import { DEFAULT_START_TIME, GameTimeSchema } from '@minimal-rpg/schemas';
+import { DEFAULT_START_TIME, GameTimeSchema } from '@arcagentic/schemas';
 import type { UUID } from '../types.js';
 
 type SessionProjectionRecord = Record<string, unknown>;

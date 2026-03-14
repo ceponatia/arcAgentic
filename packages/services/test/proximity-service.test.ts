@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { ProximityService } from '../src/physics/proximity-service.js';
-import { makeEngagementKey } from '@minimal-rpg/schemas';
+import { makeEngagementKey } from '@arcagentic/schemas';
 
 const service = new ProximityService();
 

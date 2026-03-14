@@ -1,5 +1,5 @@
 {
-  "name": "@minimal-rpg/projections",
+  "name": "@arcagentic/projections",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -19,10 +19,10 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@minimal-rpg/bus": "workspace:*",
-    "@minimal-rpg/db": "workspace:*",
-    "@minimal-rpg/schemas": "workspace:*",
-    "@minimal-rpg/utils": "workspace:*",
+    "@arcagentic/bus": "workspace:*",
+    "@arcagentic/db": "workspace:*",
+    "@arcagentic/schemas": "workspace:*",
+    "@arcagentic/utils": "workspace:*",
     "drizzle-orm": "^0.45.1",
     "fast-json-patch": "^3.1.1",
     "zod": "^3.23.8"

@@ -4,8 +4,8 @@ import {
   SettingProfileSchema,
   type CharacterProfile,
   type SettingProfile,
-} from '@minimal-rpg/schemas';
-import { generateId, isUuid } from '@minimal-rpg/utils';
+} from '/schemas';
+import { generateId, isUuid } from '/utils';
 import { deleteCharacterFile } from '../../loaders/loader.js';
 import {
   listEntityProfiles,
@@ -13,7 +13,7 @@ import {
   createEntityProfile,
   updateEntityProfile,
   deleteEntityProfile,
-} from '@minimal-rpg/db/node';
+} from '/db/node';
 import type { ApiError } from '../../types.js';
 import type { LoadedDataGetter, CharacterSummary, SettingSummary } from '../../loaders/types.js';
 import { mapCharacterSummary, mapSettingSummary } from '../../mappers/profile-mappers.js';

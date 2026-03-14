@@ -3,15 +3,15 @@ import {
   SettingProfileSchema,
   type CharacterProfile,
   type SettingProfile,
-} from '@minimal-rpg/schemas';
+} from '/schemas';
 import type { OverridesObject, OverridesAudit } from './types.js';
 import {
   getActorState,
   upsertActorState,
   getProjection,
   upsertProjection,
-} from '@minimal-rpg/db/node';
-import { deepMergeReplaceArrays } from '@minimal-rpg/utils';
+} from '/db/node';
+import { deepMergeReplaceArrays } from '/utils';
 import { toId, toSessionId } from '../utils/uuid.js';
 
 export async function upsertCharacterOverrides(params: {

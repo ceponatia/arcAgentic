@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { LocationService } from '../src/location/location-service.js';
-import type { LocationMap } from '@minimal-rpg/schemas';
+import type { LocationMap } from '@arcagentic/schemas';
 
 function buildMap(): LocationMap {
   return {

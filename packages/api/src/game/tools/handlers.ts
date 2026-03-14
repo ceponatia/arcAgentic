@@ -29,7 +29,7 @@ import {
   eq,
   and,
   desc,
-} from '@minimal-rpg/db/node';
+} from '/db/node';
 import { toSessionId } from '../../utils/uuid.js';
 
 interface ActorStateRow {

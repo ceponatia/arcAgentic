@@ -31,7 +31,7 @@ COPY . .
 
 # 4. Build shared pieces you always want up to date
 RUN node scripts/generate-sensory-templates.mjs
-RUN pnpm -F @minimal-rpg/schemas build
+RUN pnpm -F @arcagentic/schemas build
 
 # 5. Default command is a no-op; docker-compose services will override it
 CMD ["node", "-e", "console.log('Base image ready')"]

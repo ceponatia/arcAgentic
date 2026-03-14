@@ -63,7 +63,7 @@ Keyword dictionaries and intelligent matching functions.
 
 **Types:**
 
-- `SensoryType` (from `@minimal-rpg/schemas`): Union of sensory indicator keys (scent/texture/visual/flavor/sound)
+- `SensoryType` (from `@arcagentic/schemas`): Union of sensory indicator keys (scent/texture/visual/flavor/sound)
 
 ### parsers.ts
 
@@ -104,7 +104,7 @@ Barrel export re-exporting all public functions from keywords, parsers, and form
 
 ### Internal (monorepo)
 
-**@minimal-rpg/schemas** - Required for BodyMap-related types:
+**@arcagentic/schemas** - Required for BodyMap-related types:
 
 - `BodyMap`: Full body sensory data structure
 - `BodyRegion`: Union of canonical body regions (head, face, hair, etc.)
@@ -117,7 +117,7 @@ Barrel export re-exporting all public functions from keywords, parsers, and form
 
 ### External
 
-**zod** - Transitive dependency via @minimal-rpg/schemas (not directly imported)
+**zod** - Transitive dependency via @arcagentic/schemas (not directly imported)
 
 ## Usage Sites
 
@@ -125,13 +125,13 @@ Barrel export re-exporting all public functions from keywords, parsers, and form
 
 #### apps/web/src/features/character-builder/CharacterBuilder.tsx
 
-- Imports `parseBodyEntries` from `@minimal-rpg/utils`
+- Imports `parseBodyEntries` from `@arcagentic/utils`
 - Parses raw body text input from character builder form
 - Converts natural language into `BodyMap` for CharacterProfile
 
 #### apps/web/src/features/character-builder/hooks/useCharacterBuilderForm.ts
 
-- Imports `formatScent`, `formatTexture`, `formatVisual`, `formatFlavor` from `@minimal-rpg/utils`
+- Imports `formatScent`, `formatTexture`, `formatVisual`, `formatFlavor` from `@arcagentic/utils`
 - Converts structured `BodyMap` data back to editable text entries in form state
 - Used when loading existing character data into the form
 
@@ -140,7 +140,7 @@ Barrel export re-exporting all public functions from keywords, parsers, and form
 #### packages/utils/src/index.ts
 
 - Re-exports all bodyParser functions via `export * from './bodyParser/index.js'`
-- Makes bodyParser API available to consumers importing from `@minimal-rpg/utils`
+- Makes bodyParser API available to consumers importing from `@arcagentic/utils`
 
 ### Related Documentation
 
@@ -150,14 +150,14 @@ Barrel export re-exporting all public functions from keywords, parsers, and form
 
 #### apps/web/src/features/character-builder/README.md
 
-- References `parseBodyEntries` in dependency table (though references outdated `@minimal-rpg/schemas` import)
+- References `parseBodyEntries` in dependency table (though references outdated `@arcagentic/schemas` import)
 
 ## Example Usage
 
 ### Parsing Text to BodyMap
 
 ```typescript
-import { parseBodyEntries } from '@minimal-rpg/utils';
+import { parseBodyEntries } from '@arcagentic/utils';
 
 const input = `
   hair: scent: strong musk, floral
@@ -182,8 +182,8 @@ console.log(result.warnings);
 ### Formatting BodyMap to Text
 
 ```typescript
-import { formatBodyMap } from '@minimal-rpg/utils';
-import type { BodyMap } from '@minimal-rpg/schemas';
+import { formatBodyMap } from '@arcagentic/utils';
+import type { BodyMap } from '@arcagentic/schemas';
 
 const bodyMap: BodyMap = {
   hair: {
@@ -203,7 +203,7 @@ console.log(text);
 ### Using Keyword Detection
 
 ```typescript
-import { detectSensoryType, containsSensoryKeyword, SCENT_INDICATORS } from '@minimal-rpg/utils';
+import { detectSensoryType, containsSensoryKeyword, SCENT_INDICATORS } from '@arcagentic/utils';
 
 // Detect sensory type from player input
 const type1 = detectSensoryType('I smell something musky');
@@ -257,16 +257,16 @@ Potential areas for expansion:
 
 ### v0.0.0 → Current
 
-**Breaking change**: bodyParser moved from `@minimal-rpg/schemas` to `@minimal-rpg/utils`
+**Breaking change**: bodyParser moved from `@arcagentic/schemas` to `@arcagentic/utils`
 
 **Action required**: Update imports:
 
 ```diff
-- import { parseBodyEntries } from '@minimal-rpg/schemas';
-+ import { parseBodyEntries } from '@minimal-rpg/utils';
+- import { parseBodyEntries } from '@arcagentic/schemas';
++ import { parseBodyEntries } from '@arcagentic/utils';
 ```
 
-**Compatibility**: `@minimal-rpg/utils` must be added as a dependency for packages using bodyParser.
+**Compatibility**: `@arcagentic/utils` must be added as a dependency for packages using bodyParser.
 
 **Completed migrations:**
 
@@ -279,7 +279,7 @@ This module is part of the **character creation and representation system**. Rel
 
 - **packages/schemas/src/character/body.ts**: Defines `BodyMap`, `BodyRegion`, sensory data schemas
 - **packages/schemas/src/character/appearance.ts**: Defines `Physique` schema for height/build/age
-- **@minimal-rpg/web character builder feature**: UI for character creation using bodyParser
+- **@arcagentic/web character builder feature**: UI for character creation using bodyParser
 - **packages/agents/src/sensory**: Future agent using `containsSensoryKeyword` for command detection
 
 See [dev-docs/19-body-map-and-sensory-system.md](../../../../dev-docs/19-body-map-and-sensory-system.md) for broader architectural context.

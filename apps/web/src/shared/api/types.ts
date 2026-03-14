@@ -1,1 +1,1 @@
-export type { CreateFullSessionRequest, CreateFullSessionResponse } from '@minimal-rpg/schemas';
+export type { CreateFullSessionRequest, CreateFullSessionResponse } from '@arcagentic/schemas';

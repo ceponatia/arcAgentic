@@ -1,6 +1,6 @@
 import type { Context } from 'hono';
 import { badRequest } from '../../../utils/responses.js';
-import { presenceService } from '@minimal-rpg/services';
+import { presenceService } from '/services';
 
 interface SessionHeartbeatResponse {
   ok: true;

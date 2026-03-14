@@ -1,6 +1,6 @@
 // packages/actors/src/studio-npc/studio-machine.ts
 import { createMachine, assign, fromPromise } from 'xstate';
-import type { LLMMessage } from '@minimal-rpg/llm';
+import type { LLMMessage } from '/llm';
 import { Effect } from 'effect';
 import type {
   StudioMachineContext,

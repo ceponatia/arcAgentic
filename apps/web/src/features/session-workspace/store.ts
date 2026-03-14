@@ -19,7 +19,7 @@ import type {
   PersonaProfile,
   TagTargetType,
   WorkspaceValidationResult as SharedWorkspaceValidationResult,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
 import {
   createWorkspaceDraft,
   updateWorkspaceDraft,

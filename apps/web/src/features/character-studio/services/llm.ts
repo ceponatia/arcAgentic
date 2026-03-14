@@ -1,4 +1,4 @@
-import type { CharacterProfile } from '@minimal-rpg/schemas';
+import type { CharacterProfile } from '@arcagentic/schemas';
 import { API_BASE_URL } from '../../../config.js';
 import { getAccessToken } from '../../../shared/auth/accessToken.js';
 

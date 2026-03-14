@@ -20,7 +20,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
-import type { LocationNode, LocationConnection, SemanticZoomLevel } from '@minimal-rpg/schemas';
+import type { LocationNode, LocationConnection, SemanticZoomLevel } from '@arcagentic/schemas';
 import type { EditMode, Selection, PendingEdge, Viewport } from './types.js';
 import { nodeTypes, type LocationNodeFlowData } from './LocationNodeComponent.js';
 

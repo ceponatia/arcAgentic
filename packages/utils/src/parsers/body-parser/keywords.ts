@@ -1,5 +1,5 @@
-import { getRecordOptional } from '@minimal-rpg/schemas';
-import type { RegionTexture, SensoryType } from '@minimal-rpg/schemas';
+import { getRecordOptional } from '@arcagentic/schemas';
+import type { RegionTexture, SensoryType } from '@arcagentic/schemas';
 
 /**
  * Keyword mappings for body sensory parsing.

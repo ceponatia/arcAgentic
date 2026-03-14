@@ -1,5 +1,5 @@
-import { worldBus } from '@minimal-rpg/bus';
-import { TieredCognitionRouter, OpenAIProvider } from '@minimal-rpg/llm';
+import { worldBus } from '@arcagentic/bus';
+import { TieredCognitionRouter, OpenAIProvider } from '@arcagentic/llm';
 import { createWorker, getOpenAiWorkerConfig } from './config.js';
 import { createCognitionProcessor } from './processors/cognition.js';
 import { createTickProcessor } from './processors/tick.js';
@@ -7,11 +7,11 @@ import { createEmbeddingProcessor } from './processors/embedding.js';
 import { cognitionQueue, tickQueue, embeddingQueue } from './queues/index.js';
 import { Scheduler } from './scheduler/index.js';
 import { HeartbeatMonitor } from './heartbeat-monitor.js';
-import { presenceService, PAUSE_THRESHOLD_MS } from '@minimal-rpg/services';
+import { presenceService, PAUSE_THRESHOLD_MS } from '@arcagentic/services';
 import {
   listRecentSessionsByHeartbeat,
   listStaleSessionsByHeartbeat,
-} from '@minimal-rpg/db/node';
+} from '@arcagentic/db/node';
 
 /**
  * Main Worker Entry Point

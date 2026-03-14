@@ -18,7 +18,7 @@ export const AppFooter: React.FC = () => {
             Contact Us
           </a>
           <a
-            href="https://github.com/snarebox/minimal-rpg"
+            href="https://github.com/ceponatia/arcAgentic"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-slate-200 transition-colors"

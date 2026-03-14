@@ -4,8 +4,8 @@ import {
   type ItemDefinition,
   type ItemCategory,
   type ClothingSlot,
-} from '@minimal-rpg/schemas';
-import { getErrorMessage, mapZodErrorsToFields, getInlineErrorProps } from '@minimal-rpg/utils';
+} from '@arcagentic/schemas';
+import { getErrorMessage, mapZodErrorsToFields, getInlineErrorProps } from '@arcagentic/utils';
 import { splitList } from '../shared/stringLists.js';
 import { getItem, saveItem, deleteItem } from '../../shared/api/client.js';
 import { PreviewSidebar } from './components/PreviewSidebar.js';

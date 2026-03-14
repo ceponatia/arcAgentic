@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { ExitResolver } from '../src/location/exit-resolver.js';
-import type { LocationMap } from '@minimal-rpg/schemas';
+import type { LocationMap } from '@arcagentic/schemas';
 
 const map = {
   nodes: [

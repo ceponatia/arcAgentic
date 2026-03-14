@@ -1,7 +1,7 @@
 // IMPORTANT: This file is an entrypoint.
 // Under Node ESM, static imports are evaluated before any code in this module.
 // That means we must load `.env` BEFORE importing the rest of the app
-// (especially @minimal-rpg/db, which resolves DATABASE_URL at module init).
+// (especially /db, which resolves DATABASE_URL at module init).
 
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'node:url';

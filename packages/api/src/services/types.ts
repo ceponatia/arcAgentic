@@ -3,7 +3,7 @@ import type {
   SettingProfile,
   WorldEvent,
   ConversationMessageRole,
-} from '@minimal-rpg/schemas';
+} from '/schemas';
 import type { Speaker } from '../types.js';
 import type { DbMessage, DbSessionSummary } from '../db/types.js';
 

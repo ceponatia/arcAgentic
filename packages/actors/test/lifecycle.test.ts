@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { WorldEvent } from '@minimal-rpg/schemas';
-import { worldBus } from '@minimal-rpg/bus';
+import type { WorldEvent } from '/schemas';
+import { worldBus } from '/bus';
 import { BaseActorLifecycle } from '../src/base/lifecycle.js';
 import type { Actor } from '../src/base/types.js';
 
-vi.mock('@minimal-rpg/bus', () => ({
+vi.mock('/bus', () => ({
   worldBus: {
     emit: vi.fn(async () => undefined),
     subscribe: vi.fn(async () => undefined),

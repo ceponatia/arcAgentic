@@ -48,7 +48,7 @@ export function registerConfigRoutes(app: Hono) {
     // DB check (lazy-import db client to avoid circular deps)
     let dbOk = false;
     try {
-      const { pool } = await import('@minimal-rpg/db/node');
+      const { pool } = await import('/db/node');
       await pool.query('SELECT 1');
       dbOk = true;
     } catch (error) {

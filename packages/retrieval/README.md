@@ -1,4 +1,4 @@
-# @minimal-rpg/retrieval
+# @arcagentic/retrieval
 
 This package handles knowledge node retrieval and scoring for Minimal RPG. It provides semantic search over decomposed profile data using vector embeddings and salience tracking.
 
@@ -58,7 +58,7 @@ import {
   applyNarrativeDecay,
   boostNarrativeImportance,
   DEFAULT_SCORING_WEIGHTS,
-} from '@minimal-rpg/retrieval';
+} from '@arcagentic/retrieval';
 
 // Cosine similarity between embeddings
 const similarity = cosineSimilarity([1, 0, 0], [0.8, 0.6, 0]);
@@ -89,7 +89,7 @@ import {
   diffNodes,
   DEFAULT_CHARACTER_PATHS,
   DEFAULT_SETTING_PATHS,
-} from '@minimal-rpg/retrieval';
+} from '@arcagentic/retrieval';
 
 // Extract nodes from a character profile
 const { nodes: extracted, errors } = extractNodes(characterProfile, DEFAULT_CHARACTER_PATHS);
@@ -110,7 +110,7 @@ console.log(diff.toCreate, diff.toUpdate, diff.unchanged, diff.toRemove);
 ### InMemoryRetrievalService
 
 ```ts
-import { InMemoryRetrievalService } from '@minimal-rpg/retrieval';
+import { InMemoryRetrievalService } from '@arcagentic/retrieval';
 
 // Create service (optionally with embedding service)
 const service = new InMemoryRetrievalService();
@@ -142,7 +142,7 @@ await service.applyDecay();
 ### With Embedding Service
 
 ```ts
-import { InMemoryRetrievalService, EmbeddingService } from '@minimal-rpg/retrieval';
+import { InMemoryRetrievalService, EmbeddingService } from '@arcagentic/retrieval';
 
 const embeddingService: EmbeddingService = {
   embed: async (texts) => {

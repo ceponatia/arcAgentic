@@ -9,10 +9,10 @@ import {
   CreateNpcInstanceRequestSchema,
   CreateSessionRequestSchema,
   MessageRequestSchema,
-} from '@minimal-rpg/schemas';
+} from '/schemas';
 import type { LoadedData } from '../../../loaders/types.js';
-import { getEntityProfile } from '@minimal-rpg/db/node';
-import { extractJsonField } from '@minimal-rpg/utils';
+import { getEntityProfile } from '/db/node';
+import { extractJsonField } from '/utils';
 import { isUuid, toId } from '../../../utils/uuid.js';
 
 export { MessageRequestSchema, CreateSessionRequestSchema, CreateNpcInstanceRequestSchema };

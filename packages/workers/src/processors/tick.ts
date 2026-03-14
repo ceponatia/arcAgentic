@@ -1,5 +1,5 @@
 import { type Processor } from 'bullmq';
-import { WorldBus } from '@minimal-rpg/bus';
+import { WorldBus } from '@arcagentic/bus';
 import { type JobData, type TickTask, type JobResult } from '../types.js';
 
 /**

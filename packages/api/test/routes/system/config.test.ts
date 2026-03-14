@@ -16,7 +16,7 @@ vi.mock('../../../src/utils/version.js', () => ({
   getVersion: configMocks.getVersionMock,
 }));
 
-vi.mock('@minimal-rpg/db/node', () => ({
+vi.mock('/db/node', () => ({
   pool: {
     query: configMocks.poolQueryMock,
   },

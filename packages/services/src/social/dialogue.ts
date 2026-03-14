@@ -1,7 +1,7 @@
 import { Effect } from 'effect';
-import { getCharacterProfile, getOrCreateDialogueState } from '@minimal-rpg/db';
-import type { LLMProvider } from '@minimal-rpg/llm';
-import type { CharacterProfile } from '@minimal-rpg/schemas';
+import { getCharacterProfile, getOrCreateDialogueState } from '@arcagentic/db';
+import type { LLMProvider } from '@arcagentic/llm';
+import type { CharacterProfile } from '@arcagentic/schemas';
 import type { DialogueContext } from './dialogue-types.js';
 import type { DialogueConditionContext } from './dialogue-tree-types.js';
 import { DialogueTreeResolver } from './dialogue-tree-resolver.js';

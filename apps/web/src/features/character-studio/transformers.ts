@@ -11,7 +11,7 @@ import {
   RACES,
   getRecordOptional,
   setPartialRecord,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
 import { splitList } from '../shared/stringLists.js';
 import {
   type DetailFormEntry,
@@ -19,8 +19,8 @@ import {
   type PersonalityFormState,
   createPersonalityFormState,
   createInitialState,
-} from '@minimal-rpg/schemas';
-import { clamp } from '@minimal-rpg/utils';
+} from '@arcagentic/schemas';
+import { clamp } from '@arcagentic/utils';
 
 const parsePersonality = (value: string): string | string[] => {
   const parts = splitList(value);

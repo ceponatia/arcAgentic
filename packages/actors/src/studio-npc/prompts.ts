@@ -1,5 +1,5 @@
 // packages/actors/src/studio-npc/prompts.ts
-import type { CharacterProfile, PersonalityMap } from '@minimal-rpg/schemas';
+import type { CharacterProfile, PersonalityMap } from '/schemas';
 
 /**
  * Build the main system prompt for studio NPC conversations.

@@ -1,1 +1,1 @@
-export { SessionsPanel } from '@minimal-rpg/ui';
+export { SessionsPanel } from '@arcagentic/ui';

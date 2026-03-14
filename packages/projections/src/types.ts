@@ -1,4 +1,4 @@
-import type { WorldEvent } from '@minimal-rpg/schemas';
+import type { WorldEvent } from '@arcagentic/schemas';
 
 /**
  * A Reducer is a pure function that takes the current state and an event,

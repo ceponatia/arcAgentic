@@ -6,11 +6,11 @@ import {
   executePromotion,
   getNpcsReadyForPromotion,
 } from '../../src/services/tier-service.js';
-import type { PlayerInterestScore } from '@minimal-rpg/schemas';
-import { DEFAULT_INTEREST_CONFIG } from '@minimal-rpg/schemas';
-import { getActorState, listActorStatesForSession, upsertActorState } from '@minimal-rpg/db/node';
+import type { PlayerInterestScore } from '/schemas';
+import { DEFAULT_INTEREST_CONFIG } from '/schemas';
+import { getActorState, listActorStatesForSession, upsertActorState } from '/db/node';
 
-vi.mock('@minimal-rpg/db/node', () => ({
+vi.mock('/db/node', () => ({
   getActorState: vi.fn(),
   listActorStatesForSession: vi.fn(),
   upsertActorState: vi.fn(),

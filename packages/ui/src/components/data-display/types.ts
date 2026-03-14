@@ -1,4 +1,4 @@
-import type { SessionUsageInfo } from '@minimal-rpg/schemas';
+import type { SessionUsageInfo } from '@arcagentic/schemas';
 
 export interface CharactersPanelCharacterSummary {
   id: string;

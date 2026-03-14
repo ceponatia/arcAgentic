@@ -34,12 +34,12 @@ vi.mock('../../../src/db/sessionsClient.js', () => ({
   getSession: turnMocks.getSessionMock,
 }));
 
-vi.mock('@minimal-rpg/db/node', () => ({
+vi.mock('/db/node', () => ({
   listActorStatesForSession: turnMocks.listActorStatesForSessionMock,
   getEntityProfile: turnMocks.getEntityProfileMock,
 }));
 
-vi.mock('@minimal-rpg/bus', () => ({
+vi.mock('/bus', () => ({
   worldBus: {
     subscribe: turnMocks.worldBusSubscribeMock,
     unsubscribe: turnMocks.worldBusUnsubscribeMock,
@@ -47,14 +47,14 @@ vi.mock('@minimal-rpg/bus', () => ({
   },
 }));
 
-vi.mock('@minimal-rpg/actors', () => ({
+vi.mock('/actors', () => ({
   actorRegistry: {
     has: turnMocks.actorRegistryHasMock,
     spawn: turnMocks.actorRegistrySpawnMock,
   },
 }));
 
-vi.mock('@minimal-rpg/services', () => ({
+vi.mock('/services', () => ({
   dialogueService: { start: turnMocks.dialogueStartMock },
   physicsService: { start: turnMocks.physicsStartMock },
   timeService: { start: turnMocks.timeStartMock },
@@ -63,7 +63,7 @@ vi.mock('@minimal-rpg/services', () => ({
   Scheduler: { start: turnMocks.schedulerStartMock },
 }));
 
-vi.mock('@minimal-rpg/llm', () => ({
+vi.mock('/llm', () => ({
   createOpenRouterProviderFromEnv: () => null,
   OpenAIProvider: class { },
 }));

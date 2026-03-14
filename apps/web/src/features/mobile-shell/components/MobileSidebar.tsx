@@ -3,7 +3,7 @@ import type { MobileSidebarProps } from '../../../types.js';
 import { CharactersPanel } from '../../characters-panel/CharactersPanel.js';
 import { SettingsPanel } from '../../settings-panel/SettingsPanel.js';
 import { TagsPanel } from '../../tags-panel/index.js';
-import { SessionsPanel } from '@minimal-rpg/ui';
+import { SessionsPanel } from '@arcagentic/ui';
 
 const CloseIcon: React.FC<{ className?: string }> = ({ className }) => (
   <svg
@@ -67,7 +67,9 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);
-    return () => { document.removeEventListener('keydown', handleKeyDown); };
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
   }, [handleKeyDown]);
 
   // Prevent body scroll when sidebar is open

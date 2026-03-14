@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import type { SettingBackground } from '@minimal-rpg/schemas';
+import type { SettingBackground } from '@arcagentic/schemas';
 import { getSetting } from '../../../shared/api/client.js';
 import { createInitialFormState, mapProfileToForm } from '../transformers.js';
 import type { SettingFormState, SettingFormFieldErrors, SettingFormKey } from '../types.js';

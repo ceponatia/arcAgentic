@@ -1,6 +1,6 @@
 import React from 'react';
-import { PreviewSidebarLayout } from '@minimal-rpg/ui';
-import type { ItemCategory } from '@minimal-rpg/schemas';
+import { PreviewSidebarLayout } from '@arcagentic/ui';
+import type { ItemCategory } from '@arcagentic/schemas';
 
 interface FormState {
   id: string;

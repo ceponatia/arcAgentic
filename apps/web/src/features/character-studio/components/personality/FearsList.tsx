@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSignals } from '@preact/signals-react/runtime';
-import { FEAR_CATEGORIES, COPING_MECHANISMS } from '@minimal-rpg/schemas';
+import { FEAR_CATEGORIES, COPING_MECHANISMS } from '@arcagentic/schemas';
 import { type FearEntry, createFearEntry } from '../../types.js';
 import { characterProfile, updatePersonalityMap } from '../../signals.js';
 import { SelectInput, SliderInput } from '../../../../shared/components/common.js';
@@ -84,12 +84,12 @@ export const FearsList: React.FC = () => {
                 const newFears = fears.map((f, i) =>
                   i === idx
                     ? {
-                      ...f,
-                      triggers: val
-                        .split(',')
-                        .map((s) => s.trim())
-                        .filter(Boolean),
-                    }
+                        ...f,
+                        triggers: val
+                          .split(',')
+                          .map((s) => s.trim())
+                          .filter(Boolean),
+                      }
                     : f
                 );
                 handleUpdate(newFears as FearEntry[]);

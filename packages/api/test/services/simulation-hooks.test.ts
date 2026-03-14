@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { GameTime, NpcLocationState, NpcScheduleData } from '@minimal-rpg/schemas';
+import type { GameTime, NpcLocationState, NpcScheduleData } from '/schemas';
 import {
   onTurnComplete,
   onPeriodChange,
@@ -14,7 +14,7 @@ const hookMocks = vi.hoisted(() => ({
   runTimeSkipSimulationMock: vi.fn(),
 }));
 
-vi.mock('@minimal-rpg/db/node', () => ({
+vi.mock('/db/node', () => ({
   listActorStatesForSession: hookMocks.listActorStatesForSessionMock,
   bulkUpsertActorStates: hookMocks.bulkUpsertActorStatesMock,
 }));

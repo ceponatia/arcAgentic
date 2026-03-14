@@ -13,7 +13,7 @@ vi.mock('node:fs', () => ({
   },
 }));
 
-vi.mock('@minimal-rpg/utils', () => ({
+vi.mock('@arcagentic/utils', () => ({
   parseJsonWithSchema: vi.fn((raw: string) => JSON.parse(raw)),
 }));
 

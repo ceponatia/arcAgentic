@@ -5,8 +5,8 @@ import {
   actorStates,
   eq,
   desc,
-} from '@minimal-rpg/db/node';
-import type { EntityUsageSummary, SessionUsageInfo } from '@minimal-rpg/schemas';
+} from '/db/node';
+import type { EntityUsageSummary, SessionUsageInfo } from '/schemas';
 import type { ApiError } from '../../types.js';
 import { toId } from '../../utils/uuid.js';
 

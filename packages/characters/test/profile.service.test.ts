@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import type { CharacterProfile } from '@minimal-rpg/schemas';
+import type { CharacterProfile } from '@arcagentic/schemas';
 import { ProfileService } from '../src/profile/service.js';
 import type { ProfileRepository } from '../src/profile/types.js';
 

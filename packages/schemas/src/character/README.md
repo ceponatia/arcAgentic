@@ -14,7 +14,7 @@ Zod schemas for character profiles, appearance, personality, and body region dat
 | `details.ts`          | Flexible key-value details for RAG experiments                         |
 | `personality.ts`      | Structured personality map (Big Five, emotions, speech style)          |
 
-**Note:** Body sensory data parsing utilities (e.g., `parseBodyEntries`, `formatScent`) have been moved to `@minimal-rpg/utils` to keep this package focused on schemas only.
+**Note:** Body sensory data parsing utilities (e.g., `parseBodyEntries`, `formatScent`) have been moved to `@arcagentic/utils` to keep this package focused on schemas only.
 
 ## CharacterProfile
 

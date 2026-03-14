@@ -12,7 +12,7 @@
  *   updateInterestScore,
  *   checkPromotion,
  *   NPC_TIER_DEFAULTS,
- * } from '@minimal-rpg/schemas/npc-tier';
+ * } from '@arcagentic/schemas/npc-tier';
  * ```
  */
 

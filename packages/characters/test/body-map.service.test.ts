@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import type { BodyMap, BodyRegionData } from '@minimal-rpg/schemas';
+import type { BodyMap, BodyRegionData } from '@arcagentic/schemas';
 import { BodyMapService } from '../src/body-map/service.js';
 import type { BodyMapRepository } from '../src/body-map/types.js';
 

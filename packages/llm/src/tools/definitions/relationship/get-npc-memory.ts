@@ -1,5 +1,5 @@
 /** Get NPC memory tool definition (design only). */
-import type { ToolDefinition } from '@minimal-rpg/schemas';
+import type { ToolDefinition } from '@arcagentic/schemas';
 
 export const GET_NPC_MEMORY_TOOL: ToolDefinition = {
   type: 'function',

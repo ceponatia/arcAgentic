@@ -6,7 +6,7 @@ import type {
   SessionSummaryRecord,
   UUID,
 } from '../types.js';
-import type { SessionHistoryEntry, StateChangeLogEntry, UserPreferences, UserRole } from '@minimal-rpg/schemas';
+import type { SessionHistoryEntry, StateChangeLogEntry, UserPreferences, UserRole } from '@arcagentic/schemas';
 
 export type { MessageSpeaker };
 export type { SessionHistoryEntry, StateChangeLogEntry, UserPreferences, UserRole };

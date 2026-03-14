@@ -9,7 +9,7 @@ import type {
   ConditionContext,
   NpcLocationState,
   NpcScheduleData,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
 
 export type { NpcScheduleData };
 

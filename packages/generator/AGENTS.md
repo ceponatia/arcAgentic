@@ -1,4 +1,4 @@
-# @minimal-rpg/generator
+# @arcagentic/generator
 
 ## Purpose
 

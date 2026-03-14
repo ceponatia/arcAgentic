@@ -1,5 +1,5 @@
-import { db, sessionProjections } from '@minimal-rpg/db';
-import { getRecordOptional } from '@minimal-rpg/schemas';
+import { db, sessionProjections } from '@arcagentic/db';
+import { getRecordOptional } from '@arcagentic/schemas';
 
 type ProjectionColumnName = 'location' | 'inventory' | 'time' | 'npcs';
 

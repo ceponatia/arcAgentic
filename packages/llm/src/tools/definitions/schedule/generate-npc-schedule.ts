@@ -1,5 +1,5 @@
 /** Generate NPC schedule tool definition. */
-import type { ToolDefinition } from '@minimal-rpg/schemas';
+import type { ToolDefinition } from '@arcagentic/schemas';
 
 export const GENERATE_NPC_SCHEDULE_TOOL: ToolDefinition = {
   type: 'function',

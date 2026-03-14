@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSignals } from '@preact/signals-react/runtime';
-import { PERSONALITY_DIMENSIONS, getRecordOptional, setRecord } from '@minimal-rpg/schemas';
+import { PERSONALITY_DIMENSIONS, getRecordOptional, setRecord } from '@arcagentic/schemas';
 import { characterProfile, updatePersonalityMap } from '../../signals.js';
 import { RadarChart } from '../RadarChart.js';
 import { SliderInput } from '../../../../shared/components/common.js';

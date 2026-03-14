@@ -15,7 +15,7 @@ const dbMocks = vi.hoisted(() => ({
   getEntityProfile: vi.fn(),
 }));
 
-vi.mock('@minimal-rpg/db/node', () => ({
+vi.mock('/db/node', () => ({
   ...dbMocks,
 }));
 

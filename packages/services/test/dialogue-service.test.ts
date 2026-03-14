@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { DialogueService } from '../src/social/dialogue-service.js';
-import type { WorldEvent } from '@minimal-rpg/schemas';
+import type { WorldEvent } from '@arcagentic/schemas';
 
 const { emitMock, subscribeMock, unsubscribeMock } = vi.hoisted(() => ({
   emitMock: vi.fn(),
@@ -10,7 +10,7 @@ const { emitMock, subscribeMock, unsubscribeMock } = vi.hoisted(() => ({
 
 let subscribed: ((event: WorldEvent) => Promise<void>) | null = null;
 
-vi.mock('@minimal-rpg/bus', () => ({
+vi.mock('@arcagentic/bus', () => ({
   worldBus: {
     emit: emitMock,
     subscribe: vi.fn(async (handler: (event: WorldEvent) => Promise<void>) => {

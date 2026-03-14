@@ -6,7 +6,7 @@ export { BASE_THEME } from './base.js';
 export { MODERN_WOMAN_THEME } from './modern-woman.js';
 export { MODERN_MAN_THEME } from './modern-man.js';
 
-import { getRecordOptional } from '@minimal-rpg/schemas';
+import { getRecordOptional } from '@arcagentic/schemas';
 import { BASE_THEME } from './base.js';
 import { MODERN_WOMAN_THEME } from './modern-woman.js';
 import { MODERN_MAN_THEME } from './modern-man.js';

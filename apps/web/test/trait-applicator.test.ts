@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { ATTACHMENT_STYLES } from '@minimal-rpg/schemas';
+import { ATTACHMENT_STYLES } from '@arcagentic/schemas';
 
 const characterProfile = {
   value: {

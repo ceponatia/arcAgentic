@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronDown, Eye, Hand, Utensils, Wind } from 'lucide-react';
-import { getRecordOptional } from '@minimal-rpg/schemas';
-import type { BodyRegion, ResolvedBodyMap, ResolvedRegionData } from '@minimal-rpg/schemas';
+import { getRecordOptional } from '@arcagentic/schemas';
+import type { BodyRegion, ResolvedBodyMap, ResolvedRegionData } from '@arcagentic/schemas';
 import { AttributionBadge } from './AttributionBadge.js';
 
 interface SensoryPreviewWithAttributionProps {

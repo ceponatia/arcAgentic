@@ -1,6 +1,6 @@
 import { vi } from 'vitest';
 
-vi.mock('@minimal-rpg/bus', () => {
+vi.mock('/bus', () => {
   return {
     worldBus: {
       emit: vi.fn(async () => undefined),

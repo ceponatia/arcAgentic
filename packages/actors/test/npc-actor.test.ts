@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { NpcActor } from '../src/npc/npc-actor.js';
 import { actorRegistry } from '../src/registry/actor-registry.js';
-import type { WorldEvent } from '@minimal-rpg/schemas';
+import type { WorldEvent } from '/schemas';
 
 describe('NpcActor', () => {
   let actor: NpcActor;

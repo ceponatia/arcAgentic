@@ -8,8 +8,8 @@ import type {
   PrefabLocationInstance,
   PrefabConnection,
   PrefabEntryPoint,
-} from '@minimal-rpg/schemas';
-import { generateShortId } from '@minimal-rpg/utils';
+} from '@arcagentic/schemas';
+import { generateShortId } from '@arcagentic/utils';
 import type { Location, LocationPort, PropertiesPanelProps } from './types.js';
 
 export function PropertiesPanel({

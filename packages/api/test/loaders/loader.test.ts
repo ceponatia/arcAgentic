@@ -28,7 +28,7 @@ vi.mock('node:fs', () => ({
   promises: fsMocks.promises,
 }));
 
-vi.mock('@minimal-rpg/schemas', () => ({
+vi.mock('/schemas', () => ({
   CharacterProfileSchema: { safeParse: schemaMocks.characterSafeParse },
   SettingProfileSchema: { safeParse: schemaMocks.settingSafeParse },
 }));

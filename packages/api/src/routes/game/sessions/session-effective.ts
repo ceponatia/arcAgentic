@@ -3,7 +3,7 @@
  * GET /sessions/:id/effective - merged character + setting profiles
  */
 import type { Context } from 'hono';
-import { getSession } from '@minimal-rpg/db/node';
+import { getSession } from '/db/node';
 import type { LoadedDataGetter } from '../../../loaders/types.js';
 import type { EffectiveProfilesResponse } from '../../../services/types.js';
 import { getEffectiveProfiles } from '../../../services/index.js';
@@ -30,7 +30,7 @@ export async function handleGetEffective(
   if (!idResult.success) return idResult.errorResponse;
   const id = idResult.data;
   const ownerEmail = getOwnerEmail(c);
-  // getSession(id, ownerEmail) from @minimal-rpg/db/node
+  // getSession(id, ownerEmail) from /db/node
   const session = (await getSession(toSessionId(id), ownerEmail)) as SessionRecord | null;
   if (!session) return notFound(c, 'session not found');
 

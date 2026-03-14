@@ -5,9 +5,9 @@ import type {
   SettingSummary,
   ItemSummary,
   ItemDefinition,
-} from '@minimal-rpg/schemas';
+} from '/schemas';
 
-export type { CharacterSummary, SettingSummary, PersonaSummary, ItemSummary } from '@minimal-rpg/schemas';
+export type { CharacterSummary, SettingSummary, PersonaSummary, ItemSummary } from '/schemas';
 
 // Loaded data (characters + settings)
 export interface LoadedData {

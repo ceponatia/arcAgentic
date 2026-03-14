@@ -1,9 +1,9 @@
-import { CharacterProfileSchema, type CharacterProfile, type Intent, type WorldEvent } from '@minimal-rpg/schemas';
-import type { LLMProvider } from '@minimal-rpg/llm';
-import { CognitionLayer, type CognitionContext } from '@minimal-rpg/actors';
-import { worldBus } from '@minimal-rpg/bus';
-import { timeService } from '@minimal-rpg/services';
-import { getActorState, getEntityProfile } from '@minimal-rpg/db/node';
+import { CharacterProfileSchema, type CharacterProfile, type Intent, type WorldEvent } from '/schemas';
+import type { LLMProvider } from '/llm';
+import { CognitionLayer, type CognitionContext } from '/actors';
+import { worldBus } from '/bus';
+import { timeService } from '/services';
+import { getActorState, getEntityProfile } from '/db/node';
 import { isUuid, toId, toSessionId } from '../utils/uuid.js';
 
 /**

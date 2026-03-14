@@ -1,4 +1,4 @@
-import { PreviewSidebarLayout } from '@minimal-rpg/ui';
+import { PreviewSidebarLayout } from '@arcagentic/ui';
 import { CATEGORY_LABELS, type TagFormState } from '../types.js';
 
 interface PreviewSidebarProps {

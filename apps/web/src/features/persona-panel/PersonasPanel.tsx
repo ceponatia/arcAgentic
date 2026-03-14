@@ -1,6 +1,6 @@
 import React from 'react';
-import { PersonasPanel as PersonasPanelView } from '@minimal-rpg/ui';
-import type { PersonasPanelProps as PersonasPanelViewProps } from '@minimal-rpg/ui';
+import { PersonasPanel as PersonasPanelView } from '@arcagentic/ui';
+import type { PersonasPanelProps as PersonasPanelViewProps } from '@arcagentic/ui';
 import { deletePersona } from '../../shared/api/client.js';
 
 interface PersonasPanelProps {

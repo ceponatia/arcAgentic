@@ -12,7 +12,7 @@ import {
   type EncounterNarrationOptions,
   type EncounterNpcInfo,
   type NpcActivity,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
 
 export type { EncounterNarration, EncounterNarrationOptions, EncounterNpcInfo };
 

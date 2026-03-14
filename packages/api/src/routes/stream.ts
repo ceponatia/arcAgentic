@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import { streamSSE } from 'hono/streaming';
-import { worldBus } from '@minimal-rpg/bus';
-import { type WorldEvent } from '@minimal-rpg/schemas';
+import { worldBus } from '/bus';
+import { type WorldEvent } from '/schemas';
 import { safeJsonStringify } from '../utils/json.js';
 
 const router = new Hono();

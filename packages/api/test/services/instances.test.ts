@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { CharacterProfile, SettingProfile } from '@minimal-rpg/schemas';
+import type { CharacterProfile, SettingProfile } from '/schemas';
 import {
   upsertCharacterOverrides,
   upsertSettingOverrides,
@@ -15,7 +15,7 @@ const instanceMocks = vi.hoisted(() => ({
   upsertProjectionMock: vi.fn(),
 }));
 
-vi.mock('@minimal-rpg/db/node', () => ({
+vi.mock('/db/node', () => ({
   getActorState: instanceMocks.getActorStateMock,
   upsertActorState: instanceMocks.upsertActorStateMock,
   getProjection: instanceMocks.getProjectionMock,

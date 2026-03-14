@@ -19,7 +19,7 @@ import {
   Mountain,
   Loader2,
 } from 'lucide-react';
-import type { LocationType, LocationNode } from '@minimal-rpg/schemas';
+import type { LocationType, LocationNode } from '@arcagentic/schemas';
 import { PrefabBuilder } from '../prefab-builder/index.js';
 import { API_BASE_URL } from '../../config.js';
 

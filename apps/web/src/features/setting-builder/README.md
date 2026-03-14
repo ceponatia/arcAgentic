@@ -8,13 +8,13 @@ Form-based setting creation and editing UI with tag selection.
 
 ## Cross-Package Imports
 
-| Import                                        | Source Package         | Usage                                        |
-| --------------------------------------------- | ---------------------- | -------------------------------------------- |
-| `SettingProfileSchema`                        | `@minimal-rpg/schemas` | Validates setting data before submission     |
-| `SettingProfile`, `SettingTag`                | `@minimal-rpg/schemas` | Types for setting structure                  |
-| `SETTING_TAGS`                                | `@minimal-rpg/schemas` | Array of available setting tag options       |
-| `BuilderActionPanel`                          | `@minimal-rpg/ui`      | Reusable save/cancel/delete button panel     |
-| `mapZodErrorsToFields`, `getInlineErrorProps` | `@minimal-rpg/utils`   | Error handling and form validation utilities |
+| Import                                        | Source Package        | Usage                                        |
+| --------------------------------------------- | --------------------- | -------------------------------------------- |
+| `SettingProfileSchema`                        | `@arcagentic/schemas` | Validates setting data before submission     |
+| `SettingProfile`, `SettingTag`                | `@arcagentic/schemas` | Types for setting structure                  |
+| `SETTING_TAGS`                                | `@arcagentic/schemas` | Array of available setting tag options       |
+| `BuilderActionPanel`                          | `@arcagentic/ui`      | Reusable save/cancel/delete button panel     |
+| `mapZodErrorsToFields`, `getInlineErrorProps` | `@arcagentic/utils`   | Error handling and form validation utilities |
 
 ## API Client Imports
 

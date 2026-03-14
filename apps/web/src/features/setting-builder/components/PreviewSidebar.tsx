@@ -1,5 +1,5 @@
 import React from 'react';
-import { PreviewSidebarLayout } from '@minimal-rpg/ui';
+import { PreviewSidebarLayout } from '@arcagentic/ui';
 import type { SettingFormState } from '../types.js';
 
 interface PreviewSidebarProps {

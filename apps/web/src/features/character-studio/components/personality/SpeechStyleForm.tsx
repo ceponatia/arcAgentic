@@ -9,7 +9,7 @@ import {
   EXPRESSIVENESS_LEVELS,
   DIRECTNESS_LEVELS,
   PACE_LEVELS,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
 import { characterProfile, updatePersonalityMap } from '../../signals.js';
 import { SelectInput } from '../../../../shared/components/common.js';
 

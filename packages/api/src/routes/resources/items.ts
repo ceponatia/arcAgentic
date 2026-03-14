@@ -1,6 +1,6 @@
 // src/routes/items.ts
 import type { Hono } from 'hono';
-import { ItemDefinitionSchema } from '@minimal-rpg/schemas';
+import { ItemDefinitionSchema } from '/schemas';
 import {
   listEntityProfiles,
   getEntityProfile,

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Hono } from 'hono';
-import { BODY_REGIONS, getRecordOptional } from '@minimal-rpg/schemas';
+import { BODY_REGIONS, getRecordOptional } from '/schemas';
 
 const hygieneMocks = vi.hoisted(() => ({
   getActorStateMock: vi.fn(),
@@ -8,7 +8,7 @@ const hygieneMocks = vi.hoisted(() => ({
   loadSensoryModifiersMock: vi.fn(),
 }));
 
-vi.mock('@minimal-rpg/db/node', () => ({
+vi.mock('/db/node', () => ({
   getActorState: hygieneMocks.getActorStateMock,
   upsertActorState: hygieneMocks.upsertActorStateMock,
 }));

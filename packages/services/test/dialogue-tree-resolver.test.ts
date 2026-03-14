@@ -3,7 +3,7 @@
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { DialogueTreeResolver } from '../src/social/dialogue-tree-resolver.js';
-import { DialogueTreeSchema } from '@minimal-rpg/schemas';
+import { DialogueTreeSchema } from '@arcagentic/schemas';
 import type { DialogueConditionContext } from '../src/social/dialogue-tree-types.js';
 
 interface DialogueTreeRecord {
@@ -33,7 +33,7 @@ const {
   clearDialogueStateMock: vi.fn(async () => true),
 }));
 
-vi.mock('@minimal-rpg/db', () => ({
+vi.mock('@arcagentic/db', () => ({
   getDialogueTrees: getDialogueTreesMock,
   updateDialogueState: updateDialogueStateMock,
   clearDialogueState: clearDialogueStateMock,

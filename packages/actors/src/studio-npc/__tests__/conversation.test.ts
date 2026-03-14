@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { Effect } from 'effect';
-import type { LLMProvider, LLMResponse, LLMStreamChunk } from '@minimal-rpg/llm';
+import type { LLMProvider, LLMResponse, LLMStreamChunk } from '/llm';
 import { ConversationManager } from '../conversation.js';
 import type { ConversationMessage } from '../types.js';
 

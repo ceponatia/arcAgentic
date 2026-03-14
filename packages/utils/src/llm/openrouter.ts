@@ -1,6 +1,6 @@
 import { getErrorMessage, isAbortError } from '../errors/errors.js';
 import { safeJson, safeText } from '../http/fetch.js';
-import type { ToolCall, ToolDefinition } from '@minimal-rpg/schemas';
+import type { ToolCall, ToolDefinition } from '@arcagentic/schemas';
 import type {
   ChatRole,
   LlmGenerationOptions,

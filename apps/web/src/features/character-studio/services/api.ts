@@ -3,7 +3,7 @@ import {
   saveCharacter,
   deleteCharacter as apiDeleteCharacter,
 } from '../../../shared/api/client.js';
-import { generateId } from '@minimal-rpg/utils';
+import { generateId } from '@arcagentic/utils';
 
 // Re-export from shared API client (reuse existing functions)
 export const loadCharacter = getCharacter;

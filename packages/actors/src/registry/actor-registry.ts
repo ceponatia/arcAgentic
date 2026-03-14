@@ -1,8 +1,8 @@
 import type { Actor, ActorConfig, NpcActorConfig } from '../base/types.js';
 import { NpcActor } from '../npc/npc-actor.js';
 import { PlayerActor } from '../player/player-actor.js';
-import { worldBus } from '@minimal-rpg/bus';
-import type { WorldEvent } from '@minimal-rpg/schemas';
+import { worldBus } from '/bus';
+import type { WorldEvent } from '/schemas';
 
 /**
  * Actor Registry - manages actor lifecycle and lookup.

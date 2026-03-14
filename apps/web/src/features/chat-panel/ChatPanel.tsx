@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { getErrorMessage, isAbortError } from '@minimal-rpg/utils';
+import { getErrorMessage, isAbortError } from '@arcagentic/utils';
 import type { Message, Session, TurnMetadata, StreamEvent } from '../../types.js';
 import {
   getSession,
@@ -10,7 +10,7 @@ import {
   getRuntimeConfig,
   getSessionMessages,
 } from '../../shared/api/client.js';
-import { ChatView, type ChatViewMessage } from '@minimal-rpg/ui';
+import { ChatView, type ChatViewMessage } from '@arcagentic/ui';
 import { DebugSidebar } from '../chat/components/index.js';
 import { WorldMap, EventLog } from '../game/index.js';
 import { useWorldBus } from '../../hooks/useWorldBus.js';

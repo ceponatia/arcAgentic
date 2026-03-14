@@ -3,7 +3,7 @@ import type {
   UpdateTagRequest,
   TagResponse,
   TagListResponse,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
 import {
   getTag as apiGetTag,
   getTags as apiGetTags,

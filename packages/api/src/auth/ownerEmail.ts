@@ -1,5 +1,5 @@
 import type { Context } from 'hono';
-import type { OwnerEmail } from '@minimal-rpg/db/node';
+import type { OwnerEmail } from '/db/node';
 import { getAuthUser } from './middleware.js';
 
 /**

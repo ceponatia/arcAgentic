@@ -1,5 +1,5 @@
 import { LocationService } from '../location/location-service.js';
-import type { LocationMap } from '@minimal-rpg/schemas';
+import type { LocationMap } from '@arcagentic/schemas';
 
 /**
  * Pathfinding Service

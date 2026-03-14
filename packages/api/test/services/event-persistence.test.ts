@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 const saveEvent = vi.fn();
 const getEventsForSession = vi.fn();
 
-vi.mock('@minimal-rpg/db/node', async () => {
+vi.mock('/db/node', async () => {
   return {
     saveEvent,
     getEventsForSession,

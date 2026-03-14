@@ -1,5 +1,5 @@
-import { getEventsForSession, saveEvent } from '@minimal-rpg/db/node';
-import type { WorldEvent } from '@minimal-rpg/schemas';
+import { getEventsForSession, saveEvent } from '/db/node';
+import type { WorldEvent } from '/schemas';
 import { toSessionId } from '../utils/uuid.js';
 
 /**

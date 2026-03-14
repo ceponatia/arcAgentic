@@ -6,7 +6,7 @@ const authRouteMocks = vi.hoisted(() => ({
   getOrCreateDefaultUserMock: vi.fn(),
 }));
 
-vi.mock('@minimal-rpg/db/node', () => ({
+vi.mock('/db/node', () => ({
   verifyLocalUserPassword: authRouteMocks.verifyLocalUserPasswordMock,
   getOrCreateDefaultUser: authRouteMocks.getOrCreateDefaultUserMock,
 }));

@@ -1,4 +1,4 @@
-import { getArraySafe } from '@minimal-rpg/schemas';
+import { getArraySafe } from '@arcagentic/schemas';
 import type {
   ParserPattern,
   ExtractedAttribute,

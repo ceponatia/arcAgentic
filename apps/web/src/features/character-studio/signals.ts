@@ -8,13 +8,13 @@ import {
   type ResolvedBodyMap,
   type SuggestedPrompt,
   type SensoryProfileConfig,
-} from '@minimal-rpg/schemas';
-import { generateLocalId } from '@minimal-rpg/utils';
+} from '@arcagentic/schemas';
+import { generateLocalId } from '@arcagentic/utils';
 import type { StudioFieldErrors, StudioFieldKey } from './validation/types.js';
 import { applyTrait } from './utils/trait-applicator.js';
 import { validateCharacterProfileBeforeSave } from './validation/validateCharacterProfileBeforeSave.js';
 
-export type { ConversationMessage, InferredTrait, SuggestedPrompt } from '@minimal-rpg/schemas';
+export type { ConversationMessage, InferredTrait, SuggestedPrompt } from '@arcagentic/schemas';
 
 // ============================================================================
 // Character Data Signals

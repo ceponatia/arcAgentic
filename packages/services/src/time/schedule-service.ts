@@ -6,13 +6,13 @@
  *
  * @see dev-docs/27-npc-schedules-and-routines.md
  */
-import type { ScheduleResolution, NpcLocationState, NpcActivity } from '@minimal-rpg/schemas';
+import type { ScheduleResolution, NpcLocationState, NpcActivity } from '@arcagentic/schemas';
 import {
   resolveSchedule,
   resolveScheduleTemplate,
   DEFAULT_TEMPLATE_MAP,
   createDefaultNpcLocationState,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
 import type {
   NpcScheduleData,
   ScheduleResolutionOptions,

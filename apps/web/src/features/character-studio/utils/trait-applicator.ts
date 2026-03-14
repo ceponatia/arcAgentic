@@ -1,4 +1,4 @@
-import type { CharacterProfile, PersonalityMap } from '@minimal-rpg/schemas';
+import type { CharacterProfile, PersonalityMap } from '@arcagentic/schemas';
 import {
   ATTACHMENT_STYLES,
   BOUNDARY_TYPES,
@@ -21,7 +21,7 @@ import {
   STRANGER_DEFAULTS,
   VOCABULARY_LEVELS,
   WARMTH_RATES,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
 import {
   createFearEntry,
   createValueEntry,

@@ -88,4 +88,4 @@ export {
 } from './turn-orchestrator.js';
 
 // Utilities (re-export for backward compatibility)
-export { deepMergeReplaceArrays } from '@minimal-rpg/utils';
+export { deepMergeReplaceArrays } from '/utils';

@@ -1,5 +1,5 @@
 {
-  "name": "@minimal-rpg/generator",
+  "name": "@arcagentic/generator",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -19,7 +19,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@minimal-rpg/schemas": "workspace:*"
+    "@arcagentic/schemas": "workspace:*"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.0.16",

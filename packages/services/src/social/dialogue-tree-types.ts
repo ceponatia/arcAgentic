@@ -5,7 +5,7 @@ import type {
   DialogueItemAction,
   DialogueQuestAction,
   DialogueQuestStatus,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
 
 /**
  * Custom condition evaluator for dialogue trees.

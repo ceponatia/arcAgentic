@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Context } from 'hono';
-import type { CharacterProfile, SettingProfile } from '@minimal-rpg/schemas';
+import type { CharacterProfile, SettingProfile } from '/schemas';
 
 const npcMocks = vi.hoisted(() => ({
   getSessionMock: vi.fn(),
@@ -9,7 +9,7 @@ const npcMocks = vi.hoisted(() => ({
   getOwnerEmailMock: vi.fn(),
 }));
 
-vi.mock('@minimal-rpg/db/node', () => ({
+vi.mock('/db/node', () => ({
   getSession: npcMocks.getSessionMock,
   listActorStatesForSession: npcMocks.listActorStatesForSessionMock,
   upsertActorState: npcMocks.upsertActorStateMock,
@@ -19,8 +19,8 @@ vi.mock('../../../src/auth/ownerEmail.js', () => ({
   getOwnerEmail: npcMocks.getOwnerEmailMock,
 }));
 
-vi.mock('@minimal-rpg/utils', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@minimal-rpg/utils')>();
+vi.mock('/utils', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('/utils')>();
   return {
     ...actual,
     generateInstanceId: (id: string) => `${id}-instance`,

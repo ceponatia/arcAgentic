@@ -1,4 +1,4 @@
-# @minimal-rpg/ui
+# @arcagentic/ui
 
 ## Purpose
 

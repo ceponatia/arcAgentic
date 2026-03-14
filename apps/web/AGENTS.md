@@ -1,4 +1,4 @@
-# @minimal-rpg/web
+# @arcagentic/web
 
 ## Purpose
 
@@ -24,8 +24,8 @@ Vite-based React frontend for Minimal RPG. The player-facing web client that com
 - TypeScript with strict typing
 - React with functional components and hooks
 - Keep types in domain-level and shared types files where appropriate. Do not define types in-line.
-- Use utils from `@minimal-rpg/utils` instead of duplicating logic.
-- Prefer to add utils to `@minimal-rpg/utils` instead of scope-specific helpers when possible.
+- Use utils from `@arcagentic/utils` instead of duplicating logic.
+- Prefer to add utils to `@arcagentic/utils` instead of scope-specific helpers when possible.
 
 ## Data Freshness (Views)
 

@@ -1,5 +1,5 @@
 {
-  "name": "@minimal-rpg/retrieval",
+  "name": "@arcagentic/retrieval",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -19,8 +19,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@minimal-rpg/db": "workspace:*",
-    "@minimal-rpg/schemas": "workspace:*"
+    "@arcagentic/db": "workspace:*",
+    "@arcagentic/schemas": "workspace:*"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.0.16",

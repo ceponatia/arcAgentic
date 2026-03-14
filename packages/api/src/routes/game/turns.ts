@@ -1,11 +1,11 @@
 import type { Hono } from 'hono';
 import { getOwnerEmail } from '../../auth/ownerEmail.js';
 import { getSession } from '../../db/sessionsClient.js';
-import { getEntityProfile, listActorStatesForSession } from '@minimal-rpg/db/node';
+import { getEntityProfile, listActorStatesForSession } from '/db/node';
 import { turnRateLimiter } from '../../middleware/rate-limiter.js';
 import { notFound } from '../../utils/responses.js';
-import { worldBus } from '@minimal-rpg/bus';
-import { actorRegistry } from '@minimal-rpg/actors';
+import { worldBus } from '/bus';
+import { actorRegistry } from '/actors';
 import {
   dialogueService,
   physicsService,
@@ -13,9 +13,9 @@ import {
   socialEngine,
   rulesEngine,
   Scheduler,
-} from '@minimal-rpg/services';
-import type { CharacterProfile, WorldEvent } from '@minimal-rpg/schemas';
-import { OpenAIProvider, createOpenRouterProviderFromEnv } from '@minimal-rpg/llm';
+} from '/services';
+import type { CharacterProfile, WorldEvent } from '/schemas';
+import { OpenAIProvider, createOpenRouterProviderFromEnv } from '/llm';
 import { toSessionId } from '../../utils/uuid.js';
 import { validateBody, validateParamId } from '../../utils/request-validation.js';
 import { getEnvValue } from '../../utils/env.js';

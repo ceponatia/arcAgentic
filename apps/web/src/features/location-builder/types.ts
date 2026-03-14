@@ -8,7 +8,7 @@ import type {
   LocationPrefab,
   LocationType,
   SemanticZoomLevel,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
 
 /** Active editing mode in the builder */
 export type EditMode = 'select' | 'add-node' | 'add-edge' | 'pan';

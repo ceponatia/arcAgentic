@@ -12,7 +12,7 @@ import { LocationBucket } from './LocationBucket.js';
 import { PropertiesPanel } from './PropertiesPanel.js';
 import type { Location, LocationPort, PrefabBuilderProps } from './types.js';
 import { calculateDirection } from './types.js';
-import { generateLocalId } from '@minimal-rpg/utils';
+import { generateLocalId } from '@arcagentic/utils';
 
 /** Main PrefabBuilder component */
 export function PrefabBuilder({ prefabId, onSave, onBack }: PrefabBuilderProps) {

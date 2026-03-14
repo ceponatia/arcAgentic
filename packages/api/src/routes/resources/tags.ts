@@ -17,7 +17,7 @@ import {
   TagQuerySchema,
   CreateTagBindingRequestSchema,
   UpdateTagBindingRequestSchema,
-} from '@minimal-rpg/schemas';
+} from '/schemas';
 import type { ApiError } from '../../types.js';
 import { toId, toSessionId } from '../../utils/uuid.js';
 import {

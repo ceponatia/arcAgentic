@@ -11,7 +11,7 @@ import {
   ensureLocalAdminUser,
   initStudioSessionsTable,
   cleanupExpiredSessions,
-} from '@minimal-rpg/db/node';
+} from '/db/node';
 
 // Route registrars
 import { registerSystemRoutes } from './routes/system/index.js';
@@ -28,9 +28,9 @@ import {
   telemetryMiddleware,
   persistenceMiddleware,
   registerPersistenceHandler,
-} from '@minimal-rpg/bus';
+} from '/bus';
 import { persistWorldEvent } from './services/event-persistence.js';
-import { rulesEngine, Scheduler, tickEmitter } from '@minimal-rpg/services';
+import { rulesEngine, Scheduler, tickEmitter } from '/services';
 
 const app = new Hono();
 

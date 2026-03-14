@@ -1,4 +1,4 @@
-import { ProjectionManager } from '@minimal-rpg/projections';
+import { ProjectionManager } from '/projections';
 
 /**
  * Service for managing world state projections.

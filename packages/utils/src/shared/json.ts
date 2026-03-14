@@ -1,4 +1,4 @@
-import { getRecordOptional } from '@minimal-rpg/schemas';
+import { getRecordOptional } from '@arcagentic/schemas';
 import type { ZodSchema } from 'zod';
 
 /**

@@ -208,7 +208,7 @@ const plugin = {
         ],
         messages: {
           duplicate:
-            "Exported {{kind}} '{{name}}' is also defined in other packages: {{others}}. Canonicalize in @minimal-rpg/schemas and derive package-specific variants via Pick/Omit.",
+            "Exported {{kind}} '{{name}}' is also defined in other packages: {{others}}. Canonicalize in @arcagentic/schemas and derive package-specific variants via Pick/Omit.",
         },
       },
       create(context) {

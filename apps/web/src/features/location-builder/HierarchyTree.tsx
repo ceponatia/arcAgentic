@@ -3,7 +3,7 @@
  * Tree view for location hierarchy with drag-and-drop support.
  */
 import { useState, useMemo } from 'react';
-import type { LocationNode, LocationType } from '@minimal-rpg/schemas';
+import type { LocationNode, LocationType } from '@arcagentic/schemas';
 import { ChevronDown, ChevronRight, MapPin, Building2, DoorOpen, Plus, Trash2 } from 'lucide-react';
 
 /** Tree node with computed children */
@@ -134,7 +134,9 @@ function TreeItem({
           isSelected ? 'bg-blue-100 hover:bg-blue-100' : ''
         }`}
         style={{ paddingLeft: `${8 + depth * 20}px` }}
-        onClick={() => { onSelectNode(node.id); }}
+        onClick={() => {
+          onSelectNode(node.id);
+        }}
       >
         {/* Expand/collapse button */}
         {hasChildren ? (
@@ -268,7 +270,9 @@ export function HierarchyTree({
         <span className="font-medium text-sm">Locations</span>
         <button
           className="flex items-center gap-1 px-2 py-1 text-xs bg-blue-50 text-blue-600 rounded hover:bg-blue-100"
-          onClick={() => { onAddChild(null, 'region'); }}
+          onClick={() => {
+            onAddChild(null, 'region');
+          }}
         >
           <Plus className="h-3.5 w-3.5" />
           Add Region

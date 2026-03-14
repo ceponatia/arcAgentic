@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
 import { DialogueService } from '../src/social/dialogue.js';
 import { Effect } from 'effect';
-import type { LLMProvider, LLMMessage, LLMResponse } from '@minimal-rpg/llm';
-import type { CharacterProfile } from '@minimal-rpg/schemas';
+import type { LLMProvider, LLMMessage, LLMResponse } from '@arcagentic/llm';
+import type { CharacterProfile } from '@arcagentic/schemas';
 
 const {
   getDialogueTreesMock,
@@ -14,7 +14,7 @@ const {
   clearDialogueStateMock: vi.fn(async () => true),
 }));
 
-vi.mock('@minimal-rpg/db', () => ({
+vi.mock('@arcagentic/db', () => ({
   getDialogueTrees: getDialogueTreesMock,
   updateDialogueState: updateDialogueStateMock,
   clearDialogueState: clearDialogueStateMock,

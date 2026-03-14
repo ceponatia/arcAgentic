@@ -7,7 +7,7 @@ import {
   type RegisterStudioRoutesOptions,
   type StudioLlmProvider,
 } from '../../src/routes/studio.js';
-import type { LLMStreamChunk, LLMResponse } from '@minimal-rpg/llm';
+import type { LLMStreamChunk, LLMResponse } from '/llm';
 
 class HttpError extends Error {
   public readonly status: number;

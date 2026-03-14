@@ -1,12 +1,12 @@
-import { worldBus } from '@minimal-rpg/bus';
+import { worldBus } from '@arcagentic/bus';
 import {
   getActiveSessions,
   getSessionNpcsWithSchedules,
   getSessionGameTime,
   getActorState,
   updateActorState,
-} from '@minimal-rpg/db';
-import type { NpcLocationState } from '@minimal-rpg/schemas';
+} from '@arcagentic/db';
+import type { NpcLocationState } from '@arcagentic/schemas';
 import { resolveNpcSchedulesBatch } from './schedule-service.js';
 
 type ActorStateRecord = Record<string, unknown>;

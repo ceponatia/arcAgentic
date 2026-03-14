@@ -12,7 +12,7 @@ import {
   listWorkspaceDrafts,
   pruneOldWorkspaceDrafts,
   updateWorkspaceDraft,
-} from '@minimal-rpg/db/node';
+} from '/db/node';
 import type { ApiError } from '../../types.js';
 import { toId } from '../../utils/uuid.js';
 import { validateBody, validateParamId } from '../../utils/request-validation.js';

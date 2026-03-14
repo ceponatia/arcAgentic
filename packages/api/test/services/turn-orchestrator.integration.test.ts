@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
-import { worldBus } from '@minimal-rpg/bus';
-import { timeService } from '@minimal-rpg/services';
-import * as dbNode from '@minimal-rpg/db/node';
-import { createOpenRouterProviderFromEnv, type LLMProvider } from '@minimal-rpg/llm';
+import { worldBus } from '/bus';
+import { timeService } from '/services';
+import * as dbNode from '/db/node';
+import { createOpenRouterProviderFromEnv, type LLMProvider } from '/llm';
 import { TurnOrchestrator, type TurnConfig } from '../../src/services/turn-orchestrator.js';
 
 // Mock NPC data for integration tests - must use valid UUIDs

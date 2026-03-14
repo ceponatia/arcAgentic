@@ -6,7 +6,7 @@ const presenceMocks = vi.hoisted(() => ({
   removeSessionMock: vi.fn(),
 }));
 
-vi.mock('@minimal-rpg/services', () => ({
+vi.mock('/services', () => ({
   presenceService: {
     recordHeartbeat: presenceMocks.recordHeartbeatMock,
     removeSession: presenceMocks.removeSessionMock,

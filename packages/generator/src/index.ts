@@ -1,5 +1,5 @@
 /**
- * @minimal-rpg/generator
+ * @arcagentic/generator
  *
  * Random content generator for Minimal RPG.
  * Generates complete or partial game entities using themed value pools.

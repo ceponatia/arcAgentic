@@ -1,9 +1,9 @@
 import React from 'react';
-import { CharactersPanel as CharactersPanelView } from '@minimal-rpg/ui';
+import { CharactersPanel as CharactersPanelView } from '@arcagentic/ui';
 import type {
   CharactersPanelCharacterSummary,
   CharactersPanelProps as CharactersPanelViewProps,
-} from '@minimal-rpg/ui';
+} from '@arcagentic/ui';
 import { deleteCharacter } from '../../shared/api/client.js';
 
 interface CharactersPanelProps {

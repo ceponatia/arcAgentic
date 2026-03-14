@@ -171,7 +171,7 @@ function listWorkspaceEntries() {
 
 /**
  * Returns the workspace entry for a package, or null if unknown.
- * @param {string} fullName - e.g. "@minimal-rpg/schemas"
+ * @param {string} fullName - e.g. "@arcagentic/schemas"
  * @param {Map<string, { dir: string; relativeDir: string; packageJsonPath: string }>} nameToEntry
  * @returns {{ dir: string; relativeDir: string; packageJsonPath: string } | null}
  */

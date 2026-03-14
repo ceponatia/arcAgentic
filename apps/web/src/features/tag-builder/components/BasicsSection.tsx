@@ -1,4 +1,4 @@
-import type { TagCategory, TagVisibility } from '@minimal-rpg/schemas';
+import type { TagCategory, TagVisibility } from '@arcagentic/schemas';
 
 import { CATEGORY_LABELS, type TagFormState, type TagUpdateFieldFn } from '../types.js';
 

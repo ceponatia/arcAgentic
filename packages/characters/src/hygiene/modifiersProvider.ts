@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { SensoryModifiersDataSchema } from '@minimal-rpg/schemas';
-import { parseJsonWithSchema } from '@minimal-rpg/utils';
+import { SensoryModifiersDataSchema } from '@arcagentic/schemas';
+import { parseJsonWithSchema } from '@arcagentic/utils';
 import type { z } from 'zod';
 import type { HygieneModifiersProvider, HygieneModifiersData } from './types.js';
 import { resolveDataDir } from '../utils/dataDir.js';

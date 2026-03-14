@@ -1,5 +1,5 @@
 /** Examine object tool definition (placeholder). */
-import type { ToolDefinition } from '@minimal-rpg/schemas';
+import type { ToolDefinition } from '@arcagentic/schemas';
 
 export const EXAMINE_OBJECT_TOOL: ToolDefinition = {
   type: 'function',

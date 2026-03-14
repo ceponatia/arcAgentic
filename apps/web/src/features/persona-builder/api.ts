@@ -1,4 +1,4 @@
-import type { PersonaProfile } from '@minimal-rpg/schemas';
+import type { PersonaProfile } from '@arcagentic/schemas';
 import {
   deletePersona as apiDeletePersona,
   getPersona,

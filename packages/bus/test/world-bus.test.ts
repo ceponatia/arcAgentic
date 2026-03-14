@@ -15,7 +15,7 @@ vi.mock('../src/adapters/redis-pubsub.js', () => ({
   },
 }));
 
-import type { WorldEvent } from '@minimal-rpg/schemas';
+import type { WorldEvent } from '/schemas';
 import { WorldBus } from '../src/index.js';
 
 describe('WorldBus', () => {

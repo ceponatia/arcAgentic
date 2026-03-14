@@ -1,5 +1,5 @@
-import { OpenAIProvider, type LLMMessage, type LLMProvider } from '@minimal-rpg/llm';
-import type { CharacterProfile } from '@minimal-rpg/schemas';
+import { OpenAIProvider, type LLMMessage, type LLMProvider } from '/llm';
+import type { CharacterProfile } from '/schemas';
 import {
   createStudioNpcActor,
   StudioNpcActor,
@@ -10,18 +10,18 @@ import {
   buildStudioSystemPrompt,
   type InferredTrait,
   type DiscoveryTopic,
-} from '@minimal-rpg/actors';
+} from '/actors';
 import {
   createStudioSession,
   getStudioSession,
   updateStudioSession,
   deleteStudioSession,
   type StudioSession,
-} from '@minimal-rpg/db/node';
+} from '/db/node';
 import { Cause, Effect, Exit } from 'effect';
 import { Hono } from 'hono';
 import { streamSSE } from 'hono/streaming';
-import { generateId } from '@minimal-rpg/utils';
+import { generateId } from '/utils';
 import { z } from 'zod';
 import type { ApiError } from '../types.js';
 import { getConfig } from '../utils/config.js';
@@ -857,7 +857,7 @@ export function registerStudioRoutes(app: Hono, options?: RegisterStudioRoutesOp
       }
 
       // Use the DilemmaEngine to generate just the scenario
-      const { DilemmaEngine } = await import('@minimal-rpg/actors');
+      const { DilemmaEngine } = await import('/actors');
       const engine = new DilemmaEngine({ llmProvider: llmProvider });
       const dilemma = await engine.generateDilemma(profile);
 

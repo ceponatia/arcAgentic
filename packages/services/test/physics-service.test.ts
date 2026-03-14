@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { PhysicsService } from '../src/physics/physics-engine.js';
-import type { WorldEvent } from '@minimal-rpg/schemas';
+import type { WorldEvent } from '@arcagentic/schemas';
 
 const emitMock = vi.fn();
 let subscribed: ((event: WorldEvent) => Promise<void>) | null = null;
 
-vi.mock('@minimal-rpg/bus', () => ({
+vi.mock('@arcagentic/bus', () => ({
   worldBus: {
     emit: emitMock,
     subscribe: vi.fn(async (handler: (event: WorldEvent) => Promise<void>) => {

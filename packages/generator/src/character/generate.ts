@@ -8,7 +8,7 @@ import {
   getArraySafe,
   setPartialRecord,
   RACES,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
 import type {
   AttachmentStyle,
   BodyMap,
@@ -25,7 +25,7 @@ import type {
   Race,
   PersonalityMap,
   Physique,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
 import type { GenerationMeta } from '../types.js';
 import type {
   CharacterGeneratorOptions,

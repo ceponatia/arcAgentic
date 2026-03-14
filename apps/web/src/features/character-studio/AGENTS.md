@@ -26,17 +26,17 @@ All state is managed via **Preact Signals** in [signals.ts](signals.ts). This is
 
 ### Key Signals
 
-| Signal | Type | Purpose |
-|--------|------|---------|
-| `characterProfile` | `Partial<CharacterProfile>` | Main character data being edited |
-| `characterId` | `string \| null` | ID for editing mode, null for new |
-| `isDirty` | `boolean` | Unsaved changes flag |
-| `saveStatus` | `'idle' \| 'saving' \| 'saved' \| 'error'` | Save operation state |
-| `fieldErrors` | `StudioFieldErrors` | Validation errors by field |
-| `conversationHistory` | `ConversationMessage[]` | Chat messages |
-| `pendingTraits` | `InferredTrait[]` | Traits awaiting user decision |
-| `isGenerating` | `boolean` | LLM response in progress |
-| `completionScore` | `computed` | 0-100 profile completeness |
+| Signal                | Type                                       | Purpose                           |
+| --------------------- | ------------------------------------------ | --------------------------------- |
+| `characterProfile`    | `Partial<CharacterProfile>`                | Main character data being edited  |
+| `characterId`         | `string \| null`                           | ID for editing mode, null for new |
+| `isDirty`             | `boolean`                                  | Unsaved changes flag              |
+| `saveStatus`          | `'idle' \| 'saving' \| 'saved' \| 'error'` | Save operation state              |
+| `fieldErrors`         | `StudioFieldErrors`                        | Validation errors by field        |
+| `conversationHistory` | `ConversationMessage[]`                    | Chat messages                     |
+| `pendingTraits`       | `InferredTrait[]`                          | Traits awaiting user decision     |
+| `isGenerating`        | `boolean`                                  | LLM response in progress          |
+| `completionScore`     | `computed`                                 | 0-100 profile completeness        |
 
 ### Signal Usage Pattern
 
@@ -73,11 +73,7 @@ Never mutate signals directly. Use the exported action functions:
 All form sections use the `IdentityCard` collapsible wrapper:
 
 ```tsx
-<IdentityCard
-  title="Section Name"
-  defaultOpen={false}
-  completionPercent={calculateCompletion()}
->
+<IdentityCard title="Section Name" defaultOpen={false} completionPercent={calculateCompletion()}>
   {/* form fields */}
 </IdentityCard>
 ```
@@ -110,10 +106,12 @@ All form sections use the `IdentityCard` collapsible wrapper:
     updateProfile('fieldName', e.target.value);
     clearFieldError('fieldName'); // Clear error on change
   }}
-/>
-{fieldErrors.value.fieldName && (
-  <div className="mt-1 text-xs text-red-400">{fieldErrors.value.fieldName}</div>
-)}
+/>;
+{
+  fieldErrors.value.fieldName && (
+    <div className="mt-1 text-xs text-red-400">{fieldErrors.value.fieldName}</div>
+  );
+}
 ```
 
 ## Data Flow
@@ -140,14 +138,14 @@ All form sections use the `IdentityCard` collapsible wrapper:
 ### Types Location
 
 - **Form types**: [types.ts](types.ts) - UI-specific form state types
-- **Schema types**: `@minimal-rpg/schemas` - Canonical data types
+- **Schema types**: `@arcagentic/schemas` - Canonical data types
 
 ### Key Form Types
 
 ```typescript
 interface PersonalityFormState {
-  traits: string;                    // Comma-separated keywords
-  dimensions: DimensionEntry[];      // Big Five scores
+  traits: string; // Comma-separated keywords
+  dimensions: DimensionEntry[]; // Big Five scores
   emotionalBaseline: EmotionalBaselineEntry;
   values: ValueEntry[];
   fears: FearEntry[];
@@ -218,14 +216,14 @@ Main hook for the studio feature:
 
 ```typescript
 const {
-  profile,      // Current profile data
-  isDirty,      // Has unsaved changes
-  saveStatus,   // Save operation state
-  isLoading,    // Initial load in progress
-  isEditing,    // Edit mode (has ID)
-  save,         // Save function
-  reset,        // Clear and start new
-  updateField,  // Update profile field
+  profile, // Current profile data
+  isDirty, // Has unsaved changes
+  saveStatus, // Save operation state
+  isLoading, // Initial load in progress
+  isEditing, // Edit mode (has ID)
+  save, // Save function
+  reset, // Clear and start new
+  updateField, // Update profile field
 } = useCharacterStudio({ id, onSave });
 ```
 
@@ -235,9 +233,9 @@ Conversation panel logic:
 
 ```typescript
 const {
-  messages,        // Chat history
-  isGenerating,    // AI thinking
-  sendMessage,     // Send user message
+  messages, // Chat history
+  isGenerating, // AI thinking
+  sendMessage, // Send user message
   clearConversation,
 } = useConversation();
 ```
@@ -290,6 +288,6 @@ character-studio/
 1. **Always call `useSignals()`** at the top of components that read signals
 2. **Never mutate signals directly** - use action functions
 3. **Use `.value` to read** signals, not the signal itself
-4. **Form types vs Schema types** - `types.ts` for forms, `@minimal-rpg/schemas` for data
+4. **Form types vs Schema types** - `types.ts` for forms, `@arcagentic/schemas` for data
 5. **Completion scores** should handle undefined/null gracefully
 6. **Clear field errors** when the user modifies the field

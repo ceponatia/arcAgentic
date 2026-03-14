@@ -1,5 +1,5 @@
 import { resolvedDbUrl, pool } from '../utils/client.js';
-import { getRecordOptional } from '@minimal-rpg/schemas';
+import { getRecordOptional } from '@arcagentic/schemas';
 import type {
   DbColumn,
   DbOverviewResult,

@@ -7,7 +7,7 @@ const adminDbMocks = vi.hoisted(() => ({
   deleteDbRowMock: vi.fn(),
 }));
 
-vi.mock('@minimal-rpg/db/node', () => ({
+vi.mock('/db/node', () => ({
   getDbOverview: adminDbMocks.getDbOverviewMock,
   getDbPathInfo: adminDbMocks.getDbPathInfoMock,
   deleteDbRow: adminDbMocks.deleteDbRowMock,

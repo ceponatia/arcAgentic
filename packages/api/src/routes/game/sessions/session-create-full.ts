@@ -9,7 +9,7 @@ import type { Context } from 'hono';
 import {
   CreateFullSessionRequestSchema,
   type CreateFullSessionResponse,
-} from '@minimal-rpg/schemas';
+} from '/schemas';
 import {
   drizzle,
   sessions,
@@ -18,18 +18,18 @@ import {
   sessionTags,
   promptTags,
   inArray,
-} from '@minimal-rpg/db/node';
-import { ensureUserByEmail } from '@minimal-rpg/db/node';
+} from '/db/node';
+import { ensureUserByEmail } from '/db/node';
 import type { LoadedDataGetter } from '../../../loaders/types.js';
 import { badRequest, serverError, notFound } from '../../../utils/responses.js';
-import { generateId, generateInstanceId } from '@minimal-rpg/utils';
+import { generateId, generateInstanceId } from '/utils';
 import { findCharacter, findSetting } from './shared.js';
 import { getAuthUser } from '../../../auth/middleware.js';
 import { toSessionId, toId, toIds } from '../../../utils/uuid.js';
-import type { CharacterProfile } from '@minimal-rpg/schemas';
+import type { CharacterProfile } from '/schemas';
 import { validateBody } from '../../../utils/request-validation.js';
 
-export type { CreateFullSessionRequest, CreateFullSessionResponse } from '@minimal-rpg/schemas';
+export type { CreateFullSessionRequest, CreateFullSessionResponse } from '/schemas';
 
 /**
  * Handle POST /sessions/create-full

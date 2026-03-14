@@ -1,6 +1,6 @@
-import type { getDbOverview, getDbPathInfo } from '@minimal-rpg/db/node';
-import type { ConversationMessageRole } from '@minimal-rpg/schemas';
-import type { SessionHistoryEntry, StateChangeLogEntry } from '@minimal-rpg/schemas';
+import type { getDbOverview, getDbPathInfo } from '/db/node';
+import type { ConversationMessageRole } from '/schemas';
+import type { SessionHistoryEntry, StateChangeLogEntry } from '/schemas';
 
 export interface DbMessage {
   role: ConversationMessageRole;

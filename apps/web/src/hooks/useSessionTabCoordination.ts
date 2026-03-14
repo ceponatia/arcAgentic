@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
-import { generateLocalId } from '@minimal-rpg/utils';
+import { generateLocalId } from '@arcagentic/utils';
 
 const LEADER_HEARTBEAT_INTERVAL_MS = 2000;
 const LEADER_TIMEOUT_MS = 5000;

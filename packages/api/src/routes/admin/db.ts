@@ -1,5 +1,5 @@
 import type { Hono } from 'hono';
-import { getDbOverview, getDbPathInfo, deleteDbRow } from '@minimal-rpg/db/node';
+import { getDbOverview, getDbPathInfo, deleteDbRow } from '/db/node';
 import type { ApiError } from '../../types.js';
 import type { AdminDbOverview, AdminDbPathInfo } from '../../db/types.js';
 import { requireAdmin } from '../../auth/middleware.js';

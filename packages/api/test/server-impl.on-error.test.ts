@@ -22,7 +22,7 @@ vi.mock('hono', () => ({
   Hono: HonoMock,
 }));
 
-vi.mock('@minimal-rpg/db/node', () => ({
+vi.mock('/db/node', () => ({
   ensureLocalAdminUser: vi.fn(),
   initStudioSessionsTable: vi.fn(),
   cleanupExpiredSessions: vi.fn(),

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { getErrorMessage, isAbortError } from '@minimal-rpg/utils';
+import { getErrorMessage, isAbortError } from '@arcagentic/utils';
 import type { SessionSummary, SessionsState, UseSessionsResult } from '../../types.js';
 import { getSessions } from '../api/client.js';
 

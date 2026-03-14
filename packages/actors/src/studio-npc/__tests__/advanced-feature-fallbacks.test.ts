@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { Effect } from 'effect';
-import type { LLMProvider, LLMResponse } from '@minimal-rpg/llm';
+import type { LLMProvider, LLMResponse } from '/llm';
 import { VignetteGenerator } from '../vignettes.js';
 
 const failingLlmProvider: LLMProvider = {

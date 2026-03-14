@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useSignals } from '@preact/signals-react/runtime';
-import { generateLocalId } from '@minimal-rpg/utils';
+import { generateLocalId } from '@arcagentic/utils';
 import {
   conversationHistory,
   characterProfile,

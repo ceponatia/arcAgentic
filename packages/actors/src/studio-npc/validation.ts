@@ -3,7 +3,7 @@
  * Catches training data leakage, code injection, and malformed responses.
  */
 
-import type { ResponseValidationResult } from '@minimal-rpg/schemas';
+import type { ResponseValidationResult } from '/schemas';
 
 /**
  * Markers that indicate code or technical content.

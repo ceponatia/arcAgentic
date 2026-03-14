@@ -2,7 +2,7 @@ import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import eslintConfigPrettier from 'eslint-config-prettier';
 import security from 'eslint-plugin-security';
-import minimalRpg from './config/eslint/minimal-rpg-eslint-plugin.mjs';
+import arcagentic from './config/eslint/arcagentic-eslint-plugin.mjs';
 
 export default tseslint.config(
   // Tooling/config files inside packages (no type-aware linting)
@@ -24,7 +24,7 @@ export default tseslint.config(
   {
     files: ['packages/*/src/**/*.{ts,tsx,js}'],
     plugins: {
-      'minimal-rpg': minimalRpg,
+      arcagentic,
       security,
     },
     extends: [
@@ -37,20 +37,20 @@ export default tseslint.config(
       'security/detect-object-injection': 'warn',
 
       // Cross-package type consolidation enforcement
-      'minimal-rpg/no-duplicate-exported-types': [
+      'arcagentic/no-duplicate-exported-types': [
         'error',
         {
           repoRoot: import.meta.dirname,
           ignoreTypeNames: [],
         },
       ],
-      'minimal-rpg/package-layer-boundaries': [
+      'arcagentic/package-layer-boundaries': [
         'error',
         {
           allowSameLevel: false,
         },
       ],
-      'minimal-rpg/schemas-only-in-schemas-package': [
+      'arcagentic/schemas-only-in-schemas-package': [
         'error',
         {
           repoRoot: import.meta.dirname,
@@ -62,26 +62,26 @@ export default tseslint.config(
         {
           patterns: [
             {
-              group: ['@minimal-rpg/*/src/*', '@minimal-rpg/*/src/**'],
+              group: ['@arcagentic/*/src/*', '@arcagentic/*/src/**'],
               message:
-                'Import from package root (@minimal-rpg/pkg) or explicit subpath exports, not /src/ internals.',
+                'Import from package root (@arcagentic/pkg) or explicit subpath exports, not /src/ internals.',
             },
             {
-              group: ['@minimal-rpg/*/dist/*', '@minimal-rpg/*/dist/**'],
+              group: ['@arcagentic/*/dist/*', '@arcagentic/*/dist/**'],
               message:
-                'Import from package root (@minimal-rpg/pkg) or explicit subpath exports, not /dist/ internals.',
+                'Import from package root (@arcagentic/pkg) or explicit subpath exports, not /dist/ internals.',
             },
             {
               group: ['../../packages/*', '../../packages/**'],
-              message: 'Use @minimal-rpg/* imports for cross-package dependencies.',
+              message: 'Use @arcagentic/* imports for cross-package dependencies.',
             },
             {
               group: ['../../../packages/*', '../../../packages/**'],
-              message: 'Use @minimal-rpg/* imports for cross-package dependencies.',
+              message: 'Use @arcagentic/* imports for cross-package dependencies.',
             },
             {
               group: ['../../../../packages/*', '../../../../packages/**'],
-              message: 'Use @minimal-rpg/* imports for cross-package dependencies.',
+              message: 'Use @arcagentic/* imports for cross-package dependencies.',
             },
           ],
         },
@@ -120,7 +120,7 @@ export default tseslint.config(
       'packages/*/src/**/__tests__/**/*.{ts,tsx,js}',
     ],
     plugins: {
-      'minimal-rpg': minimalRpg,
+      arcagentic,
       security,
     },
     extends: [
@@ -130,20 +130,20 @@ export default tseslint.config(
     ],
     rules: {
       'security/detect-object-injection': 'warn',
-      'minimal-rpg/no-duplicate-exported-types': [
+      'arcagentic/no-duplicate-exported-types': [
         'error',
         {
           repoRoot: import.meta.dirname,
           ignoreTypeNames: [],
         },
       ],
-      'minimal-rpg/package-layer-boundaries': [
+      'arcagentic/package-layer-boundaries': [
         'error',
         {
           allowSameLevel: false,
         },
       ],
-      'minimal-rpg/schemas-only-in-schemas-package': [
+      'arcagentic/schemas-only-in-schemas-package': [
         'error',
         {
           repoRoot: import.meta.dirname,
@@ -154,26 +154,26 @@ export default tseslint.config(
         {
           patterns: [
             {
-              group: ['@minimal-rpg/*/src/*', '@minimal-rpg/*/src/**'],
+              group: ['@arcagentic/*/src/*', '@arcagentic/*/src/**'],
               message:
-                'Import from package root (@minimal-rpg/pkg) or explicit subpath exports, not /src/ internals.',
+                'Import from package root (@arcagentic/pkg) or explicit subpath exports, not /src/ internals.',
             },
             {
-              group: ['@minimal-rpg/*/dist/*', '@minimal-rpg/*/dist/**'],
+              group: ['@arcagentic/*/dist/*', '@arcagentic/*/dist/**'],
               message:
-                'Import from package root (@minimal-rpg/pkg) or explicit subpath exports, not /dist/ internals.',
+                'Import from package root (@arcagentic/pkg) or explicit subpath exports, not /dist/ internals.',
             },
             {
               group: ['../../packages/*', '../../packages/**'],
-              message: 'Use @minimal-rpg/* imports for cross-package dependencies.',
+              message: 'Use @arcagentic/* imports for cross-package dependencies.',
             },
             {
               group: ['../../../packages/*', '../../../packages/**'],
-              message: 'Use @minimal-rpg/* imports for cross-package dependencies.',
+              message: 'Use @arcagentic/* imports for cross-package dependencies.',
             },
             {
               group: ['../../../../packages/*', '../../../../packages/**'],
-              message: 'Use @minimal-rpg/* imports for cross-package dependencies.',
+              message: 'Use @arcagentic/* imports for cross-package dependencies.',
             },
           ],
         },
@@ -212,7 +212,7 @@ export default tseslint.config(
       },
     },
   },
-  // Restrict direct @minimal-rpg/db imports in specific packages
+  // Restrict direct @arcagentic/db imports in specific packages
   {
     files: [
       'packages/schemas/src/**/*.ts',
@@ -230,38 +230,38 @@ export default tseslint.config(
         {
           paths: [
             {
-              name: '@minimal-rpg/db',
+              name: '@arcagentic/db',
               message:
-                'This package should not import @minimal-rpg/db directly. Use @minimal-rpg/services or @minimal-rpg/retrieval instead.',
+                'This package should not import @arcagentic/db directly. Use @arcagentic/services or @arcagentic/retrieval instead.',
             },
           ],
           patterns: [
             {
-              group: ['@minimal-rpg/db/*', '@minimal-rpg/db/**'],
+              group: ['@arcagentic/db/*', '@arcagentic/db/**'],
               message:
-                'This package should not import @minimal-rpg/db directly. Use services/retrieval layer.',
+                'This package should not import @arcagentic/db directly. Use services/retrieval layer.',
             },
             {
-              group: ['@minimal-rpg/*/src/*', '@minimal-rpg/*/src/**'],
+              group: ['@arcagentic/*/src/*', '@arcagentic/*/src/**'],
               message:
-                'Import from package root (@minimal-rpg/pkg) or explicit subpath exports, not /src/ internals.',
+                'Import from package root (@arcagentic/pkg) or explicit subpath exports, not /src/ internals.',
             },
             {
-              group: ['@minimal-rpg/*/dist/*', '@minimal-rpg/*/dist/**'],
+              group: ['@arcagentic/*/dist/*', '@arcagentic/*/dist/**'],
               message:
-                'Import from package root (@minimal-rpg/pkg) or explicit subpath exports, not /dist/ internals.',
+                'Import from package root (@arcagentic/pkg) or explicit subpath exports, not /dist/ internals.',
             },
             {
               group: ['../../packages/*', '../../packages/**'],
-              message: 'Use @minimal-rpg/* imports for cross-package dependencies.',
+              message: 'Use @arcagentic/* imports for cross-package dependencies.',
             },
             {
               group: ['../../../packages/*', '../../../packages/**'],
-              message: 'Use @minimal-rpg/* imports for cross-package dependencies.',
+              message: 'Use @arcagentic/* imports for cross-package dependencies.',
             },
             {
               group: ['../../../../packages/*', '../../../../packages/**'],
-              message: 'Use @minimal-rpg/* imports for cross-package dependencies.',
+              message: 'Use @arcagentic/* imports for cross-package dependencies.',
             },
           ],
         },

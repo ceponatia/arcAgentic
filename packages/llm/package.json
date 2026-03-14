@@ -1,5 +1,5 @@
 {
-  "name": "@minimal-rpg/llm",
+  "name": "@arcagentic/llm",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -20,8 +20,8 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.2",
-    "@minimal-rpg/schemas": "workspace:*",
-    "@minimal-rpg/utils": "workspace:*",
+    "@arcagentic/schemas": "workspace:*",
+    "@arcagentic/utils": "workspace:*",
     "effect": "3.10.13",
     "openai": "^6.17.0",
     "zod": "^3.23.8"

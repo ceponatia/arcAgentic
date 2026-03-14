@@ -1,4 +1,4 @@
-import { getArraySafe } from '@minimal-rpg/schemas';
+import { getArraySafe } from '@arcagentic/schemas';
 import { pool } from './utils/client.js';
 import { seedBuiltInTags } from './seeds/built-in-tags.js';
 import { seedTestEntities } from './seeds/test-entities.js';

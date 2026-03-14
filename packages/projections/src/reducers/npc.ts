@@ -1,7 +1,7 @@
-import { getRecordOptional, setRecord } from '@minimal-rpg/schemas';
+import { getRecordOptional, setRecord } from '@arcagentic/schemas';
 import type { Reducer, Projection } from '../types.js';
-import { DEFAULT_START_TIME, createDefaultNpcLocationState } from '@minimal-rpg/schemas';
-import type { NpcLocationState } from '@minimal-rpg/schemas';
+import { DEFAULT_START_TIME, createDefaultNpcLocationState } from '@arcagentic/schemas';
+import type { NpcLocationState } from '@arcagentic/schemas';
 
 export interface NpcState {
   id: string;

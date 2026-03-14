@@ -1,4 +1,4 @@
-# @minimal-rpg/web
+# @arcagentic/web
 
 Web frontend for Minimal RPG.
 
@@ -7,20 +7,20 @@ Web frontend for Minimal RPG.
 Run the dev server (Vite):
 
 ```fish
-pnpm -F @minimal-rpg/web dev
+pnpm -F @arcagentic/web dev
 ```
 
 By default, API requests target `http://localhost:3002`. You can override the base URL:
 
 ```fish
 set -x VITE_API_BASE_URL http://localhost:3001
-pnpm -F @minimal-rpg/web dev
+pnpm -F @arcagentic/web dev
 ```
 
 ## Build
 
 ```fish
-pnpm -F @minimal-rpg/web build
+pnpm -F @arcagentic/web build
 ```
 
 ## Configuration

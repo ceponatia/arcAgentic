@@ -30,7 +30,7 @@ apps/web/src/
       DocNavigation.tsx         # Sidebar navigation
 ```
 
-### Help Components (in @minimal-rpg/ui)
+### Help Components (in @arcagentic/ui)
 
 - `HelpIcon` - Small icon with tooltip, optional link to docs
 - `HelpPopover` - Larger popover with rich content
@@ -63,7 +63,7 @@ This is a documentation page with **markdown** formatting.
 In any React component:
 
 ```tsx
-import { HelpIcon, HelpPopover } from '@minimal-rpg/ui';
+import { HelpIcon, HelpPopover } from '@arcagentic/ui';
 
 // Quick tooltip
 <label>

@@ -3,7 +3,7 @@ import { TickEmitter } from '../src/time/tick-emitter.js';
 
 const emitMock = vi.fn();
 
-vi.mock('@minimal-rpg/bus', () => ({
+vi.mock('@arcagentic/bus', () => ({
   worldBus: { emit: emitMock },
 }));
 

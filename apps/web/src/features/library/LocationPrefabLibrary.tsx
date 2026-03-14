@@ -28,8 +28,8 @@ import {
   Tag,
   FileText,
 } from 'lucide-react';
-import type { LocationType, LocationNode, LocationPort } from '@minimal-rpg/schemas';
-import { generateLocalId } from '@minimal-rpg/utils';
+import type { LocationType, LocationNode, LocationPort } from '@arcagentic/schemas';
+import { generateLocalId } from '@arcagentic/utils';
 import { API_BASE_URL } from '../../config.js';
 
 const API_BASE = API_BASE_URL;

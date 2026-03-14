@@ -1,5 +1,5 @@
-import { db, events, sessionProjections, eq, gt, and, asc } from '@minimal-rpg/db';
-import { WorldEventSchema, type WorldEvent } from '@minimal-rpg/schemas';
+import { db, events, sessionProjections, eq, gt, and, asc } from '@arcagentic/db';
+import { WorldEventSchema, type WorldEvent } from '@arcagentic/schemas';
 import type { Projection, ReplayOptions } from './types.js';
 
 export class Projector<S> {

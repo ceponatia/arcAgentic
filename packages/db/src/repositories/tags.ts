@@ -1,4 +1,4 @@
-import { generateId } from '@minimal-rpg/utils';
+import { generateId } from '@arcagentic/utils';
 import { pool } from '../utils/client.js';
 import type {
   DbRow,

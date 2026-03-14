@@ -12,7 +12,7 @@ import {
   type LoadedSensoryModifiers,
   type BodyPartSensoryModifiers,
   type SensoryModifierLevels,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
 import { resolveDataDir } from '../config.js';
 
 const SENSORY_MODIFIERS_FILE = 'sensory-modifiers.json';

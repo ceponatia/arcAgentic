@@ -1,5 +1,5 @@
 {
-  "name": "@minimal-rpg/utils",
+  "name": "@arcagentic/utils",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -22,7 +22,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@minimal-rpg/schemas": "workspace:*",
+    "@arcagentic/schemas": "workspace:*",
     "fast-json-patch": "^3.1.1"
   },
   "devDependencies": {

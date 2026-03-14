@@ -1,4 +1,4 @@
-// Shared types for @minimal-rpg/utils
+// Shared types for @arcagentic/utils
 
 // =============================================================================
 // Result Types

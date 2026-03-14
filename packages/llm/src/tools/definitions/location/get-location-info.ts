@@ -1,5 +1,5 @@
 /** Get location info tool definition. */
-import type { ToolDefinition } from '@minimal-rpg/schemas';
+import type { ToolDefinition } from '@arcagentic/schemas';
 
 export const GET_LOCATION_INFO_TOOL: ToolDefinition = {
   type: 'function',

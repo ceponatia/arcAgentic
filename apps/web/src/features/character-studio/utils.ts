@@ -1,4 +1,4 @@
-import { clamp } from '@minimal-rpg/utils';
+import { clamp } from '@arcagentic/utils';
 import {
   APPEARANCE_REGIONS,
   APPEARANCE_REGION_ATTRIBUTES,
@@ -6,7 +6,7 @@ import {
   getRecordOptional,
   type AppearanceRegion,
   type BodyRegion,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
 import {
   type AppearanceEntry,
   type BodySensoryEntry,

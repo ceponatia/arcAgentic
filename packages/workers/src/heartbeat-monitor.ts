@@ -1,4 +1,4 @@
-import type { PresenceRecord, PresenceSchedulerStopOnly } from '@minimal-rpg/schemas';
+import type { PresenceRecord, PresenceSchedulerStopOnly } from '@arcagentic/schemas';
 
 const DEFAULT_MONITOR_INTERVAL_MS = 30_000;
 

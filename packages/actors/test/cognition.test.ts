@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { Effect } from 'effect';
-import type { LLMProvider, LLMResponse } from '@minimal-rpg/llm';
-import type { CharacterProfile, WorldEvent } from '@minimal-rpg/schemas';
+import type { LLMProvider, LLMResponse } from '/llm';
+import type { CharacterProfile, WorldEvent } from '/schemas';
 import { CognitionLayer } from '../src/npc/cognition.js';
 import type { CognitionContext } from '../src/npc/types.js';
 

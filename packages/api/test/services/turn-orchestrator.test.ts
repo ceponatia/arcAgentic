@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Effect } from 'effect';
-import { worldBus } from '@minimal-rpg/bus';
-import { timeService } from '@minimal-rpg/services';
-import * as dbNode from '@minimal-rpg/db/node';
-import type { LLMProvider, LLMStreamChunk, LLMResponse, LLMMessage } from '@minimal-rpg/llm';
+import { worldBus } from '/bus';
+import { timeService } from '/services';
+import * as dbNode from '/db/node';
+import type { LLMProvider, LLMStreamChunk, LLMResponse, LLMMessage } from '/llm';
 import { TurnOrchestrator, type TurnConfig } from '../../src/services/turn-orchestrator.js';
 
 /**

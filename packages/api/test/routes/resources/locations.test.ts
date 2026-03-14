@@ -33,7 +33,7 @@ class MockLocationDataValidationError extends Error {
   }
 }
 
-vi.mock('@minimal-rpg/db/node', () => ({
+vi.mock('/db/node', () => ({
   LocationDataValidationError: MockLocationDataValidationError,
 }));
 

@@ -1,7 +1,7 @@
-import { type WorldEvent } from '@minimal-rpg/schemas';
+import { type WorldEvent } from '/schemas';
 import { type BusMiddleware } from './telemetry.js';
-// We'll need a way to access the DB. Since @minimal-rpg/bus shouldn't 
-// depend on @minimal-rpg/db directly (it's level 1, db is level 1),
+// We'll need a way to access the DB. Since /bus shouldn't 
+// depend on /db directly (it's level 1, db is level 1),
 // we might need to inject the persistence handler or use a global.
 // Actually, the plan says bus imports schemas. db imports schemas.
 // Layer 1: bus, llm, db. They are at the same level.

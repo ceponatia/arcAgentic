@@ -8,7 +8,7 @@ import type {
   LocationConnection,
   LocationType,
   SemanticZoomLevel,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
 import type {
   LocationBuilderStore,
   EditMode,
@@ -19,7 +19,7 @@ import type {
   LocationPrefabResponse,
 } from './types.js';
 import { API_BASE_URL } from '../../config.js';
-import { generateLocalId } from '@minimal-rpg/utils';
+import { generateLocalId } from '@arcagentic/utils';
 
 const API_BASE = API_BASE_URL;
 

@@ -1,14 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Effect } from 'effect';
 import { createActor } from 'xstate';
-import type { CharacterProfile, WorldEvent } from '@minimal-rpg/schemas';
-import type { LLMProvider, LLMResponse, LLMStreamChunk } from '@minimal-rpg/llm';
+import type { CharacterProfile, WorldEvent } from '/schemas';
+import type { LLMProvider, LLMResponse, LLMStreamChunk } from '/llm';
 import { createNpcMachine } from '../src/npc/npc-machine.js';
 import type { NpcMachineContext } from '../src/npc/types.js';
 import { CognitionLayer } from '../src/npc/cognition.js';
-import { worldBus } from '@minimal-rpg/bus';
+import { worldBus } from '/bus';
 
-vi.mock('@minimal-rpg/bus', () => ({
+vi.mock('/bus', () => ({
   worldBus: {
     emit: vi.fn(async () => undefined),
     subscribe: vi.fn(async () => undefined),

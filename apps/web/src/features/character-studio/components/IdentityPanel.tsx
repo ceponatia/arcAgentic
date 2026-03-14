@@ -10,7 +10,7 @@ import {
   type Gender,
   COMMON_OCCUPATIONS,
   getRecordOptional,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
 import {
   characterProfile,
   updateProfile,

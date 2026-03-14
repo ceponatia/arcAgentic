@@ -7,9 +7,9 @@
  * These endpoints bypass the state manager turn lifecycle. Retained for debugging/admin use.
  */
 import type { Context } from 'hono';
-import { getSession } from '@minimal-rpg/db/node';
+import { getSession } from '/db/node';
 import type { LoadedDataGetter } from '../../../loaders/types.js';
-import type { CharacterProfile, SettingProfile } from '@minimal-rpg/schemas';
+import type { CharacterProfile, SettingProfile } from '/schemas';
 import type { OverridesAudit } from '../../../services/types.js';
 import { validateBody, validateParamId } from '../../../utils/request-validation.js';
 import { z } from 'zod';

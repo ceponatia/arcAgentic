@@ -1,4 +1,4 @@
-# @minimal-rpg/api
+# /api
 
 ## Purpose
 
@@ -27,14 +27,14 @@ The HTTP backend server for the Minimal RPG application. It exposes REST endpoin
 
 - **Entry Point**: `src/server.ts` initializes the environment and starts the server defined in `src/serverImpl.ts`.
 - **Middleware**: Uses Hono middleware for error handling, CORS, and authentication (`attachAuthUser`, `requireAuthIfEnabled`).
-- **Data Access**: Interacts with `@minimal-rpg/db` for persistence and loads static data from `src/data`.
+- **Data Access**: Interacts with `/db` for persistence and loads static data from `src/data`.
 
 ## Package Connections
 
-- **@minimal-rpg/bus**: World Bus for emitting, persisting, and replaying domain events.
-- **@minimal-rpg/actors**: Runtime NPC/player actor registry used by turn handling.
-- **@minimal-rpg/services**: Domain services (physics, time, social, rules) used during turns.
-- **@minimal-rpg/projections**: Read models for NPC state, locations, and sessions.
-- **@minimal-rpg/db**: Direct database access for CRUD operations.
-- **@minimal-rpg/schemas**: Shared Zod schemas for request/response validation.
-- **@minimal-rpg/characters**: Character data structures and logic.
+- **/bus**: World Bus for emitting, persisting, and replaying domain events.
+- **/actors**: Runtime NPC/player actor registry used by turn handling.
+- **/services**: Domain services (physics, time, social, rules) used during turns.
+- **/projections**: Read models for NPC state, locations, and sessions.
+- **/db**: Direct database access for CRUD operations.
+- **/schemas**: Shared Zod schemas for request/response validation.
+- **/characters**: Character data structures and logic.

@@ -5,7 +5,7 @@ import type {
   HygieneUpdateInput,
   NpcHygieneState,
   SensoryModifiersData,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
 import type { CharacterId, SessionId } from '../types.js';
 
 export type HygieneDecayConfig = BodyPartHygieneConfig;

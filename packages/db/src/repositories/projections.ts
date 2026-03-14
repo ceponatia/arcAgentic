@@ -1,7 +1,7 @@
 import { drizzle as db } from '../connection/index.js';
 import type { UUID } from '../types.js';
-import { InventoryStateSchema, SessionTimeStateSchema } from '@minimal-rpg/schemas';
-import type { GameTime, InventoryItem } from '@minimal-rpg/schemas';
+import { InventoryStateSchema, SessionTimeStateSchema } from '@arcagentic/schemas';
+import type { GameTime, InventoryItem } from '@arcagentic/schemas';
 import { listActorStatesForSession } from './actor-states.js';
 import type { ActorsAtLocationResult } from './types.js';
 

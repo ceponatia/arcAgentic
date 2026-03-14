@@ -4,7 +4,7 @@ import {
   generateNpcEntranceNarration,
   generateNpcExitNarration,
 } from '../../src/services/encounter-service.js';
-import type { EncounterNpcInfo } from '@minimal-rpg/schemas';
+import type { EncounterNpcInfo } from '/schemas';
 
 const baseNpc: EncounterNpcInfo = {
   npcId: 'npc-1',

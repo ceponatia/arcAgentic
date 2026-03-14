@@ -11,7 +11,7 @@
  *   advanceTime,
  *   formatGameTime,
  *   DEFAULT_TIME_CONFIG
- * } from '@minimal-rpg/schemas/time';
+ * } from '@arcagentic/schemas/time';
  * ```
  */
 

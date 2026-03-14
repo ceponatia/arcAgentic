@@ -13,7 +13,7 @@ import {
   type TagPriority,
   type TagCompositionMode,
   type TagTriggerCondition,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
 
 // Re-export constants for use in components
 export {

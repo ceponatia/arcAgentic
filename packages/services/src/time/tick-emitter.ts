@@ -1,4 +1,4 @@
-import { worldBus } from '@minimal-rpg/bus';
+import { worldBus } from '@arcagentic/bus';
 
 /**
  * Tick Emitter

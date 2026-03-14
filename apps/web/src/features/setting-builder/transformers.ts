@@ -1,5 +1,5 @@
-import type { SettingBackground } from '@minimal-rpg/schemas';
-import { generateId } from '@minimal-rpg/utils';
+import type { SettingBackground } from '@arcagentic/schemas';
+import { generateId } from '@arcagentic/utils';
 import { splitList } from '../shared/stringLists.js';
 import type { SettingFormState } from './types.js';
 

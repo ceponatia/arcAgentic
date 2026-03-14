@@ -1,5 +1,5 @@
 /** Get hygiene sensory modifier tool definition. */
-import type { ToolDefinition } from '@minimal-rpg/schemas';
+import type { ToolDefinition } from '@arcagentic/schemas';
 
 export const GET_HYGIENE_SENSORY_TOOL: ToolDefinition = {
   type: 'function',

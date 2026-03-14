@@ -1,6 +1,6 @@
-# Self-Hosting ArcAgentic
+# Self-Hosting arcagentic
 
-This guide walks you through running ArcAgentic on your own computer, even if you do not have a software development background.
+This guide walks you through running arcagentic on your own computer, even if you do not have a software development background.
 
 You will:
 
@@ -29,7 +29,7 @@ If you do not already have Docker:
 
 ### 2. Get an OpenRouter API Key
 
-ArcAgentic uses OpenRouter to talk to language models.
+arcagentic uses OpenRouter to talk to language models.
 
 1. Visit https://openrouter.ai/
 2. Create an account (free tier is usually enough to start)
@@ -40,23 +40,24 @@ ArcAgentic uses OpenRouter to talk to language models.
 
 ## Download the Project
 
-You need a copy of the ArcAgentic project files.
+You need a copy of the arcagentic project files.
 
 If you are comfortable with Git (optional):
 
 ```bash
-git clone https://github.com/your-org-or-user/minimal-rpg.git
-cd minimal-rpg
+git clone https://github.com/ceponatia/arcagentic.git
+cd arcagentic
 ```
 
 If you are **not** comfortable with Git:
 
 1. Open the GitHub page for the project in your browser
 2. Click **Code → Download ZIP**
-3. Unzip the file (for example into a `minimal-rpg` folder on your Desktop)
+3. Unzip the file (for example into an `arcagentic` folder on your Desktop)
 4. Open a terminal / command prompt and change into that folder. Examples:
-   - Windows (PowerShell): `cd "$HOME\Downloads\minimal-rpg"` (adjust for where you unzipped it)
-   - macOS / Linux: `cd ~/Downloads/minimal-rpg` (or wherever you unzipped)
+
+- Windows (PowerShell): `cd "$HOME\Downloads\arcagentic"` (adjust for where you unzipped it)
+- macOS / Linux: `cd ~/Downloads/arcagentic` (or wherever you unzipped)
 
 From now on, all commands in this guide assume you are **inside** the project folder (the one that contains `config/docker/docker-compose.yml`).
 
@@ -143,7 +144,7 @@ Once Docker Compose is running:
 1. Open your browser
 2. Go to `http://localhost:5173`
 
-You should see the ArcAgentic interface.
+You should see the arcagentic interface.
 
 If the page does not load:
 
@@ -188,8 +189,8 @@ pnpm -w build
 4. In separate terminals, run:
 
 ```bash
-pnpm -F @minimal-rpg/api dev
-pnpm -F @minimal-rpg/web dev
+pnpm -F @arcagentic/api dev
+pnpm -F @arcagentic/web dev
 ```
 
 5. Open `http://localhost:5173` in your browser
@@ -200,7 +201,7 @@ For most non-developers, the Docker Compose approach earlier in this guide is si
 
 ## Where Your Data Lives
 
-ArcAgentic stores its data in two places:
+arcagentic stores its data in two places:
 
 - **Database (Postgres)**
   - Stores sessions, messages, and runtime state

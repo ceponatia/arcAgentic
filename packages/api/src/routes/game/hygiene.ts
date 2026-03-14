@@ -22,8 +22,8 @@ import {
   type HygieneUpdateInput,
   type HygieneLevel,
   type LoadedSensoryModifiers,
-} from '@minimal-rpg/schemas';
-import { getActorState, upsertActorState } from '@minimal-rpg/db/node';
+} from '/schemas';
+import { getActorState, upsertActorState } from '/db/node';
 import type { ApiError } from '../../types.js';
 import { loadSensoryModifiers } from '../../loaders/sensory-modifiers-loader.js';
 import { toSessionId, toId } from '../../utils/uuid.js';

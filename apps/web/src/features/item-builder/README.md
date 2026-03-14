@@ -8,12 +8,12 @@ Form-based item creation and editing UI with category-specific properties.
 
 ## Cross-Package Imports
 
-| Import                                                           | Source Package         | Usage                                        |
-| ---------------------------------------------------------------- | ---------------------- | -------------------------------------------- |
-| `ItemDefinitionSchema`                                           | `@minimal-rpg/schemas` | Validates item data before submission        |
-| `ItemDefinition`, `ItemCategory`, `ClothingSlot`                 | `@minimal-rpg/schemas` | Types for item structure and categories      |
-| `BuilderActionPanel`                                             | `@minimal-rpg/ui`      | Reusable save/cancel/delete button panel     |
-| `getErrorMessage`, `mapZodErrorsToFields`, `getInlineErrorProps` | `@minimal-rpg/utils`   | Error handling and form validation utilities |
+| Import                                                           | Source Package        | Usage                                        |
+| ---------------------------------------------------------------- | --------------------- | -------------------------------------------- |
+| `ItemDefinitionSchema`                                           | `@arcagentic/schemas` | Validates item data before submission        |
+| `ItemDefinition`, `ItemCategory`, `ClothingSlot`                 | `@arcagentic/schemas` | Types for item structure and categories      |
+| `BuilderActionPanel`                                             | `@arcagentic/ui`      | Reusable save/cancel/delete button panel     |
+| `getErrorMessage`, `mapZodErrorsToFields`, `getInlineErrorProps` | `@arcagentic/utils`   | Error handling and form validation utilities |
 
 ## API Client Imports
 

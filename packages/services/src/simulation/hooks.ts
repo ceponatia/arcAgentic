@@ -14,7 +14,7 @@ import type {
   LocationChangeHookResult,
   TimeSkipHookInput,
   TimeSkipHookResult,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
 
 export type {
   HookNpcInfo,

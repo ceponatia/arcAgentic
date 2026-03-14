@@ -33,7 +33,7 @@ class MockProjectionManager {
   }
 }
 
-vi.mock('@minimal-rpg/projections', () => ({
+vi.mock('/projections', () => ({
   ProjectionManager: MockProjectionManager,
 }));
 

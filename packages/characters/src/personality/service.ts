@@ -1,4 +1,4 @@
-import type { PersonalityMap } from '@minimal-rpg/schemas';
+import type { PersonalityMap } from '@arcagentic/schemas';
 import type { PersonalityRepository, PersonalityServiceDeps } from './types.js';
 
 export class PersonalityService {

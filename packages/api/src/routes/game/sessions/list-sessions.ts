@@ -1,5 +1,5 @@
 import type { Context } from 'hono';
-import { listSessions, getEntityProfile } from '@minimal-rpg/db/node';
+import { listSessions, getEntityProfile } from '/db/node';
 import { getOwnerEmail } from '../../../auth/ownerEmail.js';
 import { toId } from '../../../utils/uuid.js';
 

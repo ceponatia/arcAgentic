@@ -9,9 +9,9 @@ import {
   setRecord,
   type HygieneEvent,
   type HygieneLevel,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
 import type { HygieneServiceDeps, HygieneUpdateRequest, HygieneUpdateResult } from './types.js';
-import type { BodyPartHygieneState, NpcHygieneState } from '@minimal-rpg/schemas';
+import type { BodyPartHygieneState, NpcHygieneState } from '@arcagentic/schemas';
 
 export class HygieneService {
   private readonly repository: HygieneServiceDeps['repository'];

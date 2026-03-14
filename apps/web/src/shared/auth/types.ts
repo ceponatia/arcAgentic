@@ -1,6 +1,6 @@
-import type { AuthUser } from '@minimal-rpg/schemas';
+import type { AuthUser } from '@arcagentic/schemas';
 
-export type { AuthUser, UserRole } from '@minimal-rpg/schemas';
+export type { AuthUser, UserRole } from '@arcagentic/schemas';
 
 export interface AuthMeResponse {
   ok: true;

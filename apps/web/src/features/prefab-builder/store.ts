@@ -10,12 +10,12 @@ import type {
   PrefabConnection,
   PrefabEntryPoint,
   ConnectionDirection,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
 import type { XYPosition } from '@xyflow/react';
 import type { PrefabBuilderStore } from './types.js';
 import { calculateDirection, toExitDirection, getOppositeExitDirection } from './types.js';
 import { API_BASE_URL } from '../../config.js';
-import { generateLocalId } from '@minimal-rpg/utils';
+import { generateLocalId } from '@arcagentic/utils';
 
 const API_BASE = API_BASE_URL;
 

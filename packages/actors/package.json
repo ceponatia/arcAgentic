@@ -1,5 +1,5 @@
 {
-  "name": "@minimal-rpg/actors",
+  "name": "@arcagentic/actors",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -19,10 +19,10 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@minimal-rpg/bus": "workspace:*",
-    "@minimal-rpg/llm": "workspace:*",
-    "@minimal-rpg/schemas": "workspace:*",
-    "@minimal-rpg/services": "workspace:*",
+    "@arcagentic/bus": "workspace:*",
+    "@arcagentic/llm": "workspace:*",
+    "@arcagentic/schemas": "workspace:*",
+    "@arcagentic/services": "workspace:*",
     "effect": "3.10.13",
     "xstate": "^5.18.2"
   },

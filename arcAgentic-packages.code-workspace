@@ -25,75 +25,164 @@
       ]
     },
     {
-      "name": "@minimal-rpg/actors",
+      "name": "actors",
       "path": "packages/actors"
     },
     {
-      "name": "@minimal-rpg/api",
+      "name": "api",
       "path": "packages/api"
     },
     {
-      "name": "@minimal-rpg/bus",
+      "name": "bus",
       "path": "packages/bus"
     },
     {
-      "name": "@minimal-rpg/characters",
+      "name": "characters",
       "path": "packages/characters"
     },
     {
-      "name": "@minimal-rpg/db",
+      "name": "db",
       "path": "packages/db"
     },
     {
-      "name": "@minimal-rpg/generator",
+      "name": "generator",
       "path": "packages/generator"
     },
     {
-      "name": "@minimal-rpg/llm",
+      "name": "llm",
       "path": "packages/llm"
     },
     {
-      "name": "@minimal-rpg/projections",
+      "name": "projections",
       "path": "packages/projections"
     },
     {
-      "name": "@minimal-rpg/retrieval",
+      "name": "retrieval",
       "path": "packages/retrieval"
     },
     {
-      "name": "@minimal-rpg/schemas",
+      "name": "schemas",
       "path": "packages/schemas"
     },
     {
-      "name": "@minimal-rpg/services",
+      "name": "services",
       "path": "packages/services"
     },
     {
-      "name": "@minimal-rpg/ui",
+      "name": "ui",
       "path": "packages/ui"
     },
     {
-      "name": "@minimal-rpg/utils",
+      "name": "utils",
       "path": "packages/utils"
     },
     {
-      "name": "@minimal-rpg/web",
+      "name": "web",
       "path": "apps/web"
     },
     {
-      "name": "@minimal-rpg/workers",
+      "name": "workers",
       "path": "packages/workers"
     },
     {
       "name": "Developer Documentation",
-      "path": "../dev-docs/arcAgentic",
+      "path": "../dev-docs/arcagentic",
       "root": false
     }
   ],
+  "extensions": {
+    "recommendations": [
+      "dbaeumer.vscode-eslint",
+      "vitest.explorer",
+      "ms-playwright.playwright",
+      "bradlc.vscode-tailwindcss",
+      "esbenp.prettier-vscode"
+    ]
+  },
   "settings": {
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
       "source.fixAll": "explicit"
+    },
+    "eslint.workingDirectories": [
+      {
+        "directory": "packages/actors",
+        "changeProcessCWD": true
+      },
+      {
+        "directory": "packages/api",
+        "changeProcessCWD": true
+      },
+      {
+        "directory": "packages/bus",
+        "changeProcessCWD": true
+      },
+      {
+        "directory": "packages/characters",
+        "changeProcessCWD": true
+      },
+      {
+        "directory": "packages/db",
+        "changeProcessCWD": true
+      },
+      {
+        "directory": "packages/generator",
+        "changeProcessCWD": true
+      },
+      {
+        "directory": "packages/llm",
+        "changeProcessCWD": true
+      },
+      {
+        "directory": "packages/projections",
+        "changeProcessCWD": true
+      },
+      {
+        "directory": "packages/retrieval",
+        "changeProcessCWD": true
+      },
+      {
+        "directory": "packages/schemas",
+        "changeProcessCWD": true
+      },
+      {
+        "directory": "packages/services",
+        "changeProcessCWD": true
+      },
+      {
+        "directory": "packages/ui",
+        "changeProcessCWD": true
+      },
+      {
+        "directory": "packages/utils",
+        "changeProcessCWD": true
+      },
+      {
+        "directory": "packages/workers",
+        "changeProcessCWD": true
+      },
+      {
+        "directory": "apps/web",
+        "changeProcessCWD": true
+      }
+    ],
+    "files.exclude": {
+      "**/node_modules": true,
+      "**/dist": true,
+      "**/build": true,
+      "**/coverage": true
+    },
+    "search.exclude": {
+      "**/node_modules": true,
+      "**/dist": true,
+      "**/build": true,
+      "**/coverage": true
+    },
+    "files.watcherExclude": {
+      "**/node_modules/**": true,
+      "**/dist/**": true,
+      "**/build/**": true,
+      "**/coverage/**": true
     },
     "editor.folding": false,
     "editor.foldingStrategy": "indentation",

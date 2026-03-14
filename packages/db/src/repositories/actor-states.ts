@@ -6,7 +6,7 @@ import {
   NpcScheduleSchema,
   type NpcSchedule,
   type NpcScheduleRef,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
 import type { UUID } from '../types.js';
 
 type ActorStateRecord = Record<string, unknown>;

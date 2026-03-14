@@ -1,4 +1,4 @@
-import type { CharacterProfile } from '@minimal-rpg/schemas';
+import type { CharacterProfile } from '@arcagentic/schemas';
 import type { CharacterId } from '../types.js';
 
 export interface ProfileRepository {

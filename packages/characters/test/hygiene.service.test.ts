@@ -1,16 +1,16 @@
 import { describe, expect, it, vi } from 'vitest';
-import * as Schemas from '@minimal-rpg/schemas';
+import * as Schemas from '@arcagentic/schemas';
 import type {
   BodyPartHygieneState,
   HygieneLevel,
   NpcHygieneState,
   SensoryModifiersData,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
 import { HygieneService } from '../src/hygiene/service.js';
 import type { HygieneModifiersProvider, HygieneRepository } from '../src/hygiene/types.js';
 
 class InMemoryHygieneRepository implements HygieneRepository {
-  constructor(private state: NpcHygieneState) {}
+  constructor(private state: NpcHygieneState) { }
 
   readonly upserts: Array<{ bodyPart: string; state: BodyPartHygieneState }> = [];
 

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import type { CharacterProfile, WorldEvent } from '@minimal-rpg/schemas';
+import type { CharacterProfile, WorldEvent } from '/schemas';
 import { buildNpcCognitionPrompt, NPC_DECISION_SYSTEM_PROMPT } from '../src/npc/prompts.js';
 import type { PerceptionContext, NpcRuntimeState } from '../src/npc/types.js';
 

@@ -15,7 +15,7 @@ const dbMocks = vi.hoisted(() => ({
   limit: vi.fn(),
 }));
 
-vi.mock('@minimal-rpg/db', () => ({
+vi.mock('@arcagentic/db', () => ({
   db: dbMocks,
   events: {},
   sessionProjections: { sessionId: 'sessionId' },
@@ -25,7 +25,7 @@ vi.mock('@minimal-rpg/db', () => ({
   asc: vi.fn(),
 }));
 
-vi.mock('@minimal-rpg/schemas', () => ({
+vi.mock('@arcagentic/schemas', () => ({
   WorldEventSchema: { parse: (value: unknown) => value },
 }));
 

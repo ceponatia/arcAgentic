@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import type { TemplateSelection } from '@minimal-rpg/schemas';
+import type { TemplateSelection } from '@arcagentic/schemas';
 import { TemplateCard } from './TemplateCard.js';
 import type { TemplateMetadata } from './useSensoryTemplates.js';
 import { useDragScroll } from './useDragScroll.js';

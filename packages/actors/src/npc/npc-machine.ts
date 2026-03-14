@@ -1,9 +1,9 @@
 import { createMachine, assign, fromPromise } from 'xstate';
-import type { WorldEvent, Intent } from '@minimal-rpg/schemas';
+import type { WorldEvent, Intent } from '/schemas';
 import type { NpcMachineContext, NpcMachineEvent } from './types.js';
 import { PerceptionLayer } from './perception.js';
 import { CognitionLayer } from './cognition.js';
-import { worldBus } from '@minimal-rpg/bus';
+import { worldBus } from '/bus';
 
 const MEANINGFUL_EVENT_TYPES = new Set<WorldEvent['type']>(['SPOKE']);
 

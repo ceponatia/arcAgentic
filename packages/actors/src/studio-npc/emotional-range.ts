@@ -1,5 +1,5 @@
-import type { LLMProvider, LLMMessage } from '@minimal-rpg/llm';
-import type { CharacterProfile } from '@minimal-rpg/schemas';
+import type { LLMProvider, LLMMessage } from '/llm';
+import type { CharacterProfile } from '/schemas';
 import { Effect } from 'effect';
 import type { EmotionalRangeRequest, EmotionalRangeResponse, EmotionState } from './types.js';
 import { buildStudioSystemPrompt, buildEmotionalRangePrompt } from './prompts.js';

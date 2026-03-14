@@ -43,7 +43,7 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'pnpm --filter @minimal-rpg/web run dev -- --port 5173',
+    command: 'pnpm --filter @arcagentic/web run dev -- --port 5173',
     url: 'http://localhost:5173',
     reuseExistingServer: !process.env.CI,
     cwd: '../../', // Run from root to use workspace 'dev' command

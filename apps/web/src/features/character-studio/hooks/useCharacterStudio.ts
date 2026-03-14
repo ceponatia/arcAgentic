@@ -20,7 +20,7 @@ import {
   persistCharacter,
   removeCharacter,
 } from '../services/api.js';
-import type { CharacterProfile, PersonalityMap } from '@minimal-rpg/schemas';
+import type { CharacterProfile, PersonalityMap } from '@arcagentic/schemas';
 
 export interface UseCharacterStudioOptions {
   id?: string | null;

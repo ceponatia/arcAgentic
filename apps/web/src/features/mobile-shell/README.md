@@ -10,9 +10,9 @@ Mobile-responsive navigation shell with header and slide-out sidebar.
 
 ## Cross-Package Imports
 
-| Import          | Source Package    | Usage                                  |
-| --------------- | ----------------- | -------------------------------------- |
-| `SessionsPanel` | `@minimal-rpg/ui` | Session list panel embedded in sidebar |
+| Import          | Source Package   | Usage                                  |
+| --------------- | ---------------- | -------------------------------------- |
+| `SessionsPanel` | `@arcagentic/ui` | Session list panel embedded in sidebar |
 
 ## Local Feature Imports
 

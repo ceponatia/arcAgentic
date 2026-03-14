@@ -1,4 +1,4 @@
-export type { CognitionTask } from '@minimal-rpg/schemas';
+export type { CognitionTask } from '@arcagentic/schemas';
 
 /**
  * Generic wrapper for BullMQ job payloads.

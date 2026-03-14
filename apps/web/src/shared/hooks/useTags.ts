@@ -1,4 +1,4 @@
-import type { TagResponse } from '@minimal-rpg/schemas';
+import type { TagResponse } from '@arcagentic/schemas';
 import type { TagSummary, UseTagsResult } from '../../types.js';
 import { getTags } from '../api/client.js';
 import { useFetchOnce } from './useFetchOnce.js';

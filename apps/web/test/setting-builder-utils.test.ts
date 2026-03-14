@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { generateId } from '../src/features/setting-builder/utils.js';
 import { createInitialFormState, mapProfileToForm, buildProfile } from '../src/features/setting-builder/transformers.js';
-import type { SettingBackground } from '@minimal-rpg/schemas';
+import type { SettingBackground } from '@arcagentic/schemas';
 
 describe('setting builder utils', () => {
   afterEach(() => {

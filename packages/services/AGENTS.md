@@ -1,4 +1,4 @@
-# @minimal-rpg/services
+# @arcagentic/services
 
 ## Purpose
 
@@ -13,7 +13,7 @@ System services that implement world mechanics (physics, time, social, location,
 - Rules validation and simulation hooks
 - WorldBus wiring: subscribe to intent events, emit effect/state events
 
-This package should remain focused on mechanics and service orchestration. Avoid HTTP concerns (handled by `@minimal-rpg/api`) and avoid owning long-term persistence models (handled by `@minimal-rpg/db`, with services calling into repositories when needed).
+This package should remain focused on mechanics and service orchestration. Avoid HTTP concerns (handled by `@arcagentic/api`) and avoid owning long-term persistence models (handled by `@arcagentic/db`, with services calling into repositories when needed).
 
 ## Package Connections
 

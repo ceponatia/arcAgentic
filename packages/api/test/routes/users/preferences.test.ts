@@ -7,7 +7,7 @@ const preferenceMocks = vi.hoisted(() => ({
   getOrCreateDefaultUserMock: vi.fn(),
 }));
 
-vi.mock('@minimal-rpg/db/node', () => ({
+vi.mock('/db/node', () => ({
   getUserPreferences: preferenceMocks.getUserPreferencesMock,
   updateUserPreferences: preferenceMocks.updateUserPreferencesMock,
   getOrCreateDefaultUser: preferenceMocks.getOrCreateDefaultUserMock,

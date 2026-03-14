@@ -1,5 +1,5 @@
-import { getRecordOptional, setRecord } from '@minimal-rpg/schemas';
-import type { JsonPatchOperation } from '@minimal-rpg/schemas';
+import { getRecordOptional, setRecord } from '@arcagentic/schemas';
+import type { JsonPatchOperation } from '@arcagentic/schemas';
 
 /**
  * Check if value is a plain object (not array, null, Date, etc.).

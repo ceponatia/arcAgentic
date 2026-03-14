@@ -6,7 +6,7 @@ import React, { useState } from 'react';
 import { useWorkspaceStore, useSettingState } from '../store.js';
 import { SelectableCard } from '../components/SelectableCard.js';
 import type { SettingSummary } from '../../../types.js';
-import type { SettingProfile } from '@minimal-rpg/schemas';
+import type { SettingProfile } from '@arcagentic/schemas';
 
 interface SettingStepProps {
   settings: SettingSummary[];
@@ -106,7 +106,9 @@ export const SettingStep: React.FC<SettingStepProps> = ({
       {settingState.settingId && (
         <div className="border border-slate-800 rounded-lg bg-slate-900/30">
           <button
-            onClick={() => { setShowTimeConfig(!showTimeConfig); }}
+            onClick={() => {
+              setShowTimeConfig(!showTimeConfig);
+            }}
             className="w-full px-4 py-3 flex items-center justify-between text-left"
           >
             <span className="text-sm font-medium text-slate-300">Time Configuration</span>

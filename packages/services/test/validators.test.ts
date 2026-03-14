@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Validators, type ValidationContext } from '../src/rules/validators.js';
-import type { WorldEvent } from '@minimal-rpg/schemas';
+import type { WorldEvent } from '@arcagentic/schemas';
 
 const {
   getLocationConnectionsMock,
@@ -18,7 +18,7 @@ const {
   getInventoryItemMock: vi.fn(async () => null),
 }));
 
-vi.mock('@minimal-rpg/db', () => ({
+vi.mock('@arcagentic/db', () => ({
   getLocationConnections: getLocationConnectionsMock,
   getActorState: getActorStateMock,
   getInventoryItem: getInventoryItemMock,

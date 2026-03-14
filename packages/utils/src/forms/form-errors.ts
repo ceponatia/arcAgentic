@@ -1,6 +1,6 @@
 import type { ZodError } from 'zod';
 import type { ZodIssue } from 'zod';
-import { getRecordOptional, setPartialRecord } from '@minimal-rpg/schemas';
+import { getRecordOptional, setPartialRecord } from '@arcagentic/schemas';
 import type { FieldErrorMap } from './types.js';
 
 export type { FieldErrorMap };

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSignals } from '@preact/signals-react/runtime';
-import { CORE_EMOTIONS, EMOTION_INTENSITIES } from '@minimal-rpg/schemas';
-import { HelpIcon } from '@minimal-rpg/ui';
+import { CORE_EMOTIONS, EMOTION_INTENSITIES } from '@arcagentic/schemas';
+import { HelpIcon } from '@arcagentic/ui';
 import { characterProfile, updatePersonalityMap } from '../../signals.js';
 import { SelectInput, SliderInput } from '../../../../shared/components/common.js';
 

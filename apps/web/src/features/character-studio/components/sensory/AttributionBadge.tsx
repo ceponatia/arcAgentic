@@ -1,5 +1,5 @@
 import React from 'react';
-import { getRecordOptional } from '@minimal-rpg/schemas';
+import { getRecordOptional } from '@arcagentic/schemas';
 
 interface AttributionBadgeProps {
   source: string;

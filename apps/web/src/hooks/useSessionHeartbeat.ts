@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { isAbortError } from '@minimal-rpg/utils';
+import { isAbortError } from '@arcagentic/utils';
 import { postSessionHeartbeat } from '../shared/api/client.js';
 import { useSessionTabCoordination } from './useSessionTabCoordination.js';
 

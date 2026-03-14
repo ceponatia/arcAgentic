@@ -3,8 +3,8 @@ import { Effect } from 'effect';
 import { createCognitionProcessor } from '../src/processors/cognition.js';
 import { createTickProcessor } from '../src/processors/tick.js';
 import { createEmbeddingProcessor } from '../src/processors/embedding.js';
-import type { WorldBus } from '@minimal-rpg/bus';
-import type { TieredCognitionRouter } from '@minimal-rpg/llm';
+import type { WorldBus } from '@arcagentic/bus';
+import type { TieredCognitionRouter } from '@arcagentic/llm';
 
 
 describe('processors', () => {

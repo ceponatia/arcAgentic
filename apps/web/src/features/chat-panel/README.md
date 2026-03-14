@@ -8,10 +8,10 @@ Main chat interface for session messaging with NPC interactions.
 
 ## Cross-Package Imports
 
-| Import                            | Source Package       | Usage                                          |
-| --------------------------------- | -------------------- | ---------------------------------------------- |
-| `getErrorMessage`, `isAbortError` | `@minimal-rpg/utils` | Error handling utilities for network failures  |
-| `ChatView`                        | `@minimal-rpg/ui`    | Presentational component for message rendering |
+| Import                            | Source Package      | Usage                                          |
+| --------------------------------- | ------------------- | ---------------------------------------------- |
+| `getErrorMessage`, `isAbortError` | `@arcagentic/utils` | Error handling utilities for network failures  |
+| `ChatView`                        | `@arcagentic/ui`    | Presentational component for message rendering |
 
 ## API Client Imports
 

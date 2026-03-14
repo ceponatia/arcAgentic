@@ -15,7 +15,7 @@ const scheduleMocks = vi.hoisted(() => ({
 const scheduleTemplatesTable = { name: 'scheduleTemplates' };
 const actorStatesTable = { name: 'actorStates' };
 
-vi.mock('@minimal-rpg/db/node', () => ({
+vi.mock('/db/node', () => ({
   drizzle: {
     select: scheduleMocks.selectMock,
     insert: scheduleMocks.insertMock,

@@ -1,5 +1,5 @@
 /** Advance time tool definition. */
-import type { ToolDefinition } from '@minimal-rpg/schemas';
+import type { ToolDefinition } from '@arcagentic/schemas';
 
 export const ADVANCE_TIME_TOOL: ToolDefinition = {
   type: 'function',

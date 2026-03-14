@@ -1,4 +1,4 @@
-import type { BodyMap, BodyRegion, BodyRegionData } from '@minimal-rpg/schemas';
+import type { BodyMap, BodyRegion, BodyRegionData } from '@arcagentic/schemas';
 import type { CharacterId } from '../types.js';
 
 export interface BodyMapRepository {

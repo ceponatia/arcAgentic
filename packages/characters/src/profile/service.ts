@@ -1,4 +1,4 @@
-import type { CharacterProfile } from '@minimal-rpg/schemas';
+import type { CharacterProfile } from '@arcagentic/schemas';
 import type { ProfileRepository, ProfileServiceDeps } from './types.js';
 
 export class ProfileService {

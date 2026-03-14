@@ -1,5 +1,5 @@
 import { LocationService } from './location-service.js';
-import type { LocationMap } from '@minimal-rpg/schemas';
+import type { LocationMap } from '@arcagentic/schemas';
 
 /**
  * Exit Resolver

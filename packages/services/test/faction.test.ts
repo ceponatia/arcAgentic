@@ -12,7 +12,7 @@ function reputationKey(sessionId: string, actorId: string, factionId: string): s
   return `${sessionId}::${actorId}::${factionId}`;
 }
 
-vi.mock('@minimal-rpg/db', () => ({
+vi.mock('@arcagentic/db', () => ({
   getFactionRelationship: vi.fn(async (factionAId: string, factionBId: string) => {
     const key = relationshipKey(factionAId, factionBId);
     return relationshipMap.get(key) ?? 0;

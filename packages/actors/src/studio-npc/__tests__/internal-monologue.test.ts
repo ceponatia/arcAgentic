@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { Effect } from 'effect';
-import type { LLMProvider, LLMResponse, LLMStreamChunk } from '@minimal-rpg/llm';
-import type { CharacterProfile } from '@minimal-rpg/schemas';
+import type { LLMProvider, LLMResponse, LLMStreamChunk } from '/llm';
+import type { CharacterProfile } from '/schemas';
 import { InternalMonologueGenerator } from '../internal-monologue.js';
 
 function createMockProvider(content: string, shouldFail = false): LLMProvider {

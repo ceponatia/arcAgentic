@@ -5,8 +5,8 @@ import { TraitInferenceEngine } from '../inference.js';
 import { DiscoveryGuide } from '../discovery.js';
 import { buildStudioSystemPrompt } from '../prompts.js';
 import { ConversationManager } from '../conversation.js';
-import type { CharacterProfile } from '@minimal-rpg/schemas';
-import type { LLMProvider, LLMResponse, LLMStreamChunk } from '@minimal-rpg/llm';
+import type { CharacterProfile } from '/schemas';
+import type { LLMProvider, LLMResponse, LLMStreamChunk } from '/llm';
 
 // Mock LLM provider for testing
 const mockLlmProvider: LLMProvider = {

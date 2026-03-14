@@ -1,4 +1,4 @@
-# @minimal-rpg/db
+# @arcagentic/db
 
 ## Purpose
 
@@ -13,7 +13,7 @@ PostgreSQL data access layer. Provides typed queries, migrations, and connection
 
 ## Best Practices
 
-- **Handling Nulls**: When mapping database results to domain objects, use the `nullableOptional` helper from `@minimal-rpg/schemas` (via `Utils.nullableOptional`). This ensures that SQL `NULL` values are correctly transformed to TypeScript `undefined`, maintaining consistency with Zod schemas.
+- **Handling Nulls**: When mapping database results to domain objects, use the `nullableOptional` helper from `@arcagentic/schemas` (via `Utils.nullableOptional`). This ensures that SQL `NULL` values are correctly transformed to TypeScript `undefined`, maintaining consistency with Zod schemas.
 
 ## Package Connections
 

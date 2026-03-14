@@ -33,7 +33,7 @@ services:
       dockerfile: config/docker/Dockerfile.dev
     env_file:
       - ../../.env
-    command: pnpm -F @minimal-rpg/api dev
+    command: pnpm -F @arcagentic/api dev
     environment:
       - DB_TARGET=local
       - DATABASE_URL_LOCAL=postgres://postgres:password@db:5432/minirpg
@@ -56,7 +56,7 @@ services:
       dockerfile: config/docker/Dockerfile.dev
     env_file:
       - ../../.env
-    command: pnpm -F @minimal-rpg/web dev
+    command: pnpm -F @arcagentic/web dev
     environment:
       # NOTE: This value is injected into browser JS (Vite), so it must be resolvable
       # from the user's browser, not just from inside Docker.

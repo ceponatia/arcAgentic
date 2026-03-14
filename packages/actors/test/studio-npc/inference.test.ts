@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TraitInferenceEngine } from '../../src/studio-npc/inference.js';
-import type { LLMProvider, LLMResponse } from '@minimal-rpg/llm';
+import type { LLMProvider, LLMResponse } from '/llm';
 import { Effect } from 'effect';
 import type { InferredTrait } from '../../src/studio-npc/types.js';
 

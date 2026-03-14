@@ -1,5 +1,5 @@
-import { getRecordOptional, setRecord } from '@minimal-rpg/schemas';
-import { generateLocalId } from '@minimal-rpg/utils';
+import { getRecordOptional, setRecord } from '@arcagentic/schemas';
+import { generateLocalId } from '@arcagentic/utils';
 import type { InferredTrait, ConversationMessage } from '../signals.js';
 
 /**

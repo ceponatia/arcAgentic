@@ -11,7 +11,7 @@ import type {
   PrefabConnection,
   PrefabEntryPoint,
   ConnectionDirection,
-} from '@minimal-rpg/schemas';
+} from '@arcagentic/schemas';
 import type { Node, XYPosition } from '@xyflow/react';
 
 // Re-export schema types for other files in this feature

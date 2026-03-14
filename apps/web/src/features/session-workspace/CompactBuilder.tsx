@@ -14,7 +14,7 @@ import {
 } from './store.js';
 import type { SettingSummary, CharacterSummary, PersonaSummary, TagSummary } from '../../types.js';
 import type { NpcSessionConfig, TagSelection, StepValidationState } from './store.js';
-import type { SettingProfile, PersonaProfile } from '@minimal-rpg/schemas';
+import type { SettingProfile, PersonaProfile } from '@arcagentic/schemas';
 
 interface CompactBuilderProps {
   settings: SettingSummary[];

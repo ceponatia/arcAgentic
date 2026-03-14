@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { WorldEvent } from '@minimal-rpg/schemas';
+import type { WorldEvent } from '/schemas';
 import type { RedisPubSubAdapter } from '../src/adapters/redis-pubsub.js';
 
 const { publishMock, subscribeMock, onMock, subRedisOnMock } = vi.hoisted(() => {

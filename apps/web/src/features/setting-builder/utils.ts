@@ -1,3 +1,3 @@
-import { generateShortId } from '@minimal-rpg/utils';
+import { generateShortId } from '@arcagentic/utils';
 
 export const generateId = () => generateShortId(7);

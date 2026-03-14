@@ -8,10 +8,10 @@ Form-based tag creation and editing UI.
 
 ## Cross-Package Imports
 
-| Import               | Source Package         | Usage                                    |
-| -------------------- | ---------------------- | ---------------------------------------- |
-| `CreateTagRequest`   | `@minimal-rpg/schemas` | Type for tag creation payload            |
-| `BuilderActionPanel` | `@minimal-rpg/ui`      | Reusable save/cancel/delete button panel |
+| Import               | Source Package        | Usage                                    |
+| -------------------- | --------------------- | ---------------------------------------- |
+| `CreateTagRequest`   | `@arcagentic/schemas` | Type for tag creation payload            |
+| `BuilderActionPanel` | `@arcagentic/ui`      | Reusable save/cancel/delete button panel |
 
 ## API Client Imports
 

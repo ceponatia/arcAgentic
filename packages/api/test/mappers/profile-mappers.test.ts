@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import type { CharacterProfile, SettingProfile, PersonaProfile } from '@minimal-rpg/schemas';
+import type { CharacterProfile, SettingProfile, PersonaProfile } from '/schemas';
 import { mapCharacterSummary, mapSettingSummary, mapPersonaSummary } from '../../src/mappers/profile-mappers.js';
 
 describe('mappers/profile-mappers', () => {

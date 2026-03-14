@@ -2,7 +2,7 @@
  * Shared LLM types and interfaces.
  */
 import type { Operation } from 'fast-json-patch';
-import type { ConversationMessageRole, MessageRole, ToolCall } from '@minimal-rpg/schemas';
+import type { ConversationMessageRole, MessageRole, ToolCall } from '@arcagentic/schemas';
 
 // =============================================================================
 // Chat Roles

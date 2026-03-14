@@ -1,5 +1,5 @@
-import { worldBus } from '@minimal-rpg/bus';
-import type { WorldEvent } from '@minimal-rpg/schemas';
+import { worldBus } from '@arcagentic/bus';
+import type { WorldEvent } from '@arcagentic/schemas';
 
 /**
  * Time Service

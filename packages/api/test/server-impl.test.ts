@@ -78,7 +78,7 @@ vi.mock('../src/utils/env.js', () => ({
   getEnvValue: serverMocks.getEnvValueMock,
 }));
 
-vi.mock('@minimal-rpg/db/node', () => ({
+vi.mock('/db/node', () => ({
   ensureLocalAdminUser: serverMocks.ensureLocalAdminUserMock,
   initStudioSessionsTable: serverMocks.initStudioSessionsTableMock,
   cleanupExpiredSessions: serverMocks.cleanupExpiredSessionsMock,
@@ -117,7 +117,7 @@ vi.mock('../src/auth/middleware.js', () => ({
   requireAuthIfEnabled: serverMocks.requireAuthIfEnabledMock,
 }));
 
-vi.mock('@minimal-rpg/bus', () => ({
+vi.mock('/bus', () => ({
   worldBus: {
     use: serverMocks.worldBusUseMock,
     subscribe: vi.fn(),
@@ -136,7 +136,7 @@ vi.mock('hono', () => ({
   Hono: HonoMock,
 }));
 
-vi.mock('@minimal-rpg/services', () => ({
+vi.mock('/services', () => ({
   rulesEngine: {
     start: serverMocks.rulesEngineStartMock,
   },

@@ -1,4 +1,4 @@
-# @minimal-rpg/retrieval
+# @arcagentic/retrieval
 
 ## Purpose
 
@@ -50,9 +50,9 @@ File: [packages/retrieval/src/extraction/extraction.ts](packages/retrieval/src/e
 
 - Constants: `DEFAULT_CHARACTER_PATHS`, `DEFAULT_SETTING_PATHS`
 - Functions: `getPathImportance()`, `getValueAtPath()`, `valueToContent()`, `extractNodes()`,
- `createKnowledgeNode()`, `nodeContentChanged()`, `diffNodes()`
+  `createKnowledgeNode()`, `nodeContentChanged()`, `diffNodes()`
 - Types: `ExtractedNode`, `NodeUpdatePair`, `NodeDiff` in
- [packages/retrieval/src/extraction/types.ts](packages/retrieval/src/extraction/types.ts)
+  [packages/retrieval/src/extraction/types.ts](packages/retrieval/src/extraction/types.ts)
 
 ### Scoring
 
@@ -60,7 +60,7 @@ File: [packages/retrieval/src/scoring/scoring.ts](packages/retrieval/src/scoring
 
 - Constants: `DEFAULT_SCORING_WEIGHTS`
 - Functions: `cosineSimilarity()`, `computeTotalImportance()`, `computeScore()`, `scoreNode()`,
- `scoreAndRankNodes()`, `filterByMinScore()`, `applyNarrativeDecay()`, `boostNarrativeImportance()`
+  `scoreAndRankNodes()`, `filterByMinScore()`, `applyNarrativeDecay()`, `boostNarrativeImportance()`
 
 ### Services
 

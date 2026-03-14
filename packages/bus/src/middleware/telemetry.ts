@@ -1,5 +1,5 @@
 import { trace, type Span } from '@opentelemetry/api';
-import { type WorldEvent } from '@minimal-rpg/schemas';
+import { type WorldEvent } from '/schemas';
 
 const tracer = trace.getTracer('world-bus');
 
