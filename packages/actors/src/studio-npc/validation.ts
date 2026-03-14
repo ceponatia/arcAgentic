@@ -3,7 +3,7 @@
  * Catches training data leakage, code injection, and malformed responses.
  */
 
-import type { ResponseValidationResult } from '/schemas';
+import type { ResponseValidationResult } from '@arcagentic/schemas';
 
 /**
  * Markers that indicate code or technical content.

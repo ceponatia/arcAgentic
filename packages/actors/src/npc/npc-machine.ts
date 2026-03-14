@@ -1,9 +1,9 @@
 import { createMachine, assign, fromPromise } from 'xstate';
-import type { WorldEvent, Intent } from '/schemas';
+import type { WorldEvent, Intent } from '@arcagentic/schemas';
 import type { NpcMachineContext, NpcMachineEvent } from './types.js';
 import { PerceptionLayer } from './perception.js';
 import { CognitionLayer } from './cognition.js';
-import { worldBus } from '/bus';
+import { worldBus } from '@arcagentic/bus';
 
 const MEANINGFUL_EVENT_TYPES = new Set<WorldEvent['type']>(['SPOKE']);
 

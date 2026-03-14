@@ -10,7 +10,7 @@ import {
   getUserPreferences,
   updateUserPreferences,
   getOrCreateDefaultUser,
-} from '/db/node';
+} from '@arcagentic/db/node';
 import type { ApiError } from '../../types.js';
 import { validateBody } from '../../utils/request-validation.js';
 

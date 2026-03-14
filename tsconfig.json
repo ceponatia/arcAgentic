@@ -1,12 +1,47 @@
 {
-  "extends": "./tsconfig.base.json",
-  "include": [
-    "packages/*/src/**/*",
-    "packages/*/test/**/*",
-    "packages/*/*.config.*",
-    "packages/*/tsup.config.*",
-    "packages/*/vite.config.ts",
-    "packages/*/vitest.config.ts"
-  ],
-  "exclude": ["**/node_modules/**", "**/dist/**", "**/coverage/**"]
+  "files": [],
+  "references": [
+    {
+      "path": "packages/utils"
+    },
+    {
+      "path": "packages/schemas"
+    },
+    {
+      "path": "packages/bus"
+    },
+    {
+      "path": "packages/db"
+    },
+    {
+      "path": "packages/llm"
+    },
+    {
+      "path": "packages/retrieval"
+    },
+    {
+      "path": "packages/characters"
+    },
+    {
+      "path": "packages/services"
+    },
+    {
+      "path": "packages/actors"
+    },
+    {
+      "path": "packages/projections"
+    },
+    {
+      "path": "packages/generator"
+    },
+    {
+      "path": "packages/ui"
+    },
+    {
+      "path": "packages/api"
+    },
+    {
+      "path": "packages/workers"
+    }
+  ]
 }

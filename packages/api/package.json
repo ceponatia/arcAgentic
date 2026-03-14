@@ -1,5 +1,5 @@
 {
-  "name": "/api",
+  "name": "@arcagentic/api",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -13,22 +13,21 @@
     "build": "tsc -b",
     "clean": "rimraf dist node_modules/.cache/tsbuildinfo",
     "dev": "tsx watch src/server.ts",
-    "lint": "eslint src --cache --cache-location ../../.eslintcache",
-    "test": "vitest run --passWithNoTests",
+    "lint": "eslint src --cache --cache-location node_modules/.cache/eslint",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
     "@hono/node-server": "^1.19.10",
-    "/actors": "workspace:*",
-    "/bus": "workspace:*",
-    "/characters": "workspace:*",
-    "/db": "workspace:*",
-    "/llm": "workspace:*",
-    "/projections": "workspace:*",
-    "/retrieval": "workspace:*",
-    "/schemas": "workspace:*",
-    "/services": "workspace:*",
-    "/utils": "workspace:*",
+    "@arcagentic/actors": "workspace:*",
+    "@arcagentic/bus": "workspace:*",
+    "@arcagentic/characters": "workspace:*",
+    "@arcagentic/db": "workspace:*",
+    "@arcagentic/llm": "workspace:*",
+    "@arcagentic/projections": "workspace:*",
+    "@arcagentic/retrieval": "workspace:*",
+    "@arcagentic/schemas": "workspace:*",
+    "@arcagentic/services": "workspace:*",
+    "@arcagentic/utils": "workspace:*",
     "dotenv": "^17.2.3",
     "drizzle-orm": "^0.45.1",
     "effect": "3.10.13",
@@ -37,9 +36,7 @@
   },
   "devDependencies": {
     "@types/node": "^24.10.1",
-    "@vitest/coverage-v8": "^4.0.16",
     "tsx": "^4.20.6",
-    "typescript": "^5.9.3",
-    "vitest": "^4.0.16"
+    "typescript": "^5.9.3"
   }
 }

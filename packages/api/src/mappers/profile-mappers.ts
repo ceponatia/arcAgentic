@@ -1,4 +1,4 @@
-import type { CharacterProfile, SettingProfile, PersonaProfile } from '/schemas';
+import type { CharacterProfile, SettingProfile, PersonaProfile } from '@arcagentic/schemas';
 import type {
   CharacterSummary,
   MapCharacterSummary,

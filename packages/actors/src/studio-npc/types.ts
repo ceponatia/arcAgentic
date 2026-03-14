@@ -3,10 +3,10 @@ import type {
   ConversationMessage,
   InferredTrait,
   SuggestedPrompt,
-} from '/schemas';
-import type { LLMProvider } from '/llm';
+} from '@arcagentic/schemas';
+import type { LLMProvider } from '@arcagentic/llm';
 
-export type { ConversationMessage, InferredTrait, SuggestedPrompt } from '/schemas';
+export type { ConversationMessage, InferredTrait, SuggestedPrompt } from '@arcagentic/schemas';
 
 // ============================================================================
 // Core Types

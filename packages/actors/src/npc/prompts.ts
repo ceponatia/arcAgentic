@@ -1,4 +1,4 @@
-import type { CharacterProfile } from '/schemas';
+import type { CharacterProfile } from '@arcagentic/schemas';
 import type { PerceptionContext, NpcRuntimeState } from './types.js';
 
 export const NPC_DECISION_SYSTEM_PROMPT = [

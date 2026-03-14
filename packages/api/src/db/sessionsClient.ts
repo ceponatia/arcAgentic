@@ -14,7 +14,7 @@ import {
   getSessionTagsWithDefinitions as rawGetSessionTagsWithDefinitions,
   toggleSessionTagBinding as rawToggleSessionTagBinding,
   deleteSessionTagBinding as rawDeleteSessionTagBinding,
-} from '/db/node';
+} from '@arcagentic/db/node';
 
 export const createSession: typeof rawCreateSession = rawCreateSession;
 export const getSession: typeof rawGetSession = rawGetSession;
@@ -51,7 +51,7 @@ export {
   createLocationPrefab,
   getLocationPrefab,
   listLocationPrefabs,
-} from '/db/node';
+} from '@arcagentic/db/node';
 
 // Actor/Profile/User functions (Migrated)
 export {
@@ -63,7 +63,7 @@ export {
   getActorState,
   listActorStatesForSession,
   upsertActorState,
-} from '/db/node';
+} from '@arcagentic/db/node';
 
 // Re-export Record types for consumers
-export type { SessionLocationMapRecord, PlayerInterestRecord } from '/db/node';
+export type { SessionLocationMapRecord, PlayerInterestRecord } from '@arcagentic/db/node';

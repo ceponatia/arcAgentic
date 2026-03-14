@@ -1,6 +1,6 @@
 // src/routes/items.ts
 import type { Hono } from 'hono';
-import { ItemDefinitionSchema } from '/schemas';
+import { ItemDefinitionSchema } from '@arcagentic/schemas';
 import {
   listEntityProfiles,
   getEntityProfile,

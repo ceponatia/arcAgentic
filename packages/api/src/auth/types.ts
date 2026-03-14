@@ -1,1 +1,1 @@
-export type { AuthTokenPayload, AuthUser, UserRole } from '/schemas';
+export type { AuthTokenPayload, AuthUser, UserRole } from '@arcagentic/schemas';

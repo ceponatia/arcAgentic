@@ -1,4 +1,4 @@
-import type { CharacterProfile } from '/schemas';
+import type { CharacterProfile } from '@arcagentic/schemas';
 import type { InferredTrait, Contradiction } from './types.js';
 
 /**

@@ -1,5 +1,5 @@
 // packages/actors/src/studio-npc/discovery.ts
-import { getRecordOptional, type CharacterProfile } from '/schemas';
+import { getRecordOptional, type CharacterProfile } from '@arcagentic/schemas';
 import type { DiscoveryTopic, SuggestedPrompt } from './types.js';
 
 /**

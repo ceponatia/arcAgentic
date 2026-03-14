@@ -5,7 +5,7 @@ import {
   SensoryTemplateSchema,
   type SensoryTemplate,
   getSensoryTemplates,
-} from '/schemas';
+} from '@arcagentic/schemas';
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(currentDir, '..', '..', '..', '..');

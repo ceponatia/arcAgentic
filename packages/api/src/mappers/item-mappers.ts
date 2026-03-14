@@ -1,4 +1,4 @@
-import type { ItemDefinition } from '/schemas';
+import type { ItemDefinition } from '@arcagentic/schemas';
 import type { ItemSummary, MapItemSummary } from '../loaders/types.js';
 
 export const mapItemSummary: MapItemSummary = (item: ItemDefinition): ItemSummary => {

@@ -1,6 +1,6 @@
 import type { Hono } from 'hono';
 import { z } from 'zod';
-import { verifyLocalUserPassword, getOrCreateDefaultUser } from '/db/node';
+import { verifyLocalUserPassword, getOrCreateDefaultUser } from '@arcagentic/db/node';
 import type { ApiError } from '../../types.js';
 import type { AuthTokenPayload, AuthUser } from '../../auth/types.js';
 import { getAuthSecret, signAuthToken } from '../../auth/token.js';

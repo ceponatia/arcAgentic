@@ -1,5 +1,5 @@
 import type { Context } from 'hono';
-import { presenceService } from '/services';
+import { presenceService } from '@arcagentic/services';
 
 /**
  * Handle session disconnect requests.

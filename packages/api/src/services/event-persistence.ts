@@ -1,5 +1,5 @@
-import { getEventsForSession, saveEvent } from '/db/node';
-import type { WorldEvent } from '/schemas';
+import { getEventsForSession, saveEvent } from '@arcagentic/db/node';
+import type { WorldEvent } from '@arcagentic/schemas';
 import { toSessionId } from '../utils/uuid.js';
 
 /**

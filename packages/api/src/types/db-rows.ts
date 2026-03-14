@@ -4,7 +4,7 @@
  * These types define the shape of rows returned from Drizzle queries.
  * Use these to properly type mapper functions and avoid `as any` casts.
  */
-import type { LocationNode, LocationConnection, ScheduleTemplateRow } from '/schemas';
+import type { LocationNode, LocationConnection, ScheduleTemplateRow } from '@arcagentic/schemas';
 
 /**
  * Row shape from location_maps table.

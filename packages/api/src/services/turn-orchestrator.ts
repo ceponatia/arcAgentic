@@ -1,9 +1,9 @@
-import { CharacterProfileSchema, type CharacterProfile, type Intent, type WorldEvent } from '/schemas';
-import type { LLMProvider } from '/llm';
-import { CognitionLayer, type CognitionContext } from '/actors';
-import { worldBus } from '/bus';
-import { timeService } from '/services';
-import { getActorState, getEntityProfile } from '/db/node';
+import { CharacterProfileSchema, type CharacterProfile, type Intent, type WorldEvent } from '@arcagentic/schemas';
+import type { LLMProvider } from '@arcagentic/llm';
+import { CognitionLayer, type CognitionContext } from '@arcagentic/actors';
+import { worldBus } from '@arcagentic/bus';
+import { timeService } from '@arcagentic/services';
+import { getActorState, getEntityProfile } from '@arcagentic/db/node';
 import { isUuid, toId, toSessionId } from '../utils/uuid.js';
 
 /**

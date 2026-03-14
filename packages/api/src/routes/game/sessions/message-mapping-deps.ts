@@ -1,4 +1,4 @@
-import { getActorState, getEntityProfile } from '/db/node';
+import { getActorState, getEntityProfile } from '@arcagentic/db/node';
 import { isUuid, toId, toSessionId } from '../../../utils/uuid.js';
 import type { MessageMappingDeps } from './message-mapping.js';
 

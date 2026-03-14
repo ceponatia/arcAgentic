@@ -3,10 +3,10 @@ export {
   resolveNpcSchedulesBatch,
   checkNpcAvailability,
   getNpcsAtLocationBySchedule,
-} from '/services';
+} from '@arcagentic/services';
 
 export type {
   NpcScheduleData,
   ScheduleResolutionOptions,
   ScheduleResolutionResult,
-} from '/services';
+} from '@arcagentic/services';

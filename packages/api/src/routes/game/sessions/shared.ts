@@ -9,10 +9,10 @@ import {
   CreateNpcInstanceRequestSchema,
   CreateSessionRequestSchema,
   MessageRequestSchema,
-} from '/schemas';
+} from '@arcagentic/schemas';
 import type { LoadedData } from '../../../loaders/types.js';
-import { getEntityProfile } from '/db/node';
-import { extractJsonField } from '/utils';
+import { getEntityProfile } from '@arcagentic/db/node';
+import { extractJsonField } from '@arcagentic/utils';
 import { isUuid, toId } from '../../../utils/uuid.js';
 
 export { MessageRequestSchema, CreateSessionRequestSchema, CreateNpcInstanceRequestSchema };

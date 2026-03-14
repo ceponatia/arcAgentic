@@ -3,7 +3,7 @@ import type {
   SettingProfile,
   WorldEvent,
   ConversationMessageRole,
-} from '/schemas';
+} from '@arcagentic/schemas';
 import type { Speaker } from '../types.js';
 import type { DbMessage, DbSessionSummary } from '../db/types.js';
 

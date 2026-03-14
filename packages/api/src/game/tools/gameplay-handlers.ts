@@ -2,12 +2,12 @@
  * Gameplay tool handlers - execute tool calls that change game state.
  */
 import type { ToolResult } from './types.js';
-import type { InventoryItem, LocationMap, LocationNode } from '/schemas';
+import type { InventoryItem, LocationMap, LocationNode } from '@arcagentic/schemas';
 import {
   InventoryStateSchema,
   LocationConnectionSchema,
   LocationNodeSchema,
-} from '/schemas';
+} from '@arcagentic/schemas';
 import {
   getActorState,
   getActorsAtLocation,
@@ -19,9 +19,9 @@ import {
   listActorStatesForSession,
   updateActorState,
   upsertProjection,
-} from '/db/node';
-import { worldBus } from '/bus';
-import { LocationService } from '/services';
+} from '@arcagentic/db/node';
+import { worldBus } from '@arcagentic/bus';
+import { LocationService } from '@arcagentic/services';
 import { toSessionId } from '../../utils/uuid.js';
 import {
   ExamineObjectArgsSchema,

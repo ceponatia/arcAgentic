@@ -1,11 +1,11 @@
 import type { Hono } from 'hono';
 import { getOwnerEmail } from '../../auth/ownerEmail.js';
 import { getSession } from '../../db/sessionsClient.js';
-import { getEntityProfile, listActorStatesForSession } from '/db/node';
+import { getEntityProfile, listActorStatesForSession } from '@arcagentic/db/node';
 import { turnRateLimiter } from '../../middleware/rate-limiter.js';
 import { notFound } from '../../utils/responses.js';
-import { worldBus } from '/bus';
-import { actorRegistry } from '/actors';
+import { worldBus } from '@arcagentic/bus';
+import { actorRegistry } from '@arcagentic/actors';
 import {
   dialogueService,
   physicsService,
@@ -13,9 +13,9 @@ import {
   socialEngine,
   rulesEngine,
   Scheduler,
-} from '/services';
-import type { CharacterProfile, WorldEvent } from '/schemas';
-import { OpenAIProvider, createOpenRouterProviderFromEnv } from '/llm';
+} from '@arcagentic/services';
+import type { CharacterProfile, WorldEvent } from '@arcagentic/schemas';
+import { OpenAIProvider, createOpenRouterProviderFromEnv } from '@arcagentic/llm';
 import { toSessionId } from '../../utils/uuid.js';
 import { validateBody, validateParamId } from '../../utils/request-validation.js';
 import { getEnvValue } from '../../utils/env.js';

@@ -10,10 +10,10 @@ export type {
   ToolParameterSchema,
   ToolCall,
   ToolResult,
-} from '/schemas';
+} from '@arcagentic/schemas';
 
 // Tool-adjacent types still owned by utils
-export type { ChatMessageWithTools, StatePatches } from '/utils';
+export type { ChatMessageWithTools, StatePatches } from '@arcagentic/utils';
 
 // =============================================================================
 // Session Tool Argument Types

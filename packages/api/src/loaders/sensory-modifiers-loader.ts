@@ -14,7 +14,7 @@ import {
   type LoadedSensoryModifiers,
   type SensoryModifiersData,
   type HygieneLevel,
-} from '/schemas';
+} from '@arcagentic/schemas';
 import { resolveDataDir } from './loader.js';
 
 const SENSORY_MODIFIERS_FILE = 'sensory-modifiers.json';

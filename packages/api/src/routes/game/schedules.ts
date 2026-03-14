@@ -1,6 +1,6 @@
 import type { Hono } from 'hono';
 import { z } from 'zod';
-import { ScheduleTemplateSchema, NpcScheduleSchema, type NpcSchedule } from '/schemas';
+import { ScheduleTemplateSchema, NpcScheduleSchema, type NpcSchedule } from '@arcagentic/schemas';
 import {
   drizzle as db,
   scheduleTemplates,
@@ -9,7 +9,7 @@ import {
   and,
   getActorState,
   upsertActorState,
-} from '/db/node';
+} from '@arcagentic/db/node';
 import type { ApiError } from '../../types.js';
 import { toSessionId, toId } from '../../utils/uuid.js';
 import { asNpcState, type NpcActorState } from '../../types/index.js';

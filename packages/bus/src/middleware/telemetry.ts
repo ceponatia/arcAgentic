@@ -1,5 +1,5 @@
 import { trace, type Span } from '@opentelemetry/api';
-import { type WorldEvent } from '/schemas';
+import { type WorldEvent } from '@arcagentic/schemas';
 
 const tracer = trace.getTracer('world-bus');
 
@@ -15,12 +15,12 @@ export const telemetryMiddleware: BusMiddleware = async (event, next) => {
   return tracer.startActiveSpan(`bus:${event.type}`, async (span: Span) => {
     try {
       span.setAttribute('event.type', event.type);
-      
+
       const rawEvent = event as Record<string, unknown>;
       if (typeof rawEvent['sessionId'] === 'string') {
         span.setAttribute('session.id', rawEvent['sessionId']);
       }
-      
+
       await next();
       span.setStatus({ code: 0 }); // Ok
     } catch (err) {

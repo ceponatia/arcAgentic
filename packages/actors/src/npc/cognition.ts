@@ -1,6 +1,6 @@
 import { Effect } from 'effect';
-import type { LLMMessage, LLMProvider } from '/llm';
-import type { CharacterProfile, WorldEvent } from '/schemas';
+import type { LLMMessage, LLMProvider } from '@arcagentic/llm';
+import type { CharacterProfile, WorldEvent } from '@arcagentic/schemas';
 import type { CognitionContext, ActionResult } from './types.js';
 import { NPC_DECISION_SYSTEM_PROMPT, buildNpcCognitionPrompt } from './prompts.js';
 import { performance } from 'node:perf_hooks';

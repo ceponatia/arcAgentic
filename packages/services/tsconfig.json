@@ -1,21 +1,25 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": "../../tsconfig.package.json",
   "compilerOptions": {
-    "composite": true,
-    "declaration": true,
-    "declarationMap": true,
     "rootDir": "src",
     "outDir": "dist",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
     "tsBuildInfoFile": "./node_modules/.cache/tsbuildinfo"
   },
-  "include": ["src"],
-  "exclude": ["dist"],
+  "include": [
+    "src"
+  ],
   "references": [
-    { "path": "../bus" },
-    { "path": "../db" },
-    { "path": "../llm" },
-    { "path": "../schemas" }
+    {
+      "path": "../bus"
+    },
+    {
+      "path": "../db"
+    },
+    {
+      "path": "../llm"
+    },
+    {
+      "path": "../schemas"
+    }
   ]
 }

@@ -3,35 +3,15 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node scripts/turbo.mjs run build",
-    "build:watch": "node scripts/turbo.mjs run build --watch",
+    "build": "turbo run build",
     "db:migrate": "pnpm --filter @arcagentic/db run db:migrate",
-    "db:migrate:fresh": "bash scripts/fresh-migration.sh",
-    "dev": "node scripts/turbo.mjs run dev",
-    "dev:kill": "node scripts/kill-ports.mjs 3001 5173",
-    "lint": "node scripts/turbo.mjs run lint",
-    "infra:up": "docker compose --env-file .env -f config/docker/docker-compose.yml up -d db redis",
-    "infra:down": "docker compose -f config/docker/docker-compose.yml stop db redis",
-    "docker:up": "docker compose --env-file .env -f config/docker/docker-compose.yml up -d --wait",
-    "docker:build": "docker compose --env-file .env -f config/docker/docker-compose.yml up -d --build --wait",
-    "docker:down": "docker compose -f config/docker/docker-compose.yml down",
-    "refs:check": "node scripts/sync-ts-references.mjs && git diff --exit-code",
-    "refs:sync": "node scripts/sync-ts-references.mjs",
-    "test": "node scripts/turbo.mjs run test",
-    "typecheck": "node scripts/turbo.mjs run typecheck",
-    "deps:check": "dependency-cruiser packages apps --config scripts/lint/dependency-cruiser.cjs",
-    "deps:graph": "node scripts/deps-graph.mjs",
-    "deps:graph:dot": "node scripts/deps-graph.mjs --format dot",
-    "deps:graph:cruiser": "dependency-cruiser packages apps --config scripts/lint/dependency-cruiser.cjs --output-type dot | dot -T svg > dependency-graph-cruiser.svg"
-  },
-  "lint-staged": {
-    "*.{js,cjs,mjs,jsx,ts,tsx}": [
-      "eslint --fix",
-      "prettier --write"
-    ],
-    "*.{json,md,yml,yaml,css,scss,html}": [
-      "prettier --write"
-    ]
+    "db:migrate:fresh": "pnpm --filter @arcagentic/db run db:migrate:fresh",
+    "dev": "turbo run dev --filter=@arcagentic/api --filter=@arcagentic/web",
+    "infra:down": "node infra.mjs down",
+    "infra:up": "node infra.mjs up",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.1",
@@ -43,32 +23,23 @@
     "@commitlint/cli": "^20.2.0",
     "@commitlint/config-conventional": "^20.2.0",
     "@eslint/js": "^9.39.1",
-    "@secretlint/secretlint-rule-preset-recommend": "^11.2.5",
     "@types/node": "^24.10.1",
     "@types/pg": "^8.16.0",
-    "@vitest/coverage-v8": "4.0.18",
     "add": "^2.0.6",
-    "dependency-cruiser": "^17.3.7",
     "dotenv": "^17.2.3",
     "drizzle-kit": "^0.31.8",
     "eslint": "^9.39.1",
-    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-security": "^3.0.1",
     "glob": "^13.0.0",
-    "lint-staged": "^16.2.7",
-    "markdownlint-cli": "^0.47.0",
     "pnpm": "^10.28.2",
-    "prettier": "^3.6.2",
-    "prettier-plugin-packagejson": "^2.5.19",
     "rimraf": "^6.1.2",
-    "secretlint": "^11.2.5",
     "sucrase": "^3.35.1",
     "tsup": "^8.5.1",
     "tsx": "^4.20.6",
     "turbo": "^2.8.3",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.46.4",
-    "vitest": "^4.0.18"
+    "typescript-eslint": "^8.46.4"
   },
   "pnpm": {
     "patchedDependencies": {
@@ -86,9 +57,7 @@
       "glob>minimatch": "10.2.4",
       "lodash": "4.17.23",
       "markdown-it": "14.1.1",
-      "markdownlint-cli>minimatch": "10.2.4",
       "rollup": "4.59.0",
-      "@secretlint/config-loader>ajv": "8.18.0",
       "table>ajv": "8.18.0",
       "@typescript-eslint/typescript-estree>minimatch": "9.0.9",
       "@esbuild-kit/core-utils>esbuild": "0.25.12"

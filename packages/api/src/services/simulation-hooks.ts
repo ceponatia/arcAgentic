@@ -15,10 +15,10 @@ import {
   DEFAULT_TIERED_SIMULATION_CONFIG,
   createEmptyOccupancy,
   categorizeCrowdLevel,
-} from '/schemas';
+} from '@arcagentic/schemas';
 import type { SimulationNpcInfo } from './simulation-service.js';
 import { runSimulationTick, runTimeSkipSimulation } from './simulation-service.js';
-import { listActorStatesForSession, bulkUpsertActorStates } from '/db/node';
+import { listActorStatesForSession, bulkUpsertActorStates } from '@arcagentic/db/node';
 import type {
   NpcLocationState,
   LocationOccupancy,
@@ -34,7 +34,7 @@ import type {
   LocationChangeHookResult,
   TimeSkipHookInput,
   TimeSkipHookResult,
-} from '/schemas';
+} from '@arcagentic/schemas';
 import { toSessionId } from '../utils/uuid.js';
 import type { NpcActorState } from '../types/actor-state.js';
 import { asNpcState } from '../types/actor-state.js';

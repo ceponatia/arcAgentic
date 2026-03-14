@@ -1,5 +1,5 @@
-import type { LLMProvider, LLMMessage } from '/llm';
-import type { CharacterProfile } from '/schemas';
+import type { LLMProvider, LLMMessage } from '@arcagentic/llm';
+import type { CharacterProfile } from '@arcagentic/schemas';
 import { Effect } from 'effect';
 import type { FirstImpressionContext, FirstImpressionResponse } from './types.js';
 import { buildStudioSystemPrompt, buildFirstImpressionPrompt } from './prompts.js';

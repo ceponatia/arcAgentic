@@ -1,7 +1,7 @@
-import type { WorldEvent } from '/schemas';
+import type { WorldEvent } from '@arcagentic/schemas';
 import type { BaseActorState } from '../base/types.js';
-import type { LLMProvider } from '/llm';
-import type { CharacterProfile } from '/schemas';
+import type { LLMProvider } from '@arcagentic/llm';
+import type { CharacterProfile } from '@arcagentic/schemas';
 
 /**
  * NPC-specific state extensions.

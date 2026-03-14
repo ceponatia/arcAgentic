@@ -1,5 +1,5 @@
 // packages/actors/src/studio-npc/prompts.ts
-import type { CharacterProfile, PersonalityMap } from '/schemas';
+import type { CharacterProfile, PersonalityMap } from '@arcagentic/schemas';
 
 /**
  * Build the main system prompt for studio NPC conversations.

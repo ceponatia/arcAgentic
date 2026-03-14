@@ -3,6 +3,53 @@
     "target": "es2023",
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    "paths": {
+      "@arcagentic/actors": [
+        "./packages/actors/src/index.ts"
+      ],
+      "@arcagentic/api": [
+        "./packages/api/src/index.ts"
+      ],
+      "@arcagentic/bus": [
+        "./packages/bus/src/index.ts"
+      ],
+      "@arcagentic/characters": [
+        "./packages/characters/src/index.ts"
+      ],
+      "@arcagentic/db": [
+        "./packages/db/src/index.ts"
+      ],
+      "@arcagentic/db/node": [
+        "./packages/db/src/node.ts"
+      ],
+      "@arcagentic/generator": [
+        "./packages/generator/src/index.ts"
+      ],
+      "@arcagentic/llm": [
+        "./packages/llm/src/index.ts"
+      ],
+      "@arcagentic/projections": [
+        "./packages/projections/src/index.ts"
+      ],
+      "@arcagentic/retrieval": [
+        "./packages/retrieval/src/index.ts"
+      ],
+      "@arcagentic/schemas": [
+        "./packages/schemas/src/index.ts"
+      ],
+      "@arcagentic/ui": [
+        "./packages/ui/src/index.ts"
+      ],
+      "@arcagentic/utils": [
+        "./packages/utils/src/index.ts"
+      ],
+      "@arcagentic/services": [
+        "./packages/services/src/index.ts"
+      ],
+      "@arcagentic/workers": [
+        "./packages/workers/src/index.ts"
+      ]
+    },
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "esModuleInterop": true,
@@ -27,5 +74,5 @@
     "coverage",
     "temp",
     "tmp"
-  ],
+  ]
 }

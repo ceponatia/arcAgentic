@@ -8,7 +8,7 @@ import {
   type ExamineObjectArgs,
   type NavigatePlayerArgs,
   type UseItemArgs,
-} from '/schemas';
+} from '@arcagentic/schemas';
 
 export { ExamineObjectArgsSchema, NavigatePlayerArgsSchema, UseItemArgsSchema };
 export type { ExamineObjectArgs, NavigatePlayerArgs, UseItemArgs };

@@ -92,12 +92,6 @@ Defaults:
 - API: <http://localhost:3001>
 - Web: <http://localhost:5173>
 
-If a port is already in use:
-
-```bash
-pnpm dev:kill
-```
-
 ## 3. Scripts
 
 Core scripts (repo root):
@@ -107,19 +101,17 @@ Core scripts (repo root):
 - `pnpm lint`: Lint all packages (Turbo)
 - `pnpm test`: Run tests across the monorepo (Turbo)
 - `pnpm typecheck`: Typecheck all packages (Turbo)
-- `pnpm dev:kill`: Kill listeners on ports 3001 and 5173 (uses `lsof` or `fuser`)
 
 Infrastructure and DB:
 
 - `pnpm infra:up`: Start Postgres + Redis via Docker Compose (detached)
-- `pnpm infra:down`: Stop Postgres + Redis containers
-- `pnpm docker:up`: Start all services (db + redis + api + web)
-- `pnpm docker:build`: Start all services with rebuild
-- `pnpm docker:down`: Stop and remove containers
+- `pnpm infra:up -- --all`: Start the full Docker Compose stack (db + redis + api + web)
+- `pnpm infra:up -- --all --build`: Rebuild and start the full Docker Compose stack
+- `pnpm infra:down`: Stop and remove the default infra containers (db + redis)
+- `pnpm infra:down -- --all`: Stop and remove the full Docker Compose stack
+- `pnpm infra:down -- --all --volumes`: Stop the full stack and remove named volumes
 - `pnpm db:migrate`: Apply migrations
 - `pnpm db:migrate:fresh`: Drop and re-apply migrations
-
-Note: the root scripts run Turbo through `scripts/turbo.mjs` to make pnpm resolution robust when Turbo executes tasks from package subdirectories.
 
 ## 4. Tests
 
@@ -135,13 +127,6 @@ Run a single package:
 pnpm -F @arcagentic/api test
 pnpm -F @arcagentic/web test
 pnpm -F @arcagentic/llm test
-```
-
-Streaming smoke test (SSE and provider streaming):
-
-```bash
-node scripts/test-streaming.mjs --target=studio --message "Generate a short NPC greeting." --apiBaseUrl http://localhost:3001
-node scripts/test-streaming.mjs --target=openai --message "Say hello in one sentence."
 ```
 
 ## 5. Database and environment
@@ -222,7 +207,6 @@ REDIS_URL=redis://localhost:6379
 
 - If the API fails on startup, ensure Postgres and Redis are reachable (run `pnpm infra:up`).
 - If the web UI loads but API calls fail, confirm `VITE_API_BASE_URL` (defaults to `http://localhost:3001`) and check `GET /health`.
-- If ports are stuck, run `pnpm dev:kill`.
 
 ## 10. Documentation
 

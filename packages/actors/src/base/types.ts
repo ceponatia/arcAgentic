@@ -1,6 +1,6 @@
-import type { WorldEvent } from '/schemas';
-import type { LLMProvider } from '/llm';
-import type { CharacterProfile } from '/schemas';
+import type { WorldEvent } from '@arcagentic/schemas';
+import type { LLMProvider } from '@arcagentic/llm';
+import type { CharacterProfile } from '@arcagentic/schemas';
 
 /**
  * Actor types in the simulation.

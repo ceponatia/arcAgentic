@@ -12,7 +12,7 @@ import type {
   EncounterNarrationOptions,
   EncounterNpcInfo,
   NpcActivity,
-} from '/schemas';
+} from '@arcagentic/schemas';
 
 export type { EncounterNarration, EncounterNarrationOptions, EncounterNpcInfo };
 

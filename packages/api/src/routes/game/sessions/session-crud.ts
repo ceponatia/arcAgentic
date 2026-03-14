@@ -8,11 +8,11 @@ import {
   upsertActorState,
   getSessionProjection,
   getEventsForSession,
-} from '/db/node';
+} from '@arcagentic/db/node';
 import type { LoadedDataGetter } from '../../../loaders/types.js';
 import { notFound, badRequest, serverError } from '../../../utils/responses.js';
 import { jsonifyBigInts } from '../../../utils/json.js';
-import { generateId } from '/utils';
+import { generateId } from '@arcagentic/utils';
 import { CreateSessionRequestSchema, findCharacter, findSetting } from './shared.js';
 import { getOwnerEmail } from '../../../auth/ownerEmail.js';
 import { toId, toSessionId } from '../../../utils/uuid.js';

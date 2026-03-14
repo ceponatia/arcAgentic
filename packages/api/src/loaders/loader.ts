@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { CharacterProfileSchema, SettingProfileSchema } from '/schemas';
-import type { CharacterProfile, SettingProfile } from '/schemas';
+import { CharacterProfileSchema, SettingProfileSchema } from '@arcagentic/schemas';
+import type { CharacterProfile, SettingProfile } from '@arcagentic/schemas';
 import type { LoadedData } from './types.js';
 import { getEnvValue } from '../utils/env.js';
 

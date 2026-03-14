@@ -4,8 +4,8 @@ import {
   SettingProfileSchema,
   type CharacterProfile,
   type SettingProfile,
-} from '/schemas';
-import { generateId, isUuid } from '/utils';
+} from '@arcagentic/schemas';
+import { generateId, isUuid } from '@arcagentic/utils';
 import { deleteCharacterFile } from '../../loaders/loader.js';
 import {
   listEntityProfiles,
@@ -13,7 +13,7 @@ import {
   createEntityProfile,
   updateEntityProfile,
   deleteEntityProfile,
-} from '/db/node';
+} from '@arcagentic/db/node';
 import type { ApiError } from '../../types.js';
 import type { LoadedDataGetter, CharacterSummary, SettingSummary } from '../../loaders/types.js';
 import { mapCharacterSummary, mapSettingSummary } from '../../mappers/profile-mappers.js';

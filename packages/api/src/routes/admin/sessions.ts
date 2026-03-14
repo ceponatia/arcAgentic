@@ -1,5 +1,5 @@
 import type { Hono } from 'hono';
-import { getEventsForSession } from '/db/node';
+import { getEventsForSession } from '@arcagentic/db/node';
 import type { ApiError } from '../../types.js';
 import { requireAdmin } from '../../auth/middleware.js';
 import { toSessionId } from '../../utils/uuid.js';

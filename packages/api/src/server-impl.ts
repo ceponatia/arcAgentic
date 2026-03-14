@@ -11,7 +11,7 @@ import {
   ensureLocalAdminUser,
   initStudioSessionsTable,
   cleanupExpiredSessions,
-} from '/db/node';
+} from '@arcagentic/db/node';
 
 // Route registrars
 import { registerSystemRoutes } from './routes/system/index.js';
@@ -28,9 +28,9 @@ import {
   telemetryMiddleware,
   persistenceMiddleware,
   registerPersistenceHandler,
-} from '/bus';
+} from '@arcagentic/bus';
 import { persistWorldEvent } from './services/event-persistence.js';
-import { rulesEngine, Scheduler, tickEmitter } from '/services';
+import { rulesEngine, Scheduler, tickEmitter } from '@arcagentic/services';
 
 const app = new Hono();
 

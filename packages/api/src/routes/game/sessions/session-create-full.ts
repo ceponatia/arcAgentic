@@ -9,7 +9,7 @@ import type { Context } from 'hono';
 import {
   CreateFullSessionRequestSchema,
   type CreateFullSessionResponse,
-} from '/schemas';
+} from '@arcagentic/schemas';
 import {
   drizzle,
   sessions,
@@ -18,18 +18,18 @@ import {
   sessionTags,
   promptTags,
   inArray,
-} from '/db/node';
-import { ensureUserByEmail } from '/db/node';
+} from '@arcagentic/db/node';
+import { ensureUserByEmail } from '@arcagentic/db/node';
 import type { LoadedDataGetter } from '../../../loaders/types.js';
 import { badRequest, serverError, notFound } from '../../../utils/responses.js';
-import { generateId, generateInstanceId } from '/utils';
+import { generateId, generateInstanceId } from '@arcagentic/utils';
 import { findCharacter, findSetting } from './shared.js';
 import { getAuthUser } from '../../../auth/middleware.js';
 import { toSessionId, toId, toIds } from '../../../utils/uuid.js';
-import type { CharacterProfile } from '/schemas';
+import type { CharacterProfile } from '@arcagentic/schemas';
 import { validateBody } from '../../../utils/request-validation.js';
 
-export type { CreateFullSessionRequest, CreateFullSessionResponse } from '/schemas';
+export type { CreateFullSessionRequest, CreateFullSessionResponse } from '@arcagentic/schemas';
 
 /**
  * Handle POST /sessions/create-full

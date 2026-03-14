@@ -1,4 +1,4 @@
-import type { WorldEvent } from '/schemas';
+import type { WorldEvent } from '@arcagentic/schemas';
 import type { Actor, ActorConfig, BaseActorState } from '../base/types.js';
 import { BaseActorLifecycle } from '../base/lifecycle.js';
 

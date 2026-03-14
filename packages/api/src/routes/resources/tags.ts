@@ -17,7 +17,7 @@ import {
   TagQuerySchema,
   CreateTagBindingRequestSchema,
   UpdateTagBindingRequestSchema,
-} from '/schemas';
+} from '@arcagentic/schemas';
 import type { ApiError } from '../../types.js';
 import { toId, toSessionId } from '../../utils/uuid.js';
 import {

@@ -5,9 +5,9 @@ import type {
   SettingSummary,
   ItemSummary,
   ItemDefinition,
-} from '/schemas';
+} from '@arcagentic/schemas';
 
-export type { CharacterSummary, SettingSummary, PersonaSummary, ItemSummary } from '/schemas';
+export type { CharacterSummary, SettingSummary, PersonaSummary, ItemSummary } from '@arcagentic/schemas';
 
 // Loaded data (characters + settings)
 export interface LoadedData {

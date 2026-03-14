@@ -9,8 +9,8 @@ import {
   LocationConnectionSchema,
   type LocationMap,
   type LocationPrefab,
-} from '/schemas';
-import { LocationDataValidationError } from '/db/node';
+} from '@arcagentic/schemas';
+import { LocationDataValidationError } from '@arcagentic/db/node';
 import {
   createLocationMap,
   getLocationMap,

@@ -1,16 +1,25 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": "../../tsconfig.package.json",
   "compilerOptions": {
-    "outDir": "dist",
     "rootDir": "src",
-    "composite": true,
+    "outDir": "dist",
     "tsBuildInfoFile": "./node_modules/.cache/tsbuildinfo"
   },
-  "include": ["src"],
+  "include": [
+    "src"
+  ],
   "references": [
-    { "path": "../bus" },
-    { "path": "../db" },
-    { "path": "../schemas" },
-    { "path": "../utils" }
+    {
+      "path": "../bus"
+    },
+    {
+      "path": "../db"
+    },
+    {
+      "path": "../schemas"
+    },
+    {
+      "path": "../utils"
+    }
   ]
 }

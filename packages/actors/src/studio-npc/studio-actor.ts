@@ -1,6 +1,6 @@
 // packages/actors/src/studio-npc/studio-actor.ts
 import { createActor, type ActorRefFrom } from 'xstate';
-import type { CharacterProfile } from '/schemas';
+import type { CharacterProfile } from '@arcagentic/schemas';
 import { createStudioMachine } from './studio-machine.js';
 import { ConversationManager } from './conversation.js';
 import type {

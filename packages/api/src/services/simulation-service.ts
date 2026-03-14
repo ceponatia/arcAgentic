@@ -17,7 +17,7 @@ import type {
   TieredSimulationConfig,
   NpcSimulationInfo,
   NpcTier as NpcTierNS,
-} from '/schemas';
+} from '@arcagentic/schemas';
 
 /** NPC tier type (aliased to avoid namespace collision) */
 type NpcTier = NpcTierNS.NpcTier;
@@ -27,7 +27,7 @@ import {
   hasStateChanged,
   shouldUpdateOnTrigger,
   createNpcSimulationPriority,
-} from '/schemas';
+} from '@arcagentic/schemas';
 import type { NpcScheduleData, ScheduleResolutionOptions } from './schedule-service.js';
 import { resolveNpcScheduleAtTime } from './schedule-service.js';
 

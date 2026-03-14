@@ -11,7 +11,7 @@ import {
   eq,
   and,
   getEventsForSession,
-} from '/db/node';
+} from '@arcagentic/db/node';
 import { notFound } from '../../../utils/responses.js';
 import { MessageRequestSchema } from './shared.js';
 import { getOwnerEmail } from '../../../auth/ownerEmail.js';

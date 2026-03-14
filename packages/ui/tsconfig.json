@@ -1,18 +1,14 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": "../../tsconfig.package.json",
   "compilerOptions": {
-    "composite": true,
-    "declaration": true,
-    "declarationMap": true,
     "jsx": "react-jsx",
     "rootDir": "src",
     "outDir": "dist",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
     "tsBuildInfoFile": "./node_modules/.cache/tsbuildinfo"
   },
-  "include": ["src"],
-  "exclude": ["dist"],
+  "include": [
+    "src"
+  ],
   "references": [
     {
       "path": "../schemas"

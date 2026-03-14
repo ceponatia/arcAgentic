@@ -1,5 +1,5 @@
 import type { Hono } from 'hono';
-import { PersonaProfileSchema, type PersonaProfile } from '/schemas';
+import { PersonaProfileSchema, type PersonaProfile } from '@arcagentic/schemas';
 import {
   listEntityProfiles,
   getEntityProfile,
@@ -9,7 +9,7 @@ import {
   upsertActorState,
   getActorState,
   deleteActorState,
-} from '/db/node';
+} from '@arcagentic/db/node';
 import { getSession } from '../../db/sessionsClient.js';
 import type { ApiError } from '../../types.js';
 import { getOwnerEmail } from '../../auth/ownerEmail.js';

@@ -1,5 +1,5 @@
 {
-  "name": "/bus",
+  "name": "@arcagentic/bus",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -14,21 +14,18 @@
   "scripts": {
     "build": "tsc -b",
     "clean": "rimraf dist node_modules/.cache/tsbuildinfo",
-    "lint": "eslint src --cache --cache-location ../../.eslintcache",
-    "test": "vitest run",
+    "lint": "eslint src --cache --cache-location node_modules/.cache/eslint",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "/schemas": "workspace:*",
+    "@arcagentic/schemas": "workspace:*",
     "@opentelemetry/api": "^1.9.0",
     "ioredis": "^5.4.1",
     "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/node": "^22.10.1",
-    "@vitest/coverage-v8": "^4.0.16",
     "rimraf": "^6.1.2",
-    "typescript": "^5.6.3",
-    "vitest": "^4.0.16"
+    "typescript": "^5.6.3"
   }
 }

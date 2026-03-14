@@ -1,6 +1,6 @@
-import type { getDbOverview, getDbPathInfo } from '/db/node';
-import type { ConversationMessageRole } from '/schemas';
-import type { SessionHistoryEntry, StateChangeLogEntry } from '/schemas';
+import type { getDbOverview, getDbPathInfo } from '@arcagentic/db/node';
+import type { ConversationMessageRole } from '@arcagentic/schemas';
+import type { SessionHistoryEntry, StateChangeLogEntry } from '@arcagentic/schemas';
 
 export interface DbMessage {
   role: ConversationMessageRole;

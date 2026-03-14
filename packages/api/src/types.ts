@@ -3,7 +3,7 @@ import type {
   Speaker,
   ApiError,
   RuntimeConfigResponse,
-} from '/schemas';
+} from '@arcagentic/schemas';
 
 export type { SessionTagInstance, Speaker, ApiError, RuntimeConfigResponse };
 

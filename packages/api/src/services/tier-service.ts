@@ -12,7 +12,7 @@ import type {
   InteractionEvent,
   PromotionCheck,
   InterestConfig,
-} from '/schemas';
+} from '@arcagentic/schemas';
 
 /** NPC tier type alias */
 type NpcTierType = 'major' | 'minor' | 'background' | 'transient';
@@ -23,8 +23,8 @@ import {
   isMeaningfulInteraction,
   DEFAULT_INTEREST_CONFIG,
   createInitialInterestScore,
-} from '/schemas';
-import { getActorState, listActorStatesForSession, upsertActorState } from '/db/node';
+} from '@arcagentic/schemas';
+import { getActorState, listActorStatesForSession, upsertActorState } from '@arcagentic/db/node';
 import { toSessionId } from '../utils/uuid.js';
 import { asNpcState } from '../types/index.js';
 

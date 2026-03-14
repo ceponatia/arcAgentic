@@ -1,4 +1,4 @@
-import { ProjectionManager } from '/projections';
+import { ProjectionManager } from '@arcagentic/projections';
 
 /**
  * Service for managing world state projections.

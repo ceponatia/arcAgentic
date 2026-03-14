@@ -1,6 +1,6 @@
 import type { Context } from 'hono';
 import { badRequest } from '../../../utils/responses.js';
-import { presenceService } from '/services';
+import { presenceService } from '@arcagentic/services';
 
 interface SessionHeartbeatResponse {
   ok: true;

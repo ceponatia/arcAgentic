@@ -1,1 +1,1 @@
-export * from '/db/node';
+export * from '@arcagentic/db/node';

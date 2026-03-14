@@ -1,6 +1,6 @@
 import type { Context } from 'hono';
 import { z, type ZodSchema } from 'zod';
-import { isUuid } from '/utils';
+import { isUuid } from '@arcagentic/utils';
 import { badRequest } from './responses.js';
 
 /**

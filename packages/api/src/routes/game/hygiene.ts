@@ -22,8 +22,8 @@ import {
   type HygieneUpdateInput,
   type HygieneLevel,
   type LoadedSensoryModifiers,
-} from '/schemas';
-import { getActorState, upsertActorState } from '/db/node';
+} from '@arcagentic/schemas';
+import { getActorState, upsertActorState } from '@arcagentic/db/node';
 import type { ApiError } from '../../types.js';
 import { loadSensoryModifiers } from '../../loaders/sensory-modifiers-loader.js';
 import { toSessionId, toId } from '../../utils/uuid.js';

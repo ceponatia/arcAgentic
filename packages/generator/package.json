@@ -14,17 +14,14 @@
   "scripts": {
     "build": "tsup",
     "clean": "rimraf dist node_modules/.cache/tsbuildinfo",
-    "lint": "eslint src --cache --cache-location ../../.eslintcache",
-    "test": "vitest run --passWithNoTests",
+    "lint": "eslint src --cache --cache-location node_modules/.cache/eslint",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
     "@arcagentic/schemas": "workspace:*"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "^4.0.16",
     "tsup": "^8.0.0",
-    "typescript": "^5.4.0",
-    "vitest": "^4.0.16"
+    "typescript": "^5.4.0"
   }
 }

@@ -12,7 +12,7 @@ import {
   listWorkspaceDrafts,
   pruneOldWorkspaceDrafts,
   updateWorkspaceDraft,
-} from '/db/node';
+} from '@arcagentic/db/node';
 import type { ApiError } from '../../types.js';
 import { toId } from '../../utils/uuid.js';
 import { validateBody, validateParamId } from '../../utils/request-validation.js';

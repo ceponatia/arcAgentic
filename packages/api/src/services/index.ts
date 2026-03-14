@@ -88,4 +88,4 @@ export {
 } from './turn-orchestrator.js';
 
 // Utilities (re-export for backward compatibility)
-export { deepMergeReplaceArrays } from '/utils';
+export { deepMergeReplaceArrays } from '@arcagentic/utils';

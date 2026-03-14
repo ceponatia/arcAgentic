@@ -88,6 +88,11 @@
       "name": "Developer Documentation",
       "path": "../dev-docs/arcagentic",
       "root": false
+    },
+    {
+      "name": "GitHub Config",
+      "path": ".github",
+      "root": false
     }
   ],
   "extensions": {
@@ -170,7 +175,13 @@
       "**/node_modules": true,
       "**/dist": true,
       "**/build": true,
-      "**/coverage": true
+      "**/coverage": true,
+      "packages": true,
+      "apps": true,
+      ".github": true,
+      ".vscode": true,
+      ".pnpm-store": true,
+      ".turbo": true,
     },
     "search.exclude": {
       "**/node_modules": true,

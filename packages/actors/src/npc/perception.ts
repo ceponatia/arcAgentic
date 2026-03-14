@@ -1,4 +1,4 @@
-import type { WorldEvent } from '/schemas';
+import type { WorldEvent } from '@arcagentic/schemas';
 import type { PerceptionContext, NpcRuntimeState } from './types.js';
 
 /**

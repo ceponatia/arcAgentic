@@ -1,5 +1,5 @@
 import type { Context } from 'hono';
-import type { OwnerEmail } from '/db/node';
+import type { OwnerEmail } from '@arcagentic/db/node';
 import { getAuthUser } from './middleware.js';
 
 /**

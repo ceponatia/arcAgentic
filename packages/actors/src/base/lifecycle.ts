@@ -1,5 +1,5 @@
-import type { WorldEvent } from '/schemas';
-import { worldBus } from '/bus';
+import type { WorldEvent } from '@arcagentic/schemas';
+import { worldBus } from '@arcagentic/bus';
 import type { Actor } from './types.js';
 
 /**

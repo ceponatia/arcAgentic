@@ -1,4 +1,4 @@
-import { type WorldEvent } from '/schemas';
+import { type WorldEvent } from '@arcagentic/schemas';
 import { redisPubSub, type EventHandler } from './adapters/redis-pubsub.js';
 import { type BusMiddleware } from './middleware/telemetry.js';
 

@@ -11,4 +11,4 @@
  * Note: These utilities are now re-exported from /utils for better sharing.
  */
 
-export { isUuid, toSessionId, toEntityProfileId, toId, toIds } from '/utils';
+export { isUuid, toSessionId, toEntityProfileId, toId, toIds } from '@arcagentic/utils';

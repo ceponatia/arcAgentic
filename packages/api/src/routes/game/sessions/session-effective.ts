@@ -3,7 +3,7 @@
  * GET /sessions/:id/effective - merged character + setting profiles
  */
 import type { Context } from 'hono';
-import { getSession } from '/db/node';
+import { getSession } from '@arcagentic/db/node';
 import type { LoadedDataGetter } from '../../../loaders/types.js';
 import type { EffectiveProfilesResponse } from '../../../services/types.js';
 import { getEffectiveProfiles } from '../../../services/index.js';

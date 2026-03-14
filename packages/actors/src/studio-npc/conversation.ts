@@ -1,4 +1,4 @@
-import type { LLMProvider, LLMMessage } from '/llm';
+import type { LLMProvider, LLMMessage } from '@arcagentic/llm';
 import { Effect } from 'effect';
 import type { ConversationMessage } from './types.js';
 

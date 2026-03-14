@@ -1,6 +1,6 @@
 // packages/actors/src/studio-npc/dilemma.ts
-import type { LLMProvider, LLMMessage } from '/llm';
-import type { CharacterProfile } from '/schemas';
+import type { LLMProvider, LLMMessage } from '@arcagentic/llm';
+import type { CharacterProfile } from '@arcagentic/schemas';
 import { Effect } from 'effect';
 import type { Dilemma, ValueSignal } from './types.js';
 import { buildDilemmaPrompt } from './prompts.js';

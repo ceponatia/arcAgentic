@@ -29,7 +29,7 @@ import {
   eq,
   and,
   desc,
-} from '/db/node';
+} from '@arcagentic/db/node';
 import { toSessionId } from '../../utils/uuid.js';
 
 interface ActorStateRow {

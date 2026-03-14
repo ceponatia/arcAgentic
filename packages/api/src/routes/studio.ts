@@ -1,5 +1,5 @@
-import { OpenAIProvider, type LLMMessage, type LLMProvider } from '/llm';
-import type { CharacterProfile } from '/schemas';
+import { OpenAIProvider, type LLMMessage, type LLMProvider } from '@arcagentic/llm';
+import type { CharacterProfile } from '@arcagentic/schemas';
 import {
   createStudioNpcActor,
   StudioNpcActor,
@@ -10,18 +10,18 @@ import {
   buildStudioSystemPrompt,
   type InferredTrait,
   type DiscoveryTopic,
-} from '/actors';
+} from '@arcagentic/actors';
 import {
   createStudioSession,
   getStudioSession,
   updateStudioSession,
   deleteStudioSession,
   type StudioSession,
-} from '/db/node';
+} from '@arcagentic/db/node';
 import { Cause, Effect, Exit } from 'effect';
 import { Hono } from 'hono';
 import { streamSSE } from 'hono/streaming';
-import { generateId } from '/utils';
+import { generateId } from '@arcagentic/utils';
 import { z } from 'zod';
 import type { ApiError } from '../types.js';
 import { getConfig } from '../utils/config.js';
@@ -857,7 +857,7 @@ export function registerStudioRoutes(app: Hono, options?: RegisterStudioRoutesOp
       }
 
       // Use the DilemmaEngine to generate just the scenario
-      const { DilemmaEngine } = await import('/actors');
+      const { DilemmaEngine } = await import('@arcagentic/actors');
       const engine = new DilemmaEngine({ llmProvider: llmProvider });
       const dilemma = await engine.generateDilemma(profile);
 

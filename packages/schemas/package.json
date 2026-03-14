@@ -25,14 +25,11 @@
   "scripts": {
     "build": "tsc -b",
     "clean": "rimraf dist node_modules/.cache/tsbuildinfo",
-    "lint": "eslint src --cache --cache-location ../../.eslintcache",
+    "lint": "eslint src --cache --cache-location node_modules/.cache/eslint",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
     "zod": "^4.1.12"
   },
-  "devDependencies": {
-    "@vitest/coverage-v8": "^4.0.16",
-    "vitest": "^4.0.16"
-  }
+  "devDependencies": {}
 }

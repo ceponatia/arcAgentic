@@ -3,15 +3,15 @@ import {
   SettingProfileSchema,
   type CharacterProfile,
   type SettingProfile,
-} from '/schemas';
+} from '@arcagentic/schemas';
 import type { OverridesObject, OverridesAudit } from './types.js';
 import {
   getActorState,
   upsertActorState,
   getProjection,
   upsertProjection,
-} from '/db/node';
-import { deepMergeReplaceArrays } from '/utils';
+} from '@arcagentic/db/node';
+import { deepMergeReplaceArrays } from '@arcagentic/utils';
 import { toId, toSessionId } from '../utils/uuid.js';
 
 export async function upsertCharacterOverrides(params: {
