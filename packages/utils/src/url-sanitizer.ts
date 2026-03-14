@@ -62,15 +62,6 @@ export function isUrlDomain(url: string, domain: string): boolean {
 }
 
 /**
- * Checks if a URL is a Supabase URL using proper domain validation
- */
-export function isSupabaseUrl(url: string): boolean {
-  const supabaseDomains = ['supabase.co', 'supabase.com', 'pooler.supabase.com'];
-
-  return supabaseDomains.some(domain => isUrlDomain(url, domain));
-}
-
-/**
  * Redacts sensitive information from a URL for logging
  */
 export function redactUrlForLogging(url: string): string {

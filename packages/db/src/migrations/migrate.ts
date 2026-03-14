@@ -4,7 +4,6 @@ import * as fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { resolveDatabaseUrl } from '../connection/resolve-database-url.js';
-import { isSupabaseUrl } from '../utils/url-validator.js';
 import type { FsPromisesLike, PathLike, SqlText } from '../types.js';
 import type { MigrationPool } from './types.js';
 
@@ -33,14 +32,11 @@ export async function runMigrations(): Promise<void> {
 
   const resolvedDb = resolveDatabaseUrl(env);
   const resolvedDbUrl = resolvedDb.url;
-  const isSupabase = isSupabaseUrl(resolvedDbUrl);
 
   const pool = new Pool({
     connectionString: resolvedDbUrl,
     // Avoid hanging forever on bad networking/DNS.
     connectionTimeoutMillis: 15_000,
-    // Supabase requires SSL; node-postgres does not reliably infer this from `sslmode=require`.
-    ...(isSupabase ? { ssl: { rejectUnauthorized: false } } : {}),
   }) as unknown as MigrationPool;
 
   const Path = path as unknown as PathLike;
@@ -61,7 +57,6 @@ export async function runMigrations(): Promise<void> {
   console.info(`[db] Using SQL directory: ${sqlDirName}`);
 
   // Only apply real, ordered migrations (e.g. 001_init.sql).
-  // Ignore generated helpers like supabase_bootstrap.sql.
   async function getSqlFiles(dir: string): Promise<string[]> {
     const entries = await FS.readdir(dir, { withFileTypes: true });
     const files = await Promise.all(
@@ -122,17 +117,12 @@ export async function runMigrations(): Promise<void> {
       console.error(
         '[db] - If your network blocks outbound Postgres (common on some WiFi/ISP), use a different network or VPN'
       );
-      console.error(
-        '[db] - Prefer Supabase Session/Transaction Pooler connection strings for IPv4-only networks'
-      );
-      console.error('[db] - Verify the host/port and that SSL is required (Supabase uses SSL)');
+      console.error('[db] - Verify the host/port and whether your Postgres service requires SSL');
       throw err;
     }
 
     console.error('[db] Failed to create required extensions:', message);
-    console.error(
-      '[db] If you are using Supabase, enable extensions in the Supabase dashboard (Database -> Extensions) and retry.'
-    );
+    console.error('[db] Verify that required extensions are enabled in your Postgres instance.');
     throw err;
   }
 

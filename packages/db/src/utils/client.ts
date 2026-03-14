@@ -1,7 +1,6 @@
 import { Pool } from 'pg';
 import { registerType } from '../vector/pgvector.js';
 import { resolveDatabaseUrl } from '../connection/resolve-database-url.js';
-import { isSupabaseUrl } from './url-validator.js';
 import type { PgPoolStrict } from '../types.js';
 
 const globalEnv = (globalThis as unknown as { process?: { env?: Record<string, string | undefined> } }).process?.env ?? {};
@@ -13,14 +12,10 @@ export const resolvedDbPath = resolvedDbUrl;
 function createPool(url: string): PgPoolStrict {
   const Ctor = Pool as unknown as new (config: {
     connectionString: string;
-    ssl?: { rejectUnauthorized: boolean };
   }) => PgPoolStrict;
-
-  const isSupabase = isSupabaseUrl(url);
 
   return new Ctor({
     connectionString: url,
-    ...(isSupabase ? { ssl: { rejectUnauthorized: false } } : {}),
   });
 }
 

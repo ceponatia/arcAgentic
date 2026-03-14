@@ -3,7 +3,6 @@ import dotenv from 'dotenv';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { resolveDatabaseUrl } from './connection/resolve-database-url.js';
-import { isSupabaseUrl } from './utils/url-validator.js';
 
 // this is for deleting the db and starting fresh. DO NOT USE IN PRODUCTION
 
@@ -18,7 +17,6 @@ const resolvedDb = resolveDatabaseUrl(env);
 
 const pool = new Pool({
   connectionString: resolvedDb.url,
-  ssl: isSupabaseUrl(resolvedDb.url) ? { rejectUnauthorized: false } : undefined
 });
 
 async function clearDb() {

@@ -1,9 +1,28 @@
 {
   "folders": [
     {
-      "name": "repo",
+      "name": "root",
       "path": ".",
-      "root": true
+      "root": true,
+      "exclude": [
+        "node_modules",
+        "dist",
+        "build",
+        "coverage",
+        "logs",
+        "temp",
+        "tmp",
+        ".cache",
+        ".next",
+        ".nuxt",
+        ".vercel",
+        ".serverless",
+        ".parcel-cache",
+        ".eslintcache",
+        ".prettiercache",
+        "apps/web",
+        "packages"
+      ]
     },
     {
       "name": "@minimal-rpg/actors",

@@ -7,25 +7,26 @@ Workspace root: /home/brian/projects/arcAgentic
 
 | Check | Status | Notes |
 | --- | --- | --- |
-| Workspace importers | Pass | All current manifests have matching importers in `pnpm-lock.yaml`; `apps/web` is present and `packages/web` is absent. |
-| Lockfile/workspace dependency state | Pass with repair items | No lockfile drift was found from the `packages/web` to `apps/web` relocation itself. Additional dependency-state issues below still need repair. |
-| Package manager metadata | Pass | Root `packageManager` is pinned to `pnpm@10.28.2`; `apps/web` has no stale package manager metadata. |
-| Stale relocation references | Warning | Generated `.eslintcache` still contains historical `packages/web` paths from the previous repo path (`arcWindsurf`). |
-| Unused dependency audit | Warning | `depcheck` reports many root false positives because script-only tooling is not statically imported. One concrete app-level issue was found: `apps/web` imports `zod` without declaring it. |
-| Vulnerability audit | Fail | `pnpm audit --json` reports high and moderate issues in `packages/api` and root dev-tooling transitive dependencies. |
-| License / supply-chain scan | Pass | `pnpm licenses list --json` did not surface non-standard or obviously restrictive licenses in the current dependency graph. Existing `patchedDependencies`/`overrides` are internally consistent. |
+| Workspace manifests | Pass | 16 workspace package manifests found and covered by pnpm workspace settings. |
+| Vulnerability audit | Pass | `pnpm audit --json` reported 0 known vulnerabilities. |
+| License / supply-chain scan | Pass | No missing package licenses for published packages and no direct `git:`, `github:`, `file:`, `link:`, or URL-based dependency specs were found. Internal `workspace:*` references are expected. |
+| Version alignment | Warning | Several direct dependency families are pinned to materially different versions across packages. |
+| Unused dependency audit | Warning | `depcheck` reported concrete unused declarations in `apps/web`; root-level results were mostly script/config false positives and were not treated as issues. |
 
 ## Issues
 
 | issue_id | package | severity | description |
 | --- | --- | --- | --- |
-| STALE-eslintcache-web-paths | workspace metadata | low | `.eslintcache` still records old `packages/web` file paths under `/home/brian/projects/arcWindsurf/...`. This is stale generated metadata after the move and should be regenerated or removed. |
-| MISSING-apps-web-zod | @minimal-rpg/web | medium | `apps/web/src/features/session-workspace/SessionWorkspace.tsx` imports `zod`, but `apps/web/package.json` does not declare it. The app currently relies on hoisting from the workspace root. |
-| VULN-api-hono-stack | @minimal-rpg/api | high | `pnpm audit` reports vulnerable `hono` and `@hono/node-server` versions in `packages/api`. Recommended targets include `hono >= 4.12.4` and `@hono/node-server >= 1.19.10`. |
-| VULN-root-toolchain-transitives | root toolchain | high | `pnpm audit` reports transitive vulnerabilities in `minimatch`, `rollup`, `markdown-it`, `lodash`, and `ajv` through root tooling such as `glob`, `tsup`, `markdownlint-cli`, `secretlint`, and the lint stack. |
+| CONFLICT-zod-major | workspace | high | Direct `zod` declarations are split across `^4.1.12` and `^3.23.8` (`packages/bus`, `packages/llm`, `packages/projections`, `packages/services`, `packages/workers`). This is a real major-version divergence in a shared schema/runtime library. |
+| CONFLICT-typescript-stack | workspace | medium | Direct TypeScript toolchain versions are split across `typescript ^5.9.3`, `^5.6.3`, and `^5.4.0`, plus `@types/node ^24.10.1` vs `^22.10.1`. This can produce inconsistent type-checking and editor results across packages. |
+| CONFLICT-vitest-stack | workspace | medium | Test tooling is not aligned: `vitest ^4.0.18` vs `^4.0.16` and `@vitest/coverage-v8 4.0.18` vs `^4.0.16`. |
+| CONFLICT-build-runtime-tooling | workspace | low | Supporting tooling is split across multiple versions: `tsup ^8.5.1` vs `^8.0.0`, `tsx ^4.20.6` vs `^4.19.1`, `pg ^8.16.3` vs `^8.13.1`, and `@types/pg ^8.16.0` vs `^8.11.10`. |
+| UNUSED-apps-web-db | @minimal-rpg/web | low | `apps/web/package.json` declares `@minimal-rpg/db`, but a workspace-wide source search found no imports or requires of that package under `apps/web`. |
+| UNUSED-apps-web-generator | @minimal-rpg/web | low | `apps/web/package.json` declares `@minimal-rpg/generator`, but a workspace-wide source search found no imports or requires of that package under `apps/web`. |
+| UNUSED-apps-web-rehype-autolink-headings | @minimal-rpg/web | low | `apps/web/package.json` declares `rehype-autolink-headings`, but the package appears only in a comment in `apps/web/vite.config.ts` and has no runtime/config import usage. |
 
 ## Notes
 
-- The relocation itself appears structurally correct: the workspace globs include `apps/*`, the lockfile importer is `apps/web`, and no `packages/web` importer remains in `pnpm-lock.yaml`.
-- The stale `packages/web` references found during this audit were limited to generated cache metadata, not tracked workspace manifests or TypeScript project references.
-- `depcheck` also flagged some potentially unused `apps/web` dependencies (`@minimal-rpg/db`, `@minimal-rpg/generator`, `rehype-autolink-headings`), but those were not included as repair issues because this audit did not confirm them as relocation-induced or definitively unused.
+- `apps/web` still correctly declares `zod`; the stale missing-`zod` finding from the prior report does not apply to the current workspace state.
+- `autoprefixer` is used by `apps/web/postcss.config.cjs`, so it was not treated as unused.
+- The root-level `depcheck` run reported many false positives because repository scripts and JSONC config files are not fully understood by `depcheck`; those were excluded from the issue table.

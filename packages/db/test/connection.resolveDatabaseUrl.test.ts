@@ -16,31 +16,6 @@ describe('connection/resolveDatabaseUrl', () => {
       error: 'DB_TARGET=local but DATABASE_URL_LOCAL is not defined',
     },
     {
-      name: 'supabase target prefers DATABASE_URL_SUPABASE, otherwise DATABASE_URL',
-      env: {
-        DB_TARGET: 'supabase',
-        DATABASE_URL_SUPABASE: buildPgUrl('supabase'),
-        DATABASE_URL: buildPgUrl('primary'),
-      },
-      expected: { url: buildPgUrl('supabase'), source: 'DATABASE_URL_SUPABASE' as const },
-    },
-    {
-      name: 'supabase target falls back to DATABASE_URL',
-      env: { DB_TARGET: 'supabase', DATABASE_URL: buildPgUrl('primary') },
-      expected: { url: buildPgUrl('primary'), source: 'DATABASE_URL' as const },
-    },
-    {
-      name: 'supabase target falls back to DATABASE_URL_LOCAL if others missing',
-      env: { DB_TARGET: 'supabase', DATABASE_URL_LOCAL: buildPgUrl('local') },
-      expected: { url: buildPgUrl('local'), source: 'DATABASE_URL_LOCAL' as const },
-    },
-    {
-      name: 'supabase target throws if all missing',
-      env: { DB_TARGET: 'supabase' },
-      error:
-        'DB_TARGET=supabase but no valid database URL found (checked DATABASE_URL_SUPABASE, DATABASE_URL, DATABASE_URL_LOCAL)',
-    },
-    {
       name: 'default target uses DATABASE_URL when present',
       env: { DATABASE_URL: buildPgUrl('primary') },
       expected: { url: buildPgUrl('primary'), source: 'DATABASE_URL' as const },

@@ -37,9 +37,8 @@ const RootApp: React.FC = () => {
   const [, forceRerender] = React.useState<number>(0);
 
   React.useEffect(() => {
-    // This app uses hash-based routing. Supabase magic-link redirects land on a
-    // clean URL without a hash (so it matches allowlisted redirect URLs).
-    // Normalize to '#/' on load for consistent routing.
+    // This app uses hash-based routing. Normalize empty hashes to '#/' on load
+    // for consistent routing in local/dev environments.
     const view = getRootView();
     const h = window.location.hash;
     if (view === 'app' && (!h || h === '#')) {

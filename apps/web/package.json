@@ -19,7 +19,6 @@
     "@minimal-rpg/ui": "workspace:*",
     "@minimal-rpg/utils": "workspace:*",
     "@preact/signals-react": "^3.6.1",
-    "@supabase/supabase-js": "^2.57.4",
     "@xyflow/react": "^12.10.0",
     "lucide-react": "^0.561.0",
     "react": "^19.2.0",

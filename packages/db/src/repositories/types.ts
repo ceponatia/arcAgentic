@@ -237,7 +237,7 @@ export interface CreateBindingInput {
   enabled?: boolean;
 }
 
-export type AuthProvider = 'local' | 'supabase';
+export type AuthProvider = 'local';
 
 export interface UserAccount {
   id: UUID;
@@ -245,7 +245,6 @@ export interface UserAccount {
   displayName: string | null;
   role: UserRole;
   authProvider: AuthProvider;
-  supabaseUserId: UUID | null;
   preferences: UserPreferences;
   lastLoginAt: string | null;
   createdAt: string;

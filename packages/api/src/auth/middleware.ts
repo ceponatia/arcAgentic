@@ -2,7 +2,6 @@ import type { Context, Next } from 'hono';
 import type { ApiError } from '../types.js';
 import type { AuthUser } from './types.js';
 import { getAuthSecret, verifyAuthToken } from './token.js';
-import { getSupabaseAuthConfig, verifySupabaseJwt } from './supabase.js';
 import { getEnvCsv, getEnvFlag } from '../utils/env.js';
 
 const AUTH_CONTEXT_KEY = 'authUser';
@@ -36,71 +35,24 @@ export async function attachAuthUser(c: Context, next: Next): Promise<void> {
   }
 
   if (token) {
-    // Prefer Supabase JWT verification if configured.
-    const supabaseCfg = getSupabaseAuthConfig();
-    if (supabaseCfg) {
-      if (debugAuth) {
-        console.info('[auth] Supabase auth configured', {
-          jwksUrl: supabaseCfg.jwksUrl,
-          issuers: supabaseCfg.issuers,
-          audience: supabaseCfg.audience ?? null,
-        });
-      }
-
-      const verified = await verifySupabaseJwt(token, supabaseCfg);
+    const secret = getAuthSecret();
+    if (secret) {
+      const verified = verifyAuthToken(token, secret);
       if (verified.ok) {
-        const email = verified.claims.email;
-
-        const adminEmails = new Set(getEnvCsv('ADMIN_EMAILS').map((email) => email.toLowerCase()));
-
-        const role = email && adminEmails.has(email.toLowerCase()) ? 'admin' : 'user';
-
         c.set(AUTH_CONTEXT_KEY as never, {
-          identifier: email ?? verified.claims.sub,
-          role,
-          email,
+          identifier: verified.payload.sub,
+          role: verified.payload.role,
+          email: null,
         } satisfies AuthUser);
         if (debugAuth) {
-          console.info('[auth] Supabase JWT verified', {
-            identifier: email ?? verified.claims.sub,
-            hasEmail: Boolean(email),
-            role,
-          });
-        }
-      } else if (debugAuth) {
-        console.warn('[auth] Supabase JWT verification failed', {
-          error: verified.error,
-          debugMessage: verified.debugMessage,
-          jwksUrl: supabaseCfg.jwksUrl,
-          issuers: supabaseCfg.issuers,
-          audience: supabaseCfg.audience ?? null,
-        });
-      }
-    } else {
-      if (debugAuth) {
-        console.warn('[auth] Supabase auth NOT configured (SUPABASE_JWT_ISSUER or JWKS missing)');
-      }
-
-      // Legacy local auth token verification.
-      const secret = getAuthSecret();
-      if (secret) {
-        const verified = verifyAuthToken(token, secret);
-        if (verified.ok) {
-          c.set(AUTH_CONTEXT_KEY as never, {
+          console.info('[auth] Local auth token verified', {
             identifier: verified.payload.sub,
             role: verified.payload.role,
-            email: null,
-          } satisfies AuthUser);
-          if (debugAuth) {
-            console.info('[auth] Local auth token verified', {
-              identifier: verified.payload.sub,
-              role: verified.payload.role,
-            });
-          }
+          });
         }
-      } else if (debugAuth) {
-        console.warn('[auth] Local auth secret missing (AUTH_SECRET)');
       }
+    } else if (debugAuth) {
+      console.warn('[auth] Local auth secret missing (AUTH_SECRET)');
     }
   }
 

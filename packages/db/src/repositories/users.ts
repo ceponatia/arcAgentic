@@ -79,15 +79,13 @@ function parsePreferences(raw: unknown): UserPreferences {
 
 function rowToUserAccount(row: UserAccountRow): UserAccount {
   const role = row.role === 'admin' ? 'admin' : 'user';
-  const authProvider = row.auth_provider === 'supabase' ? 'supabase' : 'local';
 
   return {
     id: row.id,
     identifier: row.identifier,
     displayName: row.display_name,
     role,
-    authProvider,
-    supabaseUserId: row.supabase_user_id ?? null,
+    authProvider: 'local',
     preferences: parsePreferences(row.preferences),
     lastLoginAt: row.last_login_at ? toIsoDate(row.last_login_at) : null,
     createdAt: toIsoDate(row.created_at),
