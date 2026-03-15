@@ -40,7 +40,7 @@ export function registerItemRoutes(app: Hono): void {
       }
     }
 
-    return c.json(items, 200);
+    return c.json({ ok: true, items, total: items.length }, 200);
   });
 
   // GET /items/:id - get full item definition
@@ -61,7 +61,7 @@ export function registerItemRoutes(app: Hono): void {
 
     try {
       const parsed = ItemDefinitionSchema.parse(profile.profileJson);
-      return c.json(parsed, 200);
+      return c.json({ ok: true, item: parsed }, 200);
     } catch {
       return c.json({ ok: false, error: 'invalid db data' } satisfies ApiError, 500);
     }
@@ -153,6 +153,6 @@ export function registerItemRoutes(app: Hono): void {
 
     await deleteEntityProfile(toId(id));
 
-    return c.body(null, 204);
+    return c.json({ ok: true }, 200);
   });
 }

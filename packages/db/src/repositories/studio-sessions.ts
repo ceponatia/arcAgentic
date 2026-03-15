@@ -1,9 +1,11 @@
-import { eq, lt } from 'drizzle-orm';
+import { and, eq, lt } from 'drizzle-orm';
 import { drizzle as db } from '../connection/index.js';
 import { studioSessions } from '../schema/index.js';
+import type { OwnerEmail } from '../types.js';
 
 export interface StudioSession {
   id: string;
+  ownerEmail: OwnerEmail;
   profileSnapshot: Record<string, unknown>;
   conversation: { role: string; content: string; timestamp: string }[];
   summary: string | null;
@@ -16,6 +18,12 @@ export interface StudioSession {
 
 const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
 
+function studioSessionScope(id: string, ownerEmail?: OwnerEmail) {
+  return ownerEmail
+    ? and(eq(studioSessions.id, id), eq(studioSessions.ownerEmail, ownerEmail))
+    : eq(studioSessions.id, id);
+}
+
 /**
  * Initialize the studio_sessions table.
  * Note: Table is defined in schema/index.ts and should be managed by migrations.
@@ -27,6 +35,7 @@ export async function initStudioSessionsTable(): Promise<void> {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS studio_sessions (
         id TEXT PRIMARY KEY,
+        owner_email TEXT NOT NULL DEFAULT 'local',
         profile_snapshot JSONB NOT NULL,
         conversation JSONB NOT NULL DEFAULT '[]',
         summary TEXT,
@@ -50,7 +59,8 @@ export async function initStudioSessionsTable(): Promise<void> {
  */
 export async function createStudioSession(
   id: string,
-  profileSnapshot: Record<string, unknown>
+  profileSnapshot: Record<string, unknown>,
+  ownerEmail: OwnerEmail = 'local'
 ): Promise<StudioSession> {
   const now = new Date();
   const expiresAt = new Date(now.getTime() + TWENTY_FOUR_HOURS_MS);
@@ -59,6 +69,7 @@ export async function createStudioSession(
     .insert(studioSessions)
     .values({
       id,
+      ownerEmail,
       profileSnapshot,
       conversation: [],
       summary: null,
@@ -78,11 +89,14 @@ export async function createStudioSession(
 /**
  * Get a studio session by ID.
  */
-export async function getStudioSession(id: string): Promise<StudioSession | null> {
+export async function getStudioSession(
+  id: string,
+  ownerEmail?: OwnerEmail
+): Promise<StudioSession | null> {
   const [row] = await db
     .select()
     .from(studioSessions)
-    .where(eq(studioSessions.id, id))
+    .where(studioSessionScope(id, ownerEmail))
     .limit(1);
 
   return (row as unknown as StudioSession) || null;
@@ -99,7 +113,8 @@ export async function updateStudioSession(
     summary: string | null;
     inferredTraits: { path: string; value: unknown; confidence: number }[];
     exploredTopics: string[];
-  }>
+  }>,
+  ownerEmail?: OwnerEmail
 ): Promise<StudioSession | null> {
   const now = new Date();
   const newExpiresAt = new Date(now.getTime() + TWENTY_FOUR_HOURS_MS);
@@ -111,18 +126,18 @@ export async function updateStudioSession(
       lastActiveAt: now,
       expiresAt: newExpiresAt,
     })
-    .where(eq(studioSessions.id, id));
+    .where(studioSessionScope(id, ownerEmail));
 
-  return getStudioSession(id);
+  return getStudioSession(id, ownerEmail);
 }
 
 /**
  * Delete a studio session.
  */
-export async function deleteStudioSession(id: string): Promise<boolean> {
+export async function deleteStudioSession(id: string, ownerEmail?: OwnerEmail): Promise<boolean> {
   const result = await db
     .delete(studioSessions)
-    .where(eq(studioSessions.id, id))
+    .where(studioSessionScope(id, ownerEmail))
     .returning({ id: studioSessions.id });
   return result.length > 0;
 }

@@ -8,6 +8,8 @@
 import type { Context } from 'hono';
 import {
   CreateFullSessionRequestSchema,
+  DEFAULT_TIME_CONFIG,
+  createInitialTimeState,
   type CreateFullSessionResponse,
 } from '@arcagentic/schemas';
 import {
@@ -127,8 +129,52 @@ export async function handleCreateFullSession(
 
   // Generate IDs
   const sessionId = generateId();
-  const secondsPerTurn = request.secondsPerTurn ?? 60;
+  const secondsPerTurn = request.secondsPerTurn ?? setting.timeConfig?.secondsPerTurn ?? 60;
   const createdAt = new Date().toISOString();
+  const defaultStartTimeBase = setting.timeConfig?.defaultStartTime ?? DEFAULT_TIME_CONFIG.defaultStartTime;
+  const dayPeriods =
+    setting.timeConfig?.dayPeriods.map((period) =>
+      period.description
+        ? { name: period.name, startHour: period.startHour, description: period.description }
+        : { name: period.name, startHour: period.startHour }
+    ) ?? DEFAULT_TIME_CONFIG.dayPeriods;
+  const initialTimeConfig: Parameters<typeof createInitialTimeState>[0] = {
+    ...DEFAULT_TIME_CONFIG,
+    secondsPerTurn,
+    hoursPerDay: setting.timeConfig?.hoursPerDay ?? DEFAULT_TIME_CONFIG.hoursPerDay,
+    daysPerWeek: setting.timeConfig?.daysPerWeek ?? DEFAULT_TIME_CONFIG.daysPerWeek,
+    daysPerMonth: setting.timeConfig?.daysPerMonth ?? DEFAULT_TIME_CONFIG.daysPerMonth,
+    monthsPerYear: setting.timeConfig?.monthsPerYear ?? DEFAULT_TIME_CONFIG.monthsPerYear,
+    dayPeriods,
+    defaultStartTime: defaultStartTimeBase,
+    simulateOfflineTime:
+      setting.timeConfig?.simulateOfflineTime ?? DEFAULT_TIME_CONFIG.simulateOfflineTime,
+    maxOfflineHours: setting.timeConfig?.maxOfflineHours ?? DEFAULT_TIME_CONFIG.maxOfflineHours,
+  };
+  const defaultStartTime = request.startTime
+    ? (() => {
+      const year = request.startTime.year ?? initialTimeConfig.defaultStartTime.year;
+      const month = request.startTime.month ?? initialTimeConfig.defaultStartTime.month;
+      const dayOfMonth = request.startTime.day ?? initialTimeConfig.defaultStartTime.dayOfMonth;
+
+      return {
+        ...initialTimeConfig.defaultStartTime,
+        year,
+        month,
+        dayOfMonth,
+        absoluteDay:
+          (year - 1) * initialTimeConfig.monthsPerYear * initialTimeConfig.daysPerMonth +
+          (month - 1) * initialTimeConfig.daysPerMonth +
+          dayOfMonth,
+        hour: request.startTime.hour,
+        minute: request.startTime.minute,
+      };
+    })()
+    : initialTimeConfig.defaultStartTime;
+  const initialTimeState = createInitialTimeState({
+    ...initialTimeConfig,
+    defaultStartTime,
+  });
 
   // Prepare NPC instance data
   const npcInstances: {
@@ -184,18 +230,7 @@ export async function handleCreateFullSession(
         sessionId: toSessionId(sessionId),
         location: request.startLocationId ? { currentLocationId: request.startLocationId } : {},
         inventory: {},
-        time: request.startTime
-          ? {
-            current: {
-              year: request.startTime.year ?? 1,
-              month: request.startTime.month ?? 1,
-              day: request.startTime.day ?? 1,
-              hour: request.startTime.hour,
-              minute: request.startTime.minute,
-            },
-            secondsPerTurn,
-          }
-          : {},
+        time: initialTimeState,
         worldState: {},
         lastEventSeq: 0n,
       });

@@ -42,12 +42,8 @@ export async function runMigrations(): Promise<void> {
   const Path = path as unknown as PathLike;
   const FS = fs as unknown as FsPromisesLike;
 
-  // Support SQL_DIR env var for fresh migrations (sql-fresh vs sql)
-  const sqlDirName = env['SQL_DIR'] ?? 'sql';
-  const sqlDir = Path.resolve(
-    Path.dirname(new URL(import.meta.url).pathname),
-    `../../${sqlDirName}`
-  );
+  const sqlDirName = 'sql';
+  const sqlDir = Path.resolve(Path.dirname(new URL(import.meta.url).pathname), '../../sql');
   try {
     await FS.mkdir(sqlDir, { recursive: true });
   } catch {

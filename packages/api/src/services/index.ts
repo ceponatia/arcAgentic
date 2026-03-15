@@ -2,7 +2,7 @@
  * Sessions Module
  *
  * Exports all session-related services including:
- * - Instance management (character/setting overrides)
+ * - Effective profile helpers
  * - Schedule service (NPC schedule resolution)
  * - Simulation service (NPC simulation)
  * - Simulation hooks (turn/period/location change hooks)
@@ -10,10 +10,8 @@
  * - Encounter service (NPC encounter narration)
  */
 
-// Instance Management (legacy, still used by override endpoints)
+// Effective profile helpers
 export {
-  upsertCharacterOverrides,
-  upsertSettingOverrides,
   getEffectiveCharacter,
   getEffectiveSetting,
   getEffectiveProfiles,

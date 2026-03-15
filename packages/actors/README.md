@@ -1,6 +1,6 @@
 # @arcagentic/actors
 
-XState-based autonomous actors with perception, cognition, and action loops.
+Package-level actor surfaces for arcAgentic, including the WorldBus-driven NPC runtime, a minimal player actor stub, session-scoped registry management, and the studio NPC authoring workflow.
 
 ## Overview
 
@@ -14,33 +14,38 @@ This package implements the actor model for the World Bus architecture. Actors a
 
 ### NPC Actors
 
-- Full perception/cognition/action loop
-- React to world events autonomously
-- Emit intents based on simple rules (Phase 3) or LLM decisions (Phase 4+)
+- Event-driven runtime actors with a perception/cognition/action loop
+- React to selected world events autonomously
+- Emit intents based on simple rules, with optional LLM-backed cognition when profile and provider data are available
 
 ### Player Actors
 
-- Lightweight observers (Phase 3)
-- Will handle player input in multiplayer (future)
+- Lightweight observers/stubs in the current package state
+- Not yet a full multiplayer player runtime
+
+### Studio NPC Workflow
+
+- Separate LLM-backed authoring flow for generating and refining NPC content
+- Not part of the live WorldBus NPC runtime loop
 
 ## Usage
 
 ```typescript
-import { actorRegistry } from '@arcagentic/actors';
+import { actorRegistry } from "@arcagentic/actors";
 
 // Spawn an NPC actor
 const barkeep = actorRegistry.spawn({
-  id: 'barkeep-1',
-  type: 'npc',
-  npcId: 'barkeep',
-  sessionId: 'session-123',
-  locationId: 'tavern',
+  id: "barkeep-1",
+  type: "npc",
+  npcId: "barkeep",
+  sessionId: "session-123",
+  locationId: "tavern",
 });
 
 // Actor automatically subscribes to WorldBus and processes events
 
 // Despawn when done
-actorRegistry.despawn('barkeep-1');
+actorRegistry.despawn("barkeep-1");
 ```
 
 ## State Machine
@@ -57,21 +62,24 @@ idle → perceiving → thinking → acting → waiting → idle
 - **acting**: Emitting intents
 - **waiting**: Cooldown period
 
-## Phase 3 Implementation
+## Current Runtime Notes
 
-Current implementation uses simple rule-based cognition:
+Current NPC runtime behavior is intentionally narrow:
 
-- Respond to speech from other actors
-- Acknowledge when someone enters the location
-- Ignore irrelevant events
-
-Phase 4 will replace this with LLM-based decision making for rich, contextual responses.
+- Selected world events are promoted into the cognition loop
+- Simple rule-based cognition is available by default
+- LLM-backed cognition is optional rather than the baseline runtime path
+- The registry is the main lifecycle entrypoint for actor spawn/despawn management
 
 ## Testing
 
 ```bash
-pnpm test
+CI=true pnpm --dir packages/actors run typecheck
+CI=true pnpm --dir packages/actors run lint
+CI=true pnpm --dir packages/actors run build
 ```
+
+There is currently no package-local `test` script or active in-package test surface.
 
 ## See Also
 

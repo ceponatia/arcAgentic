@@ -25,23 +25,29 @@ Routes follow a dependency injection pattern:
 export function registerSessionRoutes(app: Hono, deps: SessionRouteDeps): void;
 ```
 
+For the normalized CRUD-style routes in this package, successful responses use explicit wrapper payloads:
+
+- List endpoints return `{ ok: true, <collection>, total }`
+- Single-resource reads return `{ ok: true, <resource> }`
+- Create/update routes return `{ ok: true, <resource> }`
+- Delete routes return `{ ok: true }`
+
 ## Persona API Endpoints
 
 The persona routes provide CRUD operations for player characters and session attachment:
 
 ### Persona CRUD
 
-- `GET /personas?user_id=<id>` — List all personas (optionally filtered by user_id)
+- `GET /personas` — List personas visible to the authenticated owner
 - `GET /personas/:id` — Get full persona profile by ID
-- `POST /personas?user_id=<id>` — Create new persona (user_id required)
+- `POST /personas` — Create or update a persona for the authenticated owner
 - `PUT /personas/:id` — Update existing persona
 - `DELETE /personas/:id` — Delete persona
 
 ### Session Persona Attachment
 
 - `POST /sessions/:sessionId/persona` — Attach persona to session (body: { personaId })
-- `GET /sessions/:sessionId/persona` — Get active session persona with overrides
-- `PUT /sessions/:sessionId/persona/overrides` — Update session-specific persona overrides
+- `GET /sessions/:sessionId/persona` — Get active session persona
 - `DELETE /sessions/:sessionId/persona` — Detach persona from session
 
-Session personas allow per-session character customization through the overrides field without modifying the base persona profile.
+Session personas expose the active persona bound to a session. Legacy per-session persona override writes are no longer part of this API surface.

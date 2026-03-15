@@ -21,7 +21,6 @@
     "@arcagentic/bus": "workspace:*",
     "@arcagentic/llm": "workspace:*",
     "@arcagentic/schemas": "workspace:*",
-    "@arcagentic/services": "workspace:*",
     "effect": "3.10.13",
     "xstate": "^5.18.2"
   },

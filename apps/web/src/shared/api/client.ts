@@ -1,4 +1,5 @@
 import { isAbortError } from '@arcagentic/utils';
+import { SettingProfileSchema } from '@arcagentic/schemas';
 import type {
   CharacterSummary,
   SettingSummary,
@@ -49,6 +50,19 @@ interface TurnEndpointResponse {
   metadata?: TurnMetadata;
   speaker?: { actorId: string; name?: string };
   success: boolean;
+}
+
+interface SettingsListResponse {
+  ok: boolean;
+  settings?: SettingSummary[];
+  total?: number;
+  error?: string;
+}
+
+interface SettingResponse {
+  ok: boolean;
+  setting?: SettingProfile;
+  error?: string;
 }
 
 
@@ -204,7 +218,8 @@ export async function getCharacters(signal?: AbortSignal): Promise<CharacterSumm
 }
 
 export async function getSettings(signal?: AbortSignal): Promise<SettingSummary[]> {
-  return http<SettingSummary[]>('/settings', signal ? { signal } : undefined);
+  const response = await http<SettingsListResponse>('/settings', signal ? { signal } : undefined);
+  return response.settings ?? [];
 }
 
 export async function getSessions(signal?: AbortSignal): Promise<SessionSummary[]> {
@@ -580,10 +595,20 @@ export async function getCharacter(
 }
 
 export async function getSetting(settingId: string, signal?: AbortSignal): Promise<SettingProfile> {
-  return http<SettingProfile>(
+  const response = await http<SettingResponse>(
     `/settings/${encodeURIComponent(settingId)}`,
     signal ? { signal } : undefined
   );
+  if (!response.setting) {
+    throw new Error(response.error ?? 'Setting not found');
+  }
+
+  const parsed = SettingProfileSchema.safeParse(response.setting);
+  if (!parsed.success) {
+    throw new Error('Invalid setting profile response');
+  }
+
+  return parsed.data;
 }
 
 export async function saveCharacter(

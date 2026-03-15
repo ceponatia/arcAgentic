@@ -108,6 +108,7 @@ export function registerTagRoutes(app: Hono): void {
 
     return c.json(
       {
+        ok: true,
         tags: tags.map(toTagResponse),
         total: tags.length,
       },
@@ -125,7 +126,7 @@ export function registerTagRoutes(app: Hono): void {
       if (!tag) {
         return c.json({ ok: false, error: 'Tag not found' } satisfies ApiError, 404);
       }
-      return c.json(toTagResponse(tag), 200);
+      return c.json({ ok: true, tag: toTagResponse(tag) }, 200);
     } catch (err) {
       console.error('[API] Failed to get tag:', err);
       return c.json({ ok: false, error: 'Failed to get tag' } satisfies ApiError, 500);
@@ -154,7 +155,7 @@ export function registerTagRoutes(app: Hono): void {
       if (!tag) {
         return c.json({ ok: false, error: 'Failed to create tag' } satisfies ApiError, 500);
       }
-      return c.json(toTagResponse(tag), 201);
+      return c.json({ ok: true, tag: toTagResponse(tag) }, 201);
     } catch (err) {
       console.error('[API] Failed to create tag:', err);
       return c.json({ ok: false, error: 'Failed to create tag' } satisfies ApiError, 500);
@@ -189,7 +190,7 @@ export function registerTagRoutes(app: Hono): void {
       if (!updated) {
         return c.json({ ok: false, error: 'Tag not found' } satisfies ApiError, 404);
       }
-      return c.json(toTagResponse(updated), 200);
+      return c.json({ ok: true, tag: toTagResponse(updated) }, 200);
     } catch (err) {
       console.error('[API] Failed to update tag:', err);
       return c.json({ ok: false, error: 'Failed to update tag' } satisfies ApiError, 500);
@@ -206,7 +207,7 @@ export function registerTagRoutes(app: Hono): void {
       if (!deleted) {
         return c.json({ ok: false, error: 'Tag not found' } satisfies ApiError, 404);
       }
-      return c.body(null, 204);
+      return c.json({ ok: true }, 200);
     } catch (err) {
       console.error('[API] Failed to delete tag:', err);
       return c.json({ ok: false, error: 'Failed to delete tag' } satisfies ApiError, 500);
@@ -229,6 +230,7 @@ export function registerTagRoutes(app: Hono): void {
       });
       return c.json(
         {
+          ok: true,
           bindings: bindings.map((b) => ({
             ...toBindingResponse(b),
             tag: toTagResponse(b.tag),
@@ -265,7 +267,7 @@ export function registerTagRoutes(app: Hono): void {
         return c.json({ ok: false, error: 'Failed to bind tag to session' } satisfies ApiError, 500);
       }
 
-      return c.json(toBindingResponse(binding), 201);
+      return c.json({ ok: true, binding: toBindingResponse(binding) }, 201);
     } catch (err) {
       console.error('[API] Failed to create session tag binding:', err);
       return c.json({ ok: false, error: 'Failed to bind tag to session' } satisfies ApiError, 500);
@@ -288,7 +290,7 @@ export function registerTagRoutes(app: Hono): void {
       if (!updated) {
         return c.json({ ok: false, error: 'Binding not found' } satisfies ApiError, 404);
       }
-      return c.json(toBindingResponse(updated), 200);
+      return c.json({ ok: true, binding: toBindingResponse(updated) }, 200);
     } catch (err) {
       console.error('[API] Failed to toggle session tag binding:', err);
       return c.json({ ok: false, error: 'Failed to toggle binding' } satisfies ApiError, 500);
@@ -308,7 +310,7 @@ export function registerTagRoutes(app: Hono): void {
       if (!deleted) {
         return c.json({ ok: false, error: 'Binding not found' } satisfies ApiError, 404);
       }
-      return c.body(null, 204);
+      return c.json({ ok: true }, 200);
     } catch (err) {
       console.error('[API] Failed to delete session tag binding:', err);
       return c.json({ ok: false, error: 'Failed to remove binding' } satisfies ApiError, 500);

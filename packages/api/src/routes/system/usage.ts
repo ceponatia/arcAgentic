@@ -3,11 +3,13 @@ import {
   drizzle as db,
   sessions as sessionsTable,
   actorStates,
+  and,
   eq,
   desc,
 } from '@arcagentic/db/node';
 import type { EntityUsageSummary, SessionUsageInfo } from '@arcagentic/schemas';
 import type { ApiError } from '../../types.js';
+import { getOwnerEmail } from '../../auth/ownerEmail.js';
 import { toId } from '../../utils/uuid.js';
 
 /**
@@ -25,6 +27,7 @@ export function registerEntityUsageRoutes(app: Hono): void {
    */
   app.get('/entity-usage/characters/:id', async (c) => {
     const characterId = c.req.param('id');
+    const ownerEmail = getOwnerEmail(c);
 
     if (!characterId) {
       return c.json({ ok: false, error: 'Character ID is required' } satisfies ApiError, 400);
@@ -35,7 +38,12 @@ export function registerEntityUsageRoutes(app: Hono): void {
       const sessions = await db
         .select()
         .from(sessionsTable)
-        .where(eq(sessionsTable.playerCharacterId, toId(characterId)))
+        .where(
+          and(
+            eq(sessionsTable.playerCharacterId, toId(characterId)),
+            eq(sessionsTable.ownerEmail, ownerEmail)
+          )
+        )
         .orderBy(desc(sessionsTable.createdAt));
 
       const usageInfo: SessionUsageInfo[] = sessions.map((s) => ({
@@ -67,6 +75,7 @@ export function registerEntityUsageRoutes(app: Hono): void {
    */
   app.get('/entity-usage/settings/:id', async (c) => {
     const settingId = c.req.param('id');
+    const ownerEmail = getOwnerEmail(c);
 
     if (!settingId) {
       return c.json({ ok: false, error: 'Setting ID is required' } satisfies ApiError, 400);
@@ -77,7 +86,9 @@ export function registerEntityUsageRoutes(app: Hono): void {
       const sessions = await db
         .select()
         .from(sessionsTable)
-        .where(eq(sessionsTable.settingId, toId(settingId)))
+        .where(
+          and(eq(sessionsTable.settingId, toId(settingId)), eq(sessionsTable.ownerEmail, ownerEmail))
+        )
         .orderBy(desc(sessionsTable.createdAt));
 
       const usageInfo: SessionUsageInfo[] = sessions.map((s) => ({
@@ -105,6 +116,7 @@ export function registerEntityUsageRoutes(app: Hono): void {
    */
   app.get('/entity-usage/personas/:id', async (c) => {
     const personaId = c.req.param('id');
+    const ownerEmail = getOwnerEmail(c);
 
     if (!personaId) {
       return c.json({ ok: false, error: 'Persona ID is required' } satisfies ApiError, 400);
@@ -113,9 +125,19 @@ export function registerEntityUsageRoutes(app: Hono): void {
     try {
       // Find all actor states referencing this persona profile
       const states = await db
-        .select()
+        .select({
+          sessionId: actorStates.sessionId,
+          createdAt: actorStates.createdAt,
+          actorType: actorStates.actorType,
+        })
         .from(actorStates)
-        .where(eq(actorStates.entityProfileId, toId(personaId)))
+        .innerJoin(sessionsTable, eq(actorStates.sessionId, sessionsTable.id))
+        .where(
+          and(
+            eq(actorStates.entityProfileId, toId(personaId)),
+            eq(sessionsTable.ownerEmail, ownerEmail)
+          )
+        )
         .orderBy(desc(actorStates.createdAt));
 
       const usageInfo: SessionUsageInfo[] = states.map((s) => ({

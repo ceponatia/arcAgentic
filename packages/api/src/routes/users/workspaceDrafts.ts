@@ -14,6 +14,8 @@ import {
   updateWorkspaceDraft,
 } from '@arcagentic/db/node';
 import type { ApiError } from '../../types.js';
+import { getAuthUser } from '../../auth/middleware.js';
+import { requirePrincipalIdentifier } from '../../auth/ownerEmail.js';
 import { toId } from '../../utils/uuid.js';
 import { validateBody, validateParamId } from '../../utils/request-validation.js';
 
@@ -36,10 +38,19 @@ const UpdateDraftSchema = z.object({
   validationState: z.record(z.string(), z.unknown()).optional(),
 });
 
+interface WorkspaceDraftRecord {
+  userId: string;
+}
+
 export function registerWorkspaceDraftRoutes(app: Hono): void {
   // GET /workspace-drafts - list drafts for user
   app.get('/workspace-drafts', async (c) => {
-    const userId = c.req.query('user_id') ?? 'default';
+    const user = getAuthUser(c);
+    if (!user) {
+      return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
+    }
+
+    const userId = requirePrincipalIdentifier(c);
     const limit = parseInt(c.req.query('limit') ?? '20', 10);
 
     try {
@@ -53,13 +64,22 @@ export function registerWorkspaceDraftRoutes(app: Hono): void {
 
   // GET /workspace-drafts/:id - get single draft
   app.get('/workspace-drafts/:id', async (c) => {
+    const user = getAuthUser(c);
+    if (!user) {
+      return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
+    }
+
     const idResult = validateParamId(c);
     if (!idResult.success) return idResult.errorResponse;
     const id = idResult.data;
+    const userId = requirePrincipalIdentifier(c);
 
     try {
-      const draft = await getWorkspaceDraft(toId(id));
+      const draft = (await getWorkspaceDraft(toId(id))) as WorkspaceDraftRecord | null;
       if (!draft) {
+        return c.json({ ok: false, error: 'not found' } satisfies ApiError, 404);
+      }
+      if (draft.userId !== userId) {
         return c.json({ ok: false, error: 'not found' } satisfies ApiError, 404);
       }
       return c.json({ ok: true, draft }, 200);
@@ -71,7 +91,12 @@ export function registerWorkspaceDraftRoutes(app: Hono): void {
 
   // POST /workspace-drafts - create new draft
   app.post('/workspace-drafts', async (c) => {
-    const userId = c.req.query('user_id') ?? 'default';
+    const user = getAuthUser(c);
+    if (!user) {
+      return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
+    }
+
+    const userId = requirePrincipalIdentifier(c);
 
     const parsed = await validateBody(c, CreateDraftSchema);
     if (!parsed.success) return parsed.errorResponse;
@@ -95,9 +120,15 @@ export function registerWorkspaceDraftRoutes(app: Hono): void {
 
   // PUT /workspace-drafts/:id - update draft
   app.put('/workspace-drafts/:id', async (c) => {
+    const user = getAuthUser(c);
+    if (!user) {
+      return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
+    }
+
     const idResult = validateParamId(c);
     if (!idResult.success) return idResult.errorResponse;
     const id = idResult.data;
+    const userId = requirePrincipalIdentifier(c);
 
     const parsed = await validateBody(c, UpdateDraftSchema);
     if (!parsed.success) return parsed.errorResponse;
@@ -105,6 +136,11 @@ export function registerWorkspaceDraftRoutes(app: Hono): void {
     const { name, workspaceState, currentStep, validationState } = parsed.data;
 
     try {
+      const existing = (await getWorkspaceDraft(toId(id))) as WorkspaceDraftRecord | null;
+      if (existing?.userId !== userId) {
+        return c.json({ ok: false, error: 'not found' } satisfies ApiError, 404);
+      }
+
       const draft = await updateWorkspaceDraft(toId(id), {
         ...(name !== undefined ? { name } : {}),
         ...(workspaceState !== undefined ? { workspaceState } : {}),
@@ -125,16 +161,27 @@ export function registerWorkspaceDraftRoutes(app: Hono): void {
 
   // DELETE /workspace-drafts/:id - delete draft
   app.delete('/workspace-drafts/:id', async (c) => {
+    const user = getAuthUser(c);
+    if (!user) {
+      return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
+    }
+
     const idResult = validateParamId(c);
     if (!idResult.success) return idResult.errorResponse;
     const id = idResult.data;
+    const userId = requirePrincipalIdentifier(c);
 
     try {
+      const existing = (await getWorkspaceDraft(toId(id))) as WorkspaceDraftRecord | null;
+      if (existing?.userId !== userId) {
+        return c.json({ ok: false, error: 'not found' } satisfies ApiError, 404);
+      }
+
       const deleted = await deleteWorkspaceDraft(toId(id));
       if (!deleted) {
         return c.json({ ok: false, error: 'not found' } satisfies ApiError, 404);
       }
-      return c.body(null, 204);
+      return c.json({ ok: true }, 200);
     } catch (err) {
       console.error('[API] Failed to delete workspace draft:', err);
       return c.json({ ok: false, error: 'failed to delete draft' } satisfies ApiError, 500);
@@ -143,6 +190,15 @@ export function registerWorkspaceDraftRoutes(app: Hono): void {
 
   // POST /workspace-drafts/prune - cleanup old drafts
   app.post('/workspace-drafts/prune', async (c) => {
+    const user = getAuthUser(c);
+    if (!user) {
+      return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
+    }
+
+    if (user.role !== 'admin') {
+      return c.json({ ok: false, error: 'Forbidden' } satisfies ApiError, 403);
+    }
+
     const olderThanDays = parseInt(c.req.query('days') ?? '30', 10);
 
     try {

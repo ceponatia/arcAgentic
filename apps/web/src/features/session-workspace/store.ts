@@ -50,8 +50,8 @@ export interface SettingWorkspaceState {
     day?: number;
     hour: number;
     minute: number;
-  };
-  secondsPerTurn?: number;
+  } | undefined;
+  secondsPerTurn?: number | undefined;
 }
 
 export interface LocationMapState {
