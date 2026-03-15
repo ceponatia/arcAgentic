@@ -73,7 +73,7 @@ function isAuthRequired(): boolean {
     return false;
   }
 
-  return true;
+  return getEnvFlag('AUTH_REQUIRED');
 }
 
 function isInviteOnly(): boolean {
