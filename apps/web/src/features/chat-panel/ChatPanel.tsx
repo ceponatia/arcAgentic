@@ -1,6 +1,17 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { getErrorMessage, isAbortError } from '@arcagentic/utils';
-import type { Message, Session, TurnMetadata, StreamEvent } from '../../types.js';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { getErrorMessage, isAbortError } from "@arcagentic/utils";
+import type {
+  Message,
+  Session,
+  TurnMetadata,
+  StreamEvent,
+} from "../../types.js";
 import {
   getSession,
   getSessionNpcs,
@@ -9,14 +20,14 @@ import {
   deleteMessage,
   getRuntimeConfig,
   getSessionMessages,
-} from '../../shared/api/client.js';
-import { ChatView, type ChatViewMessage } from '@arcagentic/ui';
-import { DebugSidebar } from '../chat/components/index.js';
-import { WorldMap, EventLog } from '../game/index.js';
-import { useWorldBus } from '../../hooks/useWorldBus.js';
-import { useSessionHeartbeat } from '../../hooks/useSessionHeartbeat.js';
-import { GOVERNOR_DEV_MODE } from '../../config.js';
-import type { NpcInstanceSummary } from '../../types.js';
+} from "../../shared/api/client.js";
+import { ChatView, type ChatViewMessage } from "@arcagentic/ui";
+import { DebugSidebar } from "../chat/components/index.js";
+import { WorldMap, EventLog } from "../game/index.js";
+import { useWorldBus } from "../../hooks/useWorldBus.js";
+import { useSessionHeartbeat } from "../../hooks/useSessionHeartbeat.js";
+import { GOVERNOR_DEV_MODE } from "../../config.js";
+import type { NpcInstanceSummary } from "../../types.js";
 
 // Types for turn events from the API
 interface TurnEvent {
@@ -49,16 +60,16 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ sessionId }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [draft, setDraft] = useState('');
+  const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
   const [editingIdx, setEditingIdx] = useState<number | null>(null);
-  const [editDraft, setEditDraft] = useState('');
+  const [editDraft, setEditDraft] = useState("");
   const [serverGovernorDevMode, setServerGovernorDevMode] = useState(false);
   const [npcs, setNpcs] = useState<NpcInstanceSummary[]>([]);
   const [selectedNpcId, setSelectedNpcId] = useState<string | null>(null);
   const [npcError, setNpcError] = useState<string | null>(null);
   const [npcsLoading, setNpcsLoading] = useState(false);
-  const [sidebarMode, setSidebarMode] = useState<'debug' | 'game'>('game');
+  const [sidebarMode, setSidebarMode] = useState<"debug" | "game">("game");
   const [lastTurnDebug, setLastTurnDebug] = useState<TurnDebugData>({
     metadata: null,
     events: [],
@@ -84,11 +95,14 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ sessionId }) => {
     messageCtrlRef.current = ctrl;
 
     try {
-      const messages = await getSessionMessages(effectiveSessionId, ctrl.signal);
+      const messages = await getSessionMessages(
+        effectiveSessionId,
+        ctrl.signal,
+      );
       setSession((prev) => (prev ? { ...prev, messages } : prev));
     } catch (e: unknown) {
       if (isAbortError(e)) return;
-      console.warn('[ChatPanel] Failed to refresh session messages', e);
+      console.warn("[ChatPanel] Failed to refresh session messages", e);
     }
   }, [effectiveSessionId]);
 
@@ -99,29 +113,32 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ sessionId }) => {
         refreshTimersRef.current.push(
           setTimeout(() => {
             void refreshMessages();
-          }, delay)
+          }, delay),
         );
       });
     },
-    [clearRefreshTimers, refreshMessages]
+    [clearRefreshTimers, refreshMessages],
   );
 
   const handleWorldBusEvent = useCallback(
     (event: StreamEvent) => {
-      if (event.type === 'SPOKE') {
+      if (event.type === "SPOKE") {
         scheduleMessageRefreshSequence([200]);
       }
     },
-    [scheduleMessageRefreshSequence]
+    [scheduleMessageRefreshSequence],
   );
 
-  const worldBusOptions = useMemo(() => ({ onEvent: handleWorldBusEvent }), [handleWorldBusEvent]);
+  const worldBusOptions = useMemo(
+    () => ({ onEvent: handleWorldBusEvent }),
+    [handleWorldBusEvent],
+  );
 
   // Connect to the World Bus SSE stream
   useWorldBus(effectiveSessionId ?? null, worldBusOptions);
   useSessionHeartbeat(effectiveSessionId ?? null);
 
-  const refresh = () => {
+  const refresh = useCallback(() => {
     if (!effectiveSessionId) return;
     ctrlRef.current?.abort();
     const ctrl = new AbortController();
@@ -130,22 +147,25 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ sessionId }) => {
     setError(null);
     const run = async () => {
       try {
-        const s = (await getSession(effectiveSessionId, ctrl.signal)) as unknown as Session;
+        const s = (await getSession(
+          effectiveSessionId,
+          ctrl.signal,
+        )) as unknown as Session;
         setSession(s);
       } catch (e: unknown) {
         if (isAbortError(e)) return;
-        const msg = getErrorMessage(e, 'Failed to load session');
+        const msg = getErrorMessage(e, "Failed to load session");
         setError(msg);
       } finally {
         setLoading(false);
       }
     };
     void run();
-  };
+  }, [effectiveSessionId]);
 
   useEffect(() => {
     setSession(null);
-    setDraft('');
+    setDraft("");
     setEditingIdx(null);
     if (!effectiveSessionId) return;
     refresh();
@@ -154,7 +174,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ sessionId }) => {
       messageCtrlRef.current?.abort();
       clearRefreshTimers();
     };
-  }, [effectiveSessionId]);
+  }, [clearRefreshTimers, effectiveSessionId, refresh]);
 
   useEffect(() => {
     setNpcs([]);
@@ -174,13 +194,14 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ sessionId }) => {
         setSelectedNpcId((prev) => {
           if (!results.length) return null;
           if (prev && results.some((npc) => npc.id === prev)) return prev;
-          const primary = results.find((npc) => npc.role === 'primary') ?? results[0];
+          const primary =
+            results.find((npc) => npc.role === "primary") ?? results[0];
           if (!primary) return null;
           return primary.id;
         });
       } catch (err) {
         if (!active || isAbortError(err)) return;
-        const msg = getErrorMessage(err, 'Failed to load NPCs');
+        const msg = getErrorMessage(err, "Failed to load NPCs");
         setNpcError(msg);
       } finally {
         if (active) setNpcsLoading(false);
@@ -207,7 +228,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ sessionId }) => {
         setServerGovernorDevMode(Boolean(cfg.governorDevMode));
       } catch (err) {
         if (!active || isAbortError(err)) return;
-        console.warn('[ChatPanel] Failed to load runtime config', err);
+        console.warn("[ChatPanel] Failed to load runtime config", err);
       }
     };
     void loadConfig();
@@ -220,42 +241,53 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ sessionId }) => {
   const debugUiEnabled = GOVERNOR_DEV_MODE && serverGovernorDevMode;
 
   // No longer render inline debug panels - we use the sidebar instead
-  const renderDebugAfterMessage = useCallback((_message: ChatViewMessage, _idx: number) => {
-    void _message;
-    void _idx;
-    return null;
-  }, []);
+  const renderDebugAfterMessage = useCallback(
+    (_message: ChatViewMessage, _idx: number) => {
+      void _message;
+      void _idx;
+      return null;
+    },
+    [],
+  );
 
   const onSend = async () => {
     if (!effectiveSessionId) return;
     const text = draft.trim();
     if (!text || sending) return;
 
-    setDraft('');
+    setDraft("");
     setSending(true);
     setError(null);
 
-    const userMsg: Message = { role: 'user', content: text, createdAt: new Date().toISOString() };
-    setSession((prev) => (prev ? { ...prev, messages: [...prev.messages, userMsg] } : prev));
+    const userMsg: Message = {
+      role: "user",
+      content: text,
+      createdAt: new Date().toISOString(),
+    };
+    setSession((prev) =>
+      prev ? { ...prev, messages: [...prev.messages, userMsg] } : prev,
+    );
 
     try {
       const res = await sendMessage(effectiveSessionId, text, undefined, {
         npcId: selectedNpcId ?? null,
       });
       const assistant = res.message;
-      setSession((prev) => (prev ? { ...prev, messages: [...prev.messages, assistant] } : prev));
+      setSession((prev) =>
+        prev ? { ...prev, messages: [...prev.messages, assistant] } : prev,
+      );
 
       const hasNpcSpoke = Array.isArray(res.events)
         ? res.events.some((event) => {
-            if (typeof event !== 'object' || event === null) return false;
+            if (typeof event !== "object" || event === null) return false;
             const record = event as Record<string, unknown>;
-            if (record['type'] !== 'SPOKE') return false;
-            const actorId = record['actorId'];
-            return typeof actorId === 'string' && !actorId.startsWith('player');
+            if (record["type"] !== "SPOKE") return false;
+            const actorId = record["actorId"];
+            return typeof actorId === "string" && !actorId.startsWith("player");
           })
         : false;
 
-      const isPlaceholder = assistant.content.trim() === 'The world is quiet.';
+      const isPlaceholder = assistant.content.trim() === "The world is quiet.";
 
       if (!hasNpcSpoke || isPlaceholder) {
         scheduleMessageRefreshSequence([800, 2000, 3500]);
@@ -271,7 +303,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ sessionId }) => {
       }
     } catch (e) {
       setDraft(text);
-      const msg = getErrorMessage(e, 'Failed to send message');
+      const msg = getErrorMessage(e, "Failed to send message");
       setError(msg);
       // revert optimistic append by reloading session
       refresh();
@@ -289,7 +321,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ sessionId }) => {
     const sequence = message?.idx;
 
     if (sequence === undefined) {
-      console.warn('[ChatPanel] Cannot edit message without index/sequence');
+      console.warn("[ChatPanel] Cannot edit message without index/sequence");
       return;
     }
 
@@ -298,7 +330,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ sessionId }) => {
       if (!prev) return prev;
       const targetIndex = Number(idx);
       const newMessages = prev.messages.map((msg, index) =>
-        index === targetIndex ? { ...msg, content: text } : msg
+        index === targetIndex ? { ...msg, content: text } : msg,
       );
       return { ...prev, messages: newMessages };
     });
@@ -307,7 +339,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ sessionId }) => {
     try {
       await updateMessage(effectiveSessionId, sequence, text);
     } catch (e) {
-      const msg = getErrorMessage(e, 'Failed to update message');
+      const msg = getErrorMessage(e, "Failed to update message");
       setError(msg);
       refresh(); // Revert on error
     }
@@ -319,25 +351,27 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ sessionId }) => {
     const sequence = message?.idx;
 
     if (sequence === undefined) {
-      console.warn('[ChatPanel] Cannot delete message without index/sequence');
+      console.warn("[ChatPanel] Cannot delete message without index/sequence");
       return;
     }
 
-    const confirmed = window.confirm('Delete this message? This cannot be undone.');
+    const confirmed = window.confirm(
+      "Delete this message? This cannot be undone.",
+    );
     if (!confirmed) return;
 
     try {
       await deleteMessage(effectiveSessionId, sequence);
       // Exit edit mode and remove from local state after successful delete
       setEditingIdx(null);
-      setEditDraft('');
+      setEditDraft("");
       setSession((prev) => {
         if (!prev) return prev;
         const newMessages = prev.messages.filter((m) => m.idx !== sequence);
         return { ...prev, messages: newMessages };
       });
     } catch (e) {
-      const msg = getErrorMessage(e, 'Failed to delete message');
+      const msg = getErrorMessage(e, "Failed to delete message");
       setError(msg);
       refresh();
     }
@@ -350,19 +384,19 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ sessionId }) => {
     const targetIdx = Number(idx);
     const userMessage = messages?.at(targetIdx) ?? null;
 
-    if (userMessage?.role !== 'user') return;
+    if (userMessage?.role !== "user") return;
 
     const userContent = userMessage.content;
     const userSequence = userMessage.idx;
 
     if (userSequence === undefined) {
-      console.warn('[ChatPanel] Cannot redo message without sequence');
+      console.warn("[ChatPanel] Cannot redo message without sequence");
       return;
     }
 
     // Find the assistant message that follows this user message (if any)
     const nextMessage = messages?.at(idx + 1);
-    const hasAssistantResponse = nextMessage?.role === 'assistant';
+    const hasAssistantResponse = nextMessage?.role === "assistant";
     const assistantSequence = hasAssistantResponse ? nextMessage.idx : null;
 
     setSending(true);
@@ -380,7 +414,8 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ sessionId }) => {
         if (!prev) return prev;
         const newMessages = prev.messages.filter((m) => {
           if (m.idx === userSequence) return false;
-          if (assistantSequence !== null && m.idx === assistantSequence) return false;
+          if (assistantSequence !== null && m.idx === assistantSequence)
+            return false;
           return true;
         });
         return { ...prev, messages: newMessages };
@@ -388,33 +423,42 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ sessionId }) => {
 
       // Add back user message optimistically (temporary, will be replaced by refresh or next send)
       const userMsg: Message = {
-        role: 'user',
+        role: "user",
         content: userContent,
         createdAt: new Date().toISOString(),
       };
-      setSession((prev) => (prev ? { ...prev, messages: [...prev.messages, userMsg] } : prev));
+      setSession((prev) =>
+        prev ? { ...prev, messages: [...prev.messages, userMsg] } : prev,
+      );
 
       // Re-send the message to get new response
-      const res = await sendMessage(effectiveSessionId, userContent, undefined, {
-        npcId: selectedNpcId ?? null,
-      });
+      const res = await sendMessage(
+        effectiveSessionId,
+        userContent,
+        undefined,
+        {
+          npcId: selectedNpcId ?? null,
+        },
+      );
 
       // Instead of manual appending, we should probably refresh the session to get the guaranteed order
       // But for UX, we append the response. Note: the sequence will be missing until refresh.
       const assistant = res.message;
-      setSession((prev) => (prev ? { ...prev, messages: [...prev.messages, assistant] } : prev));
+      setSession((prev) =>
+        prev ? { ...prev, messages: [...prev.messages, assistant] } : prev,
+      );
 
       const hasNpcSpoke = Array.isArray(res.events)
         ? res.events.some((event) => {
-            if (typeof event !== 'object' || event === null) return false;
+            if (typeof event !== "object" || event === null) return false;
             const record = event as Record<string, unknown>;
-            if (record['type'] !== 'SPOKE') return false;
-            const actorId = record['actorId'];
-            return typeof actorId === 'string' && !actorId.startsWith('player');
+            if (record["type"] !== "SPOKE") return false;
+            const actorId = record["actorId"];
+            return typeof actorId === "string" && !actorId.startsWith("player");
           })
         : false;
 
-      const isPlaceholder = assistant.content.trim() === 'The world is quiet.';
+      const isPlaceholder = assistant.content.trim() === "The world is quiet.";
 
       if (!hasNpcSpoke || isPlaceholder) {
         scheduleMessageRefreshSequence([800, 2000, 3500]);
@@ -429,7 +473,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ sessionId }) => {
         });
       }
     } catch (e) {
-      const msg = getErrorMessage(e, 'Failed to regenerate response');
+      const msg = getErrorMessage(e, "Failed to regenerate response");
       setError(msg);
       refresh(); // Reload session to get consistent state
     } finally {
@@ -475,26 +519,35 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ sessionId }) => {
   const npcAccessory =
     npcs.length > 0 || npcError || npcsLoading ? (
       <div className="flex flex-col gap-1 text-xs text-slate-300">
-        <div className="px-1 text-[11px] uppercase tracking-wide text-slate-400">Target NPC</div>
+        <div className="px-1 text-[11px] uppercase tracking-wide text-slate-400">
+          Target NPC
+        </div>
         <select
           className="bg-slate-900 text-slate-200 ring-1 ring-slate-800 focus:ring-2 focus:ring-violet-500 rounded-md px-2 py-1 text-sm"
-          value={selectedNpcId ?? ''}
+          value={selectedNpcId ?? ""}
           onChange={(e) => {
             const next = e.target.value.trim();
-            setSelectedNpcId(next === '' ? null : next);
+            setSelectedNpcId(next === "" ? null : next);
           }}
           disabled={disabled || npcsLoading}
         >
           <option value="">Auto (primary/default)</option>
           {npcs.map((npc) => {
             const label = npc.label ?? npc.name ?? npc.role;
-            return <option key={npc.id} value={npc.id}>{`${label} - ${npc.role}`}</option>;
+            return (
+              <option
+                key={npc.id}
+                value={npc.id}
+              >{`${label} - ${npc.role}`}</option>
+            );
           })}
         </select>
         {npcsLoading ? (
           <div className="px-1 text-[11px] text-slate-400">Loading NPCs...</div>
         ) : null}
-        {npcError ? <div className="px-1 text-[11px] text-red-400">{npcError}</div> : null}
+        {npcError ? (
+          <div className="px-1 text-[11px] text-red-400">{npcError}</div>
+        ) : null}
       </div>
     ) : null;
 
@@ -522,7 +575,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ sessionId }) => {
       }}
       onCancelEdit={() => {
         setEditingIdx(null);
-        setEditDraft('');
+        setEditDraft("");
       }}
       onSaveEdit={(idx: number) => {
         void onSaveEdit(idx);
@@ -550,24 +603,24 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ sessionId }) => {
           <div className="flex border-b border-slate-800">
             <button
               onClick={() => {
-                setSidebarMode('game');
+                setSidebarMode("game");
               }}
               className={`flex-1 py-2 text-[10px] uppercase tracking-wider font-semibold transition-colors ${
-                sidebarMode === 'game'
-                  ? 'bg-slate-900 text-violet-400'
-                  : 'text-slate-500 hover:text-slate-300'
+                sidebarMode === "game"
+                  ? "bg-slate-900 text-violet-400"
+                  : "text-slate-500 hover:text-slate-300"
               }`}
             >
               World
             </button>
             <button
               onClick={() => {
-                setSidebarMode('debug');
+                setSidebarMode("debug");
               }}
               className={`flex-1 py-2 text-[10px] uppercase tracking-wider font-semibold transition-colors ${
-                sidebarMode === 'debug'
-                  ? 'bg-slate-900 text-amber-400'
-                  : 'text-slate-500 hover:text-slate-300'
+                sidebarMode === "debug"
+                  ? "bg-slate-900 text-amber-400"
+                  : "text-slate-500 hover:text-slate-300"
               }`}
             >
               Debug
@@ -575,7 +628,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ sessionId }) => {
           </div>
 
           <div className="flex-1 overflow-hidden">
-            {sidebarMode === 'game' ? (
+            {sidebarMode === "game" ? (
               <div className="h-full flex flex-col p-3 gap-3 overflow-y-auto custom-scrollbar">
                 <div className="h-2/3 min-h-[300px]">
                   <WorldMap />

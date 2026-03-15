@@ -160,6 +160,7 @@ export function useSessionTabCoordination(
 
     const channelName = `session-${sessionId}`;
     const channel = new BroadcastChannel(channelName);
+    const tabId = tabIdRef.current;
     channelRef.current = channel;
 
     channel.addEventListener('message', handleMessage);
@@ -178,7 +179,7 @@ export function useSessionTabCoordination(
       if (role === 'leader') {
         const resignMsg: TabMessage = {
           type: 'leader-resign',
-          tabId: tabIdRef.current,
+          tabId,
           sessionId,
           timestamp: Date.now(),
         };

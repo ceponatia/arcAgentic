@@ -847,18 +847,11 @@ export const useValidation = (): WorkspaceValidationSummary => {
   const validate = useWorkspaceStore((s) => s.validate);
 
   // Memoize validation result to avoid infinite re-renders
-  return useMemo(
-    () => validate(),
-    [
-      setting.settingId,
-      npcs.length,
-      player.personaId,
-      tags.length,
-      locations.mapId,
-      relationships.length,
-      validate,
-    ]
-  );
+  return useMemo(() => {
+    const validationState = { setting, npcs, player, tags, locations, relationships };
+    void validationState;
+    return validate();
+  }, [locations, npcs, player, relationships, setting, tags, validate]);
 };
 
 /**

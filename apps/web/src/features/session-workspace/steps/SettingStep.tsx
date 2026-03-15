@@ -42,6 +42,8 @@ export const SettingStep: React.FC<SettingStepProps> = ({
   );
   const monthNames = timeConfig.calendar?.monthNames ?? [];
   const defaultTimeLabel = formatDefaultStartTime(timeConfig);
+  const getMonthLabel = (index: number): string | number =>
+    monthNames.at(index) ?? index + 1;
 
   const handleSelectSetting = async (setting: SettingSummary) => {
     const isSameSelection = settingState.settingId === setting.id;
@@ -102,11 +104,28 @@ export const SettingStep: React.FC<SettingStepProps> = ({
     field: "year" | "month" | "day" | "hour" | "minute",
     value: number,
   ) => {
+    const nextStartTime = { ...resolvedStartTime };
+
+    switch (field) {
+      case "year":
+        nextStartTime.year = value;
+        break;
+      case "month":
+        nextStartTime.month = value;
+        break;
+      case "day":
+        nextStartTime.day = value;
+        break;
+      case "hour":
+        nextStartTime.hour = value;
+        break;
+      case "minute":
+        nextStartTime.minute = value;
+        break;
+    }
+
     updateSetting({
-      startTime: {
-        ...resolvedStartTime,
-        [field]: value,
-      },
+      startTime: nextStartTime,
     });
   };
 
@@ -290,7 +309,7 @@ export const SettingStep: React.FC<SettingStepProps> = ({
                         { length: timeConfig.monthsPerYear },
                         (_, i) => (
                           <option key={i + 1} value={i + 1}>
-                            {monthNames[i] ?? i + 1}
+                            {getMonthLabel(i)}
                           </option>
                         ),
                       )}

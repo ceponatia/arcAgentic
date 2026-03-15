@@ -83,8 +83,6 @@ export default tseslint.config(
     files: [
       'packages/*/*.config.{ts,js,cjs,mjs}',
       'packages/*/vite.config.ts',
-      'packages/*/tsup.config.ts',
-      'packages/*/tsup.config.*.{ts,js,cjs,mjs}',
       'apps/*/*.config.{ts,js,cjs,mjs}',
       'apps/*/vite.config.ts',
     ],
