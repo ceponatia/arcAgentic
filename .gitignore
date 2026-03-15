@@ -20,6 +20,7 @@ coverage
 .vite
 **/.vite
 .pnpm-store
+dep-report.md
 
 ## Generated dependency graphs
 dependency-graph.*

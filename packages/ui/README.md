@@ -13,5 +13,5 @@ import { MessageContent } from '@arcagentic/ui';
 ## Development
 
 - Run `pnpm build` to build the package.
-- Uses `tsup` for bundling.
+- Uses `tsc -b` for package builds.
 - Tailwind CSS is used for styling.
