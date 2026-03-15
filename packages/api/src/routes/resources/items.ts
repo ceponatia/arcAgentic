@@ -40,7 +40,7 @@ export function registerItemRoutes(app: Hono): void {
       }
     }
 
-    return c.json({ ok: true, items, total: items.length }, 200);
+    return c.json(items, 200);
   });
 
   // GET /items/:id - get full item definition
