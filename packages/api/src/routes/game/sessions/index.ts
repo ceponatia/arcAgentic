@@ -10,7 +10,6 @@ import { handleCreateFullSession } from './session-create-full.js';
 import { handleListMessages, handlePatchMessage, handleDeleteMessage } from './session-messages.js';
 import { handleListNpcs, handleCreateNpc } from './session-npcs.js';
 import { handleGetEffective } from './session-effective.js';
-import { handlePutCharacterOverrides, handlePutSettingOverrides } from './session-overrides.js';
 import { handleSessionHeartbeat } from './session-heartbeat.js';
 import { handleSessionDisconnect } from './session-disconnect.js';
 import { heartbeatRateLimiter } from '../../../middleware/rate-limiter.js';
@@ -46,10 +45,4 @@ export function registerSessionRoutes(app: Hono, deps: SessionRouteDeps): void {
 
   // Session effective profiles
   app.get('/sessions/:id/effective', (c) => handleGetEffective(c, deps.getLoaded));
-
-  // Session overrides (deprecated)
-  app.put('/sessions/:id/overrides/character', (c) =>
-    handlePutCharacterOverrides(c, deps.getLoaded)
-  );
-  app.put('/sessions/:id/overrides/setting', (c) => handlePutSettingOverrides(c, deps.getLoaded));
 }

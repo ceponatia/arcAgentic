@@ -1,9 +1,9 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import type { TemplateSelection } from '@arcagentic/schemas';
-import { TemplateCard } from './TemplateCard.js';
-import type { TemplateMetadata } from './useSensoryTemplates.js';
-import { useDragScroll } from './useDragScroll.js';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import type { TemplateSelection } from "@arcagentic/schemas";
+import { TemplateCard } from "./TemplateCard.js";
+import type { TemplateMetadata } from "./useSensoryTemplates.js";
+import { useDragScroll } from "./useDragScroll.js";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface TemplateCardGridProps {
   selected: TemplateSelection[];
@@ -22,7 +22,7 @@ export const TemplateCardGrid: React.FC<TemplateCardGridProps> = ({
   suggestedFor,
   onChange,
 }) => {
-  const [query, setQuery] = useState<string>('');
+  const [query, setQuery] = useState<string>("");
   const [suggestedOnly, setSuggestedOnly] = useState<boolean>(false);
   const [tagFilters, setTagFilters] = useState<string[]>([]);
   const [regionFilters, setRegionFilters] = useState<string[]>([]);
@@ -33,12 +33,17 @@ export const TemplateCardGrid: React.FC<TemplateCardGridProps> = ({
 
   const [canScrollLeft, setCanScrollLeft] = useState<boolean>(false);
   const [canScrollRight, setCanScrollRight] = useState<boolean>(false);
+  const suggestedRace = suggestedFor?.race;
+  const suggestedOccupation = suggestedFor?.occupation?.toLowerCase();
 
-  const selectedIds = useMemo(() => new Set(selected.map((entry) => entry.templateId)), [selected]);
+  const selectedIds = useMemo(
+    () => new Set(selected.map((entry) => entry.templateId)),
+    [selected],
+  );
 
   const selectedTemplates = useMemo(
     () => templates.filter((template) => selectedIds.has(template.id)),
-    [templates, selectedIds]
+    [templates, selectedIds],
   );
 
   const conflicts = useMemo(() => {
@@ -47,7 +52,7 @@ export const TemplateCardGrid: React.FC<TemplateCardGridProps> = ({
       for (const other of selectedTemplates) {
         if (template.id === other.id) continue;
         const overlap = template.affectedRegions.some((region) =>
-          other.affectedRegions.includes(region)
+          other.affectedRegions.includes(region),
         );
         if (overlap) {
           conflictIds.add(template.id);
@@ -58,18 +63,21 @@ export const TemplateCardGrid: React.FC<TemplateCardGridProps> = ({
   }, [selectedTemplates]);
 
   const isSelected = (id: string) => selectedIds.has(id);
-  const getWeight = (id: string) => selected.find((s) => s.templateId === id)?.weight ?? 1;
+  const getWeight = (id: string) =>
+    selected.find((s) => s.templateId === id)?.weight ?? 1;
 
-  const isSuggested = (template: TemplateMetadata) => {
-    if (!suggestedFor) return false;
-    const race = suggestedFor.race;
-    const occupation = suggestedFor.occupation?.toLowerCase();
-    const matchesRace = race ? template.suggestedFor?.races?.includes(race) : false;
-    const matchesOccupation = occupation
-      ? template.suggestedFor?.occupations?.includes(occupation)
-      : false;
-    return matchesRace ? true : matchesOccupation;
-  };
+  const isSuggested = useCallback(
+    (template: TemplateMetadata) => {
+      const matchesRace = suggestedRace
+        ? template.suggestedFor?.races?.includes(suggestedRace)
+        : false;
+      const matchesOccupation = suggestedOccupation
+        ? template.suggestedFor?.occupations?.includes(suggestedOccupation)
+        : false;
+      return matchesRace ? true : matchesOccupation;
+    },
+    [suggestedOccupation, suggestedRace],
+  );
 
   const allTags = useMemo(() => {
     const set = new Set<string>();
@@ -100,7 +108,7 @@ export const TemplateCardGrid: React.FC<TemplateCardGridProps> = ({
 
       if (regionFilters.length > 0) {
         const hasAnyRegion = regionFilters.some((region) =>
-          template.affectedRegions.includes(region)
+          template.affectedRegions.includes(region),
         );
         if (!hasAnyRegion) return false;
       }
@@ -108,17 +116,19 @@ export const TemplateCardGrid: React.FC<TemplateCardGridProps> = ({
       if (!normalizedQuery) return true;
 
       const haystacks: string[] = [template.name, template.description];
-      haystacks.push(template.tags.join(' '));
-      haystacks.push(template.affectedRegions.join(' '));
+      haystacks.push(template.tags.join(" "));
+      haystacks.push(template.affectedRegions.join(" "));
 
-      return haystacks.some((value) => value.toLowerCase().includes(normalizedQuery));
+      return haystacks.some((value) =>
+        value.toLowerCase().includes(normalizedQuery),
+      );
     });
   }, [isSuggested, query, regionFilters, suggestedOnly, tagFilters, templates]);
 
   const toggleStringFilter = (
     current: string[],
     value: string,
-    setNext: (next: string[]) => void
+    setNext: (next: string[]) => void,
   ) => {
     if (current.includes(value)) {
       setNext(current.filter((entry) => entry !== value));
@@ -149,12 +159,12 @@ export const TemplateCardGrid: React.FC<TemplateCardGridProps> = ({
     };
 
     update();
-    el.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', update);
+    el.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", update);
 
     return () => {
-      el.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', update);
+      el.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", update);
       if (rafId !== null) window.cancelAnimationFrame(rafId);
     };
   }, [filteredTemplates.length, templatesScroll.ref]);
@@ -170,7 +180,7 @@ export const TemplateCardGrid: React.FC<TemplateCardGridProps> = ({
       stride = Math.max(220, first.getBoundingClientRect().width + 12);
     }
 
-    el.scrollBy({ left: direction * stride, behavior: 'smooth' });
+    el.scrollBy({ left: direction * stride, behavior: "smooth" });
   };
 
   const toggleTemplate = (id: string) => {
@@ -180,14 +190,18 @@ export const TemplateCardGrid: React.FC<TemplateCardGridProps> = ({
       return;
     }
 
-    const existingWeight = selected.find((entry) => entry.templateId === id)?.weight;
+    const existingWeight = selected.find(
+      (entry) => entry.templateId === id,
+    )?.weight;
     onChange([{ templateId: id, weight: existingWeight ?? 1 }]);
   };
 
   const updateWeight = (id: string, weight: number) => {
     const normalized = Math.min(1, Math.max(0, weight));
     onChange(
-      selected.map((entry) => (entry.templateId === id ? { ...entry, weight: normalized } : entry))
+      selected.map((entry) =>
+        entry.templateId === id ? { ...entry, weight: normalized } : entry,
+      ),
     );
   };
 
@@ -222,20 +236,23 @@ export const TemplateCardGrid: React.FC<TemplateCardGridProps> = ({
             type="button"
             className={
               suggestedOnly
-                ? 'text-xs px-2 py-1 rounded bg-emerald-900/30 text-emerald-300 ring-1 ring-emerald-700'
-                : 'text-xs px-2 py-1 rounded bg-slate-800/60 text-slate-300 ring-1 ring-slate-700 hover:ring-slate-600'
+                ? "text-xs px-2 py-1 rounded bg-emerald-900/30 text-emerald-300 ring-1 ring-emerald-700"
+                : "text-xs px-2 py-1 rounded bg-slate-800/60 text-slate-300 ring-1 ring-slate-700 hover:ring-slate-600"
             }
             onClick={() => setSuggestedOnly((prev) => !prev)}
           >
             Suggested
           </button>
 
-          {(query.trim() || suggestedOnly || tagFilters.length > 0 || regionFilters.length > 0) && (
+          {(query.trim() ||
+            suggestedOnly ||
+            tagFilters.length > 0 ||
+            regionFilters.length > 0) && (
             <button
               type="button"
               className="text-xs px-2 py-1 rounded bg-slate-800/60 text-slate-300 ring-1 ring-slate-700 hover:ring-slate-600"
               onClick={() => {
-                setQuery('');
+                setQuery("");
                 setSuggestedOnly(false);
                 setTagFilters([]);
                 setRegionFilters([]);
@@ -252,14 +269,16 @@ export const TemplateCardGrid: React.FC<TemplateCardGridProps> = ({
 
         {allTags.length > 0 && (
           <div>
-            <div className="text-[10px] text-slate-500 uppercase tracking-wider">Tags</div>
+            <div className="text-[10px] text-slate-500 uppercase tracking-wider">
+              Tags
+            </div>
             <div
               ref={tagsScroll.ref}
               className={
-                'mt-1 flex gap-2 overflow-x-auto pb-1 scrollbar-none select-none cursor-grab ' +
-                (tagsScroll.isDragging ? 'cursor-grabbing' : '')
+                "mt-1 flex gap-2 overflow-x-auto pb-1 scrollbar-none select-none cursor-grab " +
+                (tagsScroll.isDragging ? "cursor-grabbing" : "")
               }
-              style={{ touchAction: 'pan-y' }}
+              style={{ touchAction: "pan-y" }}
               {...tagsScroll.containerProps}
             >
               {allTags.map((tag) => {
@@ -270,10 +289,12 @@ export const TemplateCardGrid: React.FC<TemplateCardGridProps> = ({
                     type="button"
                     className={
                       active
-                        ? 'flex-none text-xs px-2 py-1 rounded bg-violet-900/30 text-violet-300 ring-1 ring-violet-700'
-                        : 'flex-none text-xs px-2 py-1 rounded bg-slate-800/60 text-slate-300 ring-1 ring-slate-700 hover:ring-slate-600'
+                        ? "flex-none text-xs px-2 py-1 rounded bg-violet-900/30 text-violet-300 ring-1 ring-violet-700"
+                        : "flex-none text-xs px-2 py-1 rounded bg-slate-800/60 text-slate-300 ring-1 ring-slate-700 hover:ring-slate-600"
                     }
-                    onClick={() => toggleStringFilter(tagFilters, tag, setTagFilters)}
+                    onClick={() =>
+                      toggleStringFilter(tagFilters, tag, setTagFilters)
+                    }
                   >
                     {tag}
                   </button>
@@ -285,14 +306,16 @@ export const TemplateCardGrid: React.FC<TemplateCardGridProps> = ({
 
         {allRegions.length > 0 && (
           <div>
-            <div className="text-[10px] text-slate-500 uppercase tracking-wider">Regions</div>
+            <div className="text-[10px] text-slate-500 uppercase tracking-wider">
+              Regions
+            </div>
             <div
               ref={regionsScroll.ref}
               className={
-                'mt-1 flex gap-2 overflow-x-auto pb-1 scrollbar-none select-none cursor-grab ' +
-                (regionsScroll.isDragging ? 'cursor-grabbing' : '')
+                "mt-1 flex gap-2 overflow-x-auto pb-1 scrollbar-none select-none cursor-grab " +
+                (regionsScroll.isDragging ? "cursor-grabbing" : "")
               }
-              style={{ touchAction: 'pan-y' }}
+              style={{ touchAction: "pan-y" }}
               {...regionsScroll.containerProps}
             >
               {allRegions.map((region) => {
@@ -303,10 +326,16 @@ export const TemplateCardGrid: React.FC<TemplateCardGridProps> = ({
                     type="button"
                     className={
                       active
-                        ? 'flex-none text-xs px-2 py-1 rounded bg-violet-900/30 text-violet-300 ring-1 ring-violet-700'
-                        : 'flex-none text-xs px-2 py-1 rounded bg-slate-800/60 text-slate-300 ring-1 ring-slate-700 hover:ring-slate-600'
+                        ? "flex-none text-xs px-2 py-1 rounded bg-violet-900/30 text-violet-300 ring-1 ring-violet-700"
+                        : "flex-none text-xs px-2 py-1 rounded bg-slate-800/60 text-slate-300 ring-1 ring-slate-700 hover:ring-slate-600"
                     }
-                    onClick={() => toggleStringFilter(regionFilters, region, setRegionFilters)}
+                    onClick={() =>
+                      toggleStringFilter(
+                        regionFilters,
+                        region,
+                        setRegionFilters,
+                      )
+                    }
                   >
                     {region}
                   </button>
@@ -339,10 +368,10 @@ export const TemplateCardGrid: React.FC<TemplateCardGridProps> = ({
           onClick={() => scrollByCard(-1)}
           disabled={!canScrollLeft}
           className={
-            'absolute left-1 top-1/2 -translate-y-1/2 z-10 h-8 w-8 rounded-full ring-1 ring-slate-700 bg-slate-900/70 text-slate-200 flex items-center justify-center transition ' +
+            "absolute left-1 top-1/2 -translate-y-1/2 z-10 h-8 w-8 rounded-full ring-1 ring-slate-700 bg-slate-900/70 text-slate-200 flex items-center justify-center transition " +
             (canScrollLeft
-              ? 'hover:bg-slate-900/90 hover:ring-slate-600'
-              : 'opacity-0 pointer-events-none')
+              ? "hover:bg-slate-900/90 hover:ring-slate-600"
+              : "opacity-0 pointer-events-none")
           }
         >
           <ChevronLeft className="h-5 w-5" />
@@ -353,10 +382,10 @@ export const TemplateCardGrid: React.FC<TemplateCardGridProps> = ({
           onClick={() => scrollByCard(1)}
           disabled={!canScrollRight}
           className={
-            'absolute right-1 top-1/2 -translate-y-1/2 z-10 h-8 w-8 rounded-full ring-1 ring-slate-700 bg-slate-900/70 text-slate-200 flex items-center justify-center transition ' +
+            "absolute right-1 top-1/2 -translate-y-1/2 z-10 h-8 w-8 rounded-full ring-1 ring-slate-700 bg-slate-900/70 text-slate-200 flex items-center justify-center transition " +
             (canScrollRight
-              ? 'hover:bg-slate-900/90 hover:ring-slate-600'
-              : 'opacity-0 pointer-events-none')
+              ? "hover:bg-slate-900/90 hover:ring-slate-600"
+              : "opacity-0 pointer-events-none")
           }
         >
           <ChevronRight className="h-5 w-5" />
@@ -365,12 +394,12 @@ export const TemplateCardGrid: React.FC<TemplateCardGridProps> = ({
         <div
           ref={templatesScroll.ref}
           className={
-            'overflow-x-auto py-3 scrollbar-none select-none cursor-grab scroll-smooth ' +
-            (templatesScroll.isDragging ? 'cursor-grabbing' : '')
+            "overflow-x-auto py-3 scrollbar-none select-none cursor-grab scroll-smooth " +
+            (templatesScroll.isDragging ? "cursor-grabbing" : "")
           }
           style={{
-            touchAction: 'pan-y',
-            scrollSnapType: 'x mandatory',
+            touchAction: "pan-y",
+            scrollSnapType: "x mandatory",
             scrollPaddingLeft: 44,
             scrollPaddingRight: 44,
           }}
@@ -382,7 +411,7 @@ export const TemplateCardGrid: React.FC<TemplateCardGridProps> = ({
                 key={template.id}
                 data-template-card="true"
                 className="flex-none w-[260px] sm:w-[280px] aspect-[5/7]"
-                style={{ scrollSnapAlign: 'start' }}
+                style={{ scrollSnapAlign: "start" }}
               >
                 <TemplateCard
                   template={template}
@@ -390,14 +419,18 @@ export const TemplateCardGrid: React.FC<TemplateCardGridProps> = ({
                   weight={getWeight(template.id)}
                   hasConflict={conflicts.has(template.id)}
                   onToggle={() => toggleTemplate(template.id)}
-                  onWeightChange={(nextWeight) => updateWeight(template.id, nextWeight)}
+                  onWeightChange={(nextWeight) =>
+                    updateWeight(template.id, nextWeight)
+                  }
                 />
               </div>
             ))}
           </div>
 
           {filteredTemplates.length === 0 && (
-            <p className="text-xs text-slate-500 mt-2">No templates match your filters.</p>
+            <p className="text-xs text-slate-500 mt-2">
+              No templates match your filters.
+            </p>
           )}
         </div>
       </div>

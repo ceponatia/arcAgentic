@@ -5,11 +5,10 @@
   "scripts": {
     "build": "turbo run build",
     "db:migrate": "pnpm --filter @arcagentic/db run db:migrate",
-    "db:migrate:fresh": "pnpm --filter @arcagentic/db run db:migrate:fresh",
     "dev": "turbo run dev --filter=@arcagentic/api --filter=@arcagentic/web",
     "infra:down": "node infra.mjs down",
     "infra:up": "node infra.mjs up",
-    "lint": "turbo run lint",
+    "lint": "pnpm --filter './packages/*' --filter './apps/*' -r --parallel --if-present run lint",
     "test": "turbo run test",
     "typecheck": "turbo run typecheck"
   },
@@ -35,7 +34,6 @@
     "pnpm": "^10.28.2",
     "rimraf": "^6.1.2",
     "sucrase": "^3.35.1",
-    "tsup": "^8.5.1",
     "tsx": "^4.20.6",
     "turbo": "^2.8.3",
     "typescript": "^5.9.3",

@@ -95,7 +95,7 @@ export function registerPersonaRoutes(app: Hono): void {
       })
       .filter((s): s is PersonaSummary => s !== null);
 
-    return c.json(summaries, 200);
+    return c.json({ ok: true, personas: summaries, total: summaries.length }, 200);
   });
 
   // GET /personas/:id - get full persona profile
@@ -112,7 +112,7 @@ export function registerPersonaRoutes(app: Hono): void {
 
     try {
       const profile = PersonaProfileSchema.parse(persona.profileJson);
-      return c.json(profile, 200);
+      return c.json({ ok: true, persona: profile }, 200);
     } catch {
       return c.json({ ok: false, error: 'invalid persona data' } satisfies ApiError, 500);
     }
@@ -216,7 +216,7 @@ export function registerPersonaRoutes(app: Hono): void {
     }
 
     await deleteEntityProfile(toId(id));
-    return c.body(null, 204);
+    return c.json({ ok: true }, 200);
   });
 
   // POST /sessions/:sessionId/persona - attach persona to session
@@ -272,6 +272,12 @@ export function registerPersonaRoutes(app: Hono): void {
     const sessionIdResult = validateParamId(c, 'sessionId');
     if (!sessionIdResult.success) return sessionIdResult.errorResponse;
     const sessionId = sessionIdResult.data;
+    const ownerEmail = getOwnerEmail(c);
+
+    const session = (await getSession(toSessionId(sessionId), ownerEmail)) as SessionRecord | null;
+    if (!session) {
+      return c.json({ ok: false, error: 'session not found' } satisfies ApiError, 404);
+    }
 
     const playerState = await getActorState(toSessionId(sessionId), 'player');
 
@@ -301,6 +307,12 @@ export function registerPersonaRoutes(app: Hono): void {
     const sessionIdResult = validateParamId(c, 'sessionId');
     if (!sessionIdResult.success) return sessionIdResult.errorResponse;
     const sessionId = sessionIdResult.data;
+    const ownerEmail = getOwnerEmail(c);
+
+    const session = (await getSession(toSessionId(sessionId), ownerEmail)) as SessionRecord | null;
+    if (!session) {
+      return c.json({ ok: false, error: 'session not found' } satisfies ApiError, 404);
+    }
 
     const existing = await getActorState(toSessionId(sessionId), 'player');
 
@@ -309,6 +321,6 @@ export function registerPersonaRoutes(app: Hono): void {
     }
 
     await deleteActorState(toSessionId(sessionId), 'player');
-    return c.body(null, 204);
+    return c.json({ ok: true }, 200);
   });
 }

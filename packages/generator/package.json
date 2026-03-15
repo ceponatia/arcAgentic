@@ -12,7 +12,7 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsup",
+    "build": "tsc -b",
     "clean": "rimraf dist node_modules/.cache/tsbuildinfo",
     "lint": "eslint src --cache --cache-location node_modules/.cache/eslint",
     "typecheck": "tsc -p tsconfig.json --noEmit"
@@ -21,7 +21,6 @@
     "@arcagentic/schemas": "workspace:*"
   },
   "devDependencies": {
-    "tsup": "^8.0.0",
     "typescript": "^5.4.0"
   }
 }

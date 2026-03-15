@@ -9,8 +9,8 @@
  * - Review & Launch
  */
 
-import React, { useEffect, useState, useCallback } from 'react';
-import { z } from 'zod';
+import React, { useEffect, useState, useCallback } from "react";
+import { z } from "zod";
 import {
   useWorkspaceStore,
   useCurrentStep,
@@ -20,19 +20,29 @@ import {
   useNpcsState,
   usePlayerState,
   useTagsState,
-} from './store.js';
-import type { WorkspaceStep, NpcSessionConfig, RelationshipConfig } from './store.js';
-import { SettingStep } from './steps/SettingStep.js';
-import { LocationsStep } from './steps/LocationsStep.js';
-import { NpcsStep } from './steps/NpcsStep.js';
-import { PlayerStep } from './steps/PlayerStep.js';
-import { TagsStep } from './steps/TagsStep.js';
-import { RelationshipsStep } from './steps/RelationshipsStep.js';
-import { ReviewStep } from './steps/ReviewStep.js';
-import { CompactBuilder } from './CompactBuilder.js';
-import type { CharacterSummary, SettingSummary, PersonaSummary, TagSummary } from '../../types.js';
-import type { CreateFullSessionRequest } from '../../shared/api/types.js';
-import { API_BASE_URL } from '../../config.js';
+} from "./store.js";
+import type {
+  WorkspaceStep,
+  NpcSessionConfig,
+  RelationshipConfig,
+} from "./store.js";
+import { SettingStep } from "./steps/SettingStep.js";
+import { LocationsStep } from "./steps/LocationsStep.js";
+import { NpcsStep } from "./steps/NpcsStep.js";
+import { PlayerStep } from "./steps/PlayerStep.js";
+import { TagsStep } from "./steps/TagsStep.js";
+import { RelationshipsStep } from "./steps/RelationshipsStep.js";
+import { ReviewStep } from "./steps/ReviewStep.js";
+import { CompactBuilder } from "./CompactBuilder.js";
+import type {
+  CharacterSummary,
+  SettingSummary,
+  PersonaSummary,
+  TagSummary,
+} from "../../types.js";
+import type { CreateFullSessionRequest } from "../../shared/api/types.js";
+import { API_BASE_URL } from "../../config.js";
+import { normalizeStartTime } from "./time-config.js";
 
 const API_BASE = API_BASE_URL;
 
@@ -48,7 +58,7 @@ const LocationMapListResponseSchema = z.object({
         nodeCount: z.number(),
         connectionCount: z.number(),
         createdAt: z.string(),
-      })
+      }),
     )
     .optional(),
   error: z.string().optional(),
@@ -67,7 +77,7 @@ export interface MapSummary {
 async function fetchMaps(settingId: string): Promise<MapSummary[]> {
   try {
     const res = await fetch(
-      `${API_BASE}/location-maps?setting_id=${encodeURIComponent(settingId)}`
+      `${API_BASE}/location-maps?setting_id=${encodeURIComponent(settingId)}`,
     );
     const rawData: unknown = await res.json();
     const result = LocationMapListResponseSchema.safeParse(rawData);
@@ -82,10 +92,10 @@ async function fetchMaps(settingId: string): Promise<MapSummary[]> {
         createdAt: m.createdAt,
       }));
     } else if (!result.success) {
-      console.error('Failed to parse location maps response:', result.error);
+      console.error("Failed to parse location maps response:", result.error);
     }
   } catch (err) {
-    console.error('Failed to fetch location maps:', err);
+    console.error("Failed to fetch location maps:", err);
   }
   return [];
 }
@@ -147,25 +157,27 @@ const StepNavigation: React.FC<StepNavProps> = ({
             onClick={() => onStepClick(step.id)}
             className={`
               flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap
-              ${isCurrent ? 'bg-violet-600 text-white' : ''}
-              ${isPast && isValid ? 'text-emerald-400 hover:bg-slate-800' : ''}
-              ${isPast && !isValid ? 'text-amber-400 hover:bg-slate-800' : ''}
-              ${!isCurrent && !isPast ? 'text-slate-500 hover:bg-slate-800 hover:text-slate-300' : ''}
+              ${isCurrent ? "bg-violet-600 text-white" : ""}
+              ${isPast && isValid ? "text-emerald-400 hover:bg-slate-800" : ""}
+              ${isPast && !isValid ? "text-amber-400 hover:bg-slate-800" : ""}
+              ${!isCurrent && !isPast ? "text-slate-500 hover:bg-slate-800 hover:text-slate-300" : ""}
             `}
           >
             <span
               className={`
                 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold
-                ${isCurrent ? 'bg-white/20' : ''}
-                ${isPast && isValid ? 'bg-emerald-900/50' : ''}
-                ${isPast && !isValid ? 'bg-amber-900/50' : ''}
-                ${!isCurrent && !isPast ? 'bg-slate-700' : ''}
+                ${isCurrent ? "bg-white/20" : ""}
+                ${isPast && isValid ? "bg-emerald-900/50" : ""}
+                ${isPast && !isValid ? "bg-amber-900/50" : ""}
+                ${!isCurrent && !isPast ? "bg-slate-700" : ""}
               `}
             >
-              {isPast && isValid ? '✓' : isPast && !isValid ? '!' : index + 1}
+              {isPast && isValid ? "✓" : isPast && !isValid ? "!" : index + 1}
             </span>
             <span>{step.label}</span>
-            {step.required && !isValid && <span className="text-red-400 text-xs">*</span>}
+            {step.required && !isValid && (
+              <span className="text-red-400 text-xs">*</span>
+            )}
           </button>
         );
       })}
@@ -178,13 +190,13 @@ const StepNavigation: React.FC<StepNavProps> = ({
 // ============================================================================
 
 const STEPS: { id: WorkspaceStep; label: string; required?: boolean }[] = [
-  { id: 'setting', label: 'Setting', required: true },
-  { id: 'locations', label: 'Locations' },
-  { id: 'npcs', label: 'NPCs', required: true },
-  { id: 'player', label: 'Player' },
-  { id: 'tags', label: 'Tags' },
-  { id: 'relationships', label: 'Relationships' },
-  { id: 'review', label: 'Review' },
+  { id: "setting", label: "Setting", required: true },
+  { id: "locations", label: "Locations" },
+  { id: "npcs", label: "NPCs", required: true },
+  { id: "player", label: "Player" },
+  { id: "tags", label: "Tags" },
+  { id: "relationships", label: "Relationships" },
+  { id: "review", label: "Review" },
 ];
 
 export const SessionWorkspace: React.FC<SessionWorkspaceProps> = ({
@@ -244,7 +256,7 @@ export const SessionWorkspace: React.FC<SessionWorkspaceProps> = ({
     (step: WorkspaceStep) => {
       setStep(step);
     },
-    [setStep]
+    [setStep],
   );
 
   const handleNextStep = useCallback(() => {
@@ -265,12 +277,12 @@ export const SessionWorkspace: React.FC<SessionWorkspaceProps> = ({
 
   const handleCreateSession = useCallback(async () => {
     if (!validation.valid) {
-      setCreateError('Please fix validation errors before creating session');
+      setCreateError("Please fix validation errors before creating session");
       return;
     }
 
     if (!settingState.settingId) {
-      setCreateError('Please select a setting');
+      setCreateError("Please select a setting");
       return;
     }
 
@@ -278,11 +290,11 @@ export const SessionWorkspace: React.FC<SessionWorkspaceProps> = ({
     setCreateError(null);
 
     try {
-      const tagBindings: NonNullable<CreateFullSessionRequest['tags']> = [];
+      const tagBindings: NonNullable<CreateFullSessionRequest["tags"]> = [];
       for (const t of selectedTags) {
         const targetType = t.targetType;
 
-        if (targetType === 'character' || targetType === 'location') {
+        if (targetType === "character" || targetType === "location") {
           const ids = t.targetEntityIds ?? [];
           for (const id of ids) {
             tagBindings.push({
@@ -305,7 +317,7 @@ export const SessionWorkspace: React.FC<SessionWorkspaceProps> = ({
       const config: CreateFullSessionRequest = {
         settingId: settingState.settingId,
         npcs: npcs.map((n: NpcSessionConfig) => {
-          const npcConfig: CreateFullSessionRequest['npcs'][number] = {
+          const npcConfig: CreateFullSessionRequest["npcs"][number] = {
             characterId: n.characterId,
             role: n.role,
             tier: n.tier,
@@ -316,7 +328,9 @@ export const SessionWorkspace: React.FC<SessionWorkspaceProps> = ({
         }),
         tags: tagBindings,
         relationships: relationships.map((r: RelationshipConfig) => {
-          const relConfig: NonNullable<CreateFullSessionRequest['relationships']>[number] = {
+          const relConfig: NonNullable<
+            CreateFullSessionRequest["relationships"]
+          >[number] = {
             fromActorId: r.fromActorId,
             toActorId: r.toActorId,
             relationshipType: r.relationshipType,
@@ -328,15 +342,16 @@ export const SessionWorkspace: React.FC<SessionWorkspaceProps> = ({
 
       // Add optional fields only if defined
       // Skip 'anonymous' personaId - that's a special client-side value for anonymous play
-      if (playerState.personaId && playerState.personaId !== 'anonymous') {
+      if (playerState.personaId && playerState.personaId !== "anonymous") {
         config.personaId = playerState.personaId;
       }
-      if (playerState.startLocationId) config.startLocationId = playerState.startLocationId;
+      if (playerState.startLocationId)
+        config.startLocationId = playerState.startLocationId;
       if (settingState.startTime) {
-        config.startTime = {
-          hour: settingState.startTime.hour,
-          minute: settingState.startTime.minute,
-        };
+        config.startTime = normalizeStartTime(
+          settingState.startTime,
+          settingState.settingProfile,
+        );
       }
       if (settingState.secondsPerTurn !== undefined) {
         config.secondsPerTurn = settingState.secondsPerTurn;
@@ -346,7 +361,9 @@ export const SessionWorkspace: React.FC<SessionWorkspaceProps> = ({
       reset();
       onSessionCreated(sessionId);
     } catch (err) {
-      setCreateError(err instanceof Error ? err.message : 'Failed to create session');
+      setCreateError(
+        err instanceof Error ? err.message : "Failed to create session",
+      );
     } finally {
       setCreating(false);
     }
@@ -364,7 +381,7 @@ export const SessionWorkspace: React.FC<SessionWorkspaceProps> = ({
 
   const renderStep = () => {
     switch (currentStep) {
-      case 'setting':
+      case "setting":
         return (
           <SettingStep
             settings={settings}
@@ -373,7 +390,7 @@ export const SessionWorkspace: React.FC<SessionWorkspaceProps> = ({
             onNavigateToBuilder={onNavigateToSettingBuilder}
           />
         );
-      case 'locations':
+      case "locations":
         return (
           <LocationsStep
             maps={maps}
@@ -389,7 +406,7 @@ export const SessionWorkspace: React.FC<SessionWorkspaceProps> = ({
             }}
           />
         );
-      case 'npcs':
+      case "npcs":
         return (
           <NpcsStep
             characters={characters}
@@ -398,7 +415,7 @@ export const SessionWorkspace: React.FC<SessionWorkspaceProps> = ({
             onNavigateToBuilder={onNavigateToCharacterBuilder}
           />
         );
-      case 'player':
+      case "player":
         return (
           <PlayerStep
             personas={personas}
@@ -407,7 +424,7 @@ export const SessionWorkspace: React.FC<SessionWorkspaceProps> = ({
             onNavigateToBuilder={onNavigateToPersonaBuilder}
           />
         );
-      case 'tags':
+      case "tags":
         return (
           <TagsStep
             availableTags={tags}
@@ -416,9 +433,9 @@ export const SessionWorkspace: React.FC<SessionWorkspaceProps> = ({
             onRefresh={onRefreshTags}
           />
         );
-      case 'relationships':
+      case "relationships":
         return <RelationshipsStep characters={characters} />;
-      case 'review':
+      case "review":
         return (
           <ReviewStep
             characters={characters}
@@ -433,12 +450,12 @@ export const SessionWorkspace: React.FC<SessionWorkspaceProps> = ({
   };
 
   // Compact mode
-  if (mode === 'compact') {
+  if (mode === "compact") {
     return (
       <div className="p-6 bg-slate-900 min-h-full">
         <div className="flex justify-end mb-4">
           <button
-            onClick={() => setMode('wizard')}
+            onClick={() => setMode("wizard")}
             className="text-xs text-slate-500 hover:text-slate-300"
           >
             Switch to Wizard Mode
@@ -449,7 +466,12 @@ export const SessionWorkspace: React.FC<SessionWorkspaceProps> = ({
           characters={characters}
           personas={personas}
           tags={tags}
-          loading={settingsLoading || charactersLoading || personasLoading || tagsLoading}
+          loading={
+            settingsLoading ||
+            charactersLoading ||
+            personasLoading ||
+            tagsLoading
+          }
           onLaunch={handleCreateSession}
           launching={creating}
           error={createError}
@@ -466,7 +488,7 @@ export const SessionWorkspace: React.FC<SessionWorkspaceProps> = ({
         <h1 className="text-xl font-bold text-slate-100">New Session</h1>
         <div className="flex items-center gap-3">
           <button
-            onClick={() => setMode('compact')}
+            onClick={() => setMode("compact")}
             className="text-xs text-slate-500 hover:text-slate-300"
           >
             Compact Mode
@@ -492,17 +514,17 @@ export const SessionWorkspace: React.FC<SessionWorkspaceProps> = ({
       <div className="mb-6">{renderStep()}</div>
 
       {/* Footer Navigation */}
-      {currentStep !== 'review' && (
+      {currentStep !== "review" && (
         <div className="flex justify-between pt-4 border-t border-slate-800">
           <button
             onClick={handlePrevStep}
-            disabled={currentStep === 'setting'}
+            disabled={currentStep === "setting"}
             className={`
               px-4 py-2 rounded text-sm transition-colors
               ${
-                currentStep === 'setting'
-                  ? 'text-slate-600 cursor-not-allowed'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                currentStep === "setting"
+                  ? "text-slate-600 cursor-not-allowed"
+                  : "text-slate-400 hover:text-slate-200 hover:bg-slate-800"
               }
             `}
           >

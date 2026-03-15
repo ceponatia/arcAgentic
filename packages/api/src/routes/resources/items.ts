@@ -153,6 +153,6 @@ export function registerItemRoutes(app: Hono): void {
 
     await deleteEntityProfile(toId(id));
 
-    return c.body(null, 204);
+    return c.json({ ok: true }, 200);
   });
 }

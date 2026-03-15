@@ -223,7 +223,7 @@ export function registerLocationMapRoutes(app: Hono): void {
     try {
       const maps = (await listLocationMaps(ownerEmail)) as LocationMapRow[];
       const summaries = maps.map((row: LocationMapRow) => mapRowToSummary(row));
-      return c.json({ ok: true, maps: summaries }, 200);
+      return c.json({ ok: true, maps: summaries, total: summaries.length }, 200);
     } catch (err) {
       const locationError = handleLocationDataError(c, err);
       if (locationError) return locationError;
@@ -352,7 +352,7 @@ export function registerLocationMapRoutes(app: Hono): void {
       if (!deleted) {
         return c.json({ ok: false, error: 'not found' } satisfies ApiError, 404);
       }
-      return c.body(null, 204);
+      return c.json({ ok: true }, 200);
     } catch (err) {
       console.error('[API] Failed to delete location map:', err);
       return c.json({ ok: false, error: 'failed to delete map' } satisfies ApiError, 500);
@@ -417,7 +417,11 @@ export function registerLocationMapRoutes(app: Hono): void {
     try {
       const prefabs = (await listLocationPrefabs(category)) as LocationPrefabRow[];
       return c.json(
-        { ok: true, prefabs: prefabs.map((row: LocationPrefabRow) => mapRowToPrefabSafe(row)) },
+        {
+          ok: true,
+          prefabs: prefabs.map((row: LocationPrefabRow) => mapRowToPrefabSafe(row)),
+          total: prefabs.length,
+        },
         200
       );
     } catch (err) {

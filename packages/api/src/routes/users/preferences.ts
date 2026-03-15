@@ -1,17 +1,18 @@
 /**
  * User Preferences API Routes
  *
- * GET/PUT endpoints for user preferences (workspace mode, etc.)
- * Uses 'default' user until authentication is implemented.
+ * GET/PUT endpoints for the authenticated user's preferences.
  */
 import type { Hono } from 'hono';
 import { z } from 'zod';
 import {
   getUserPreferences,
   updateUserPreferences,
-  getOrCreateDefaultUser,
+  ensureUserRole,
 } from '@arcagentic/db/node';
 import type { ApiError } from '../../types.js';
+import { getAuthUser } from '../../auth/middleware.js';
+import { getPrincipalIdentifier } from '../../auth/ownerEmail.js';
 import { validateBody } from '../../utils/request-validation.js';
 
 /**
@@ -34,14 +35,23 @@ export function registerUserPreferencesRoutes(app: Hono): void {
    * Get current user preferences
    */
   app.get('/user/preferences', async (c) => {
-    const userId = c.req.query('user_id') ?? 'default';
+    const user = getAuthUser(c);
+    if (!user) {
+      return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
+    }
+
+    let userId: string | null;
+    try {
+      userId = getPrincipalIdentifier(c);
+    } catch {
+      return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
+    }
+    if (!userId) {
+      return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
+    }
 
     try {
-      // Ensure default user exists
-      if (userId === 'default') {
-        await getOrCreateDefaultUser();
-      }
-
+      await ensureUserRole(userId, user.role);
       const preferences = await getUserPreferences(userId);
       return c.json({ ok: true, preferences }, 200);
     } catch (err) {
@@ -55,17 +65,26 @@ export function registerUserPreferencesRoutes(app: Hono): void {
    * Update user preferences (merges with existing)
    */
   app.put('/user/preferences', async (c) => {
-    const userId = c.req.query('user_id') ?? 'default';
+    const user = getAuthUser(c);
+    if (!user) {
+      return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
+    }
+
+    let userId: string | null;
+    try {
+      userId = getPrincipalIdentifier(c);
+    } catch {
+      return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
+    }
+    if (!userId) {
+      return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
+    }
 
     const parsed = await validateBody(c, UpdatePreferencesSchema);
     if (!parsed.success) return parsed.errorResponse;
 
     try {
-      // Ensure default user exists
-      if (userId === 'default') {
-        await getOrCreateDefaultUser();
-      }
-
+      await ensureUserRole(userId, user.role);
       const update =
         parsed.data.workspaceMode !== undefined
           ? { workspaceMode: parsed.data.workspaceMode }
@@ -83,13 +102,23 @@ export function registerUserPreferencesRoutes(app: Hono): void {
    * Get just the workspace mode preference
    */
   app.get('/user/preferences/workspace-mode', async (c) => {
-    const userId = c.req.query('user_id') ?? 'default';
+    const user = getAuthUser(c);
+    if (!user) {
+      return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
+    }
+
+    let userId: string | null;
+    try {
+      userId = getPrincipalIdentifier(c);
+    } catch {
+      return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
+    }
+    if (!userId) {
+      return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
+    }
 
     try {
-      if (userId === 'default') {
-        await getOrCreateDefaultUser();
-      }
-
+      await ensureUserRole(userId, user.role);
       const preferences = await getUserPreferences(userId);
       const mode = preferences.workspaceMode ?? 'wizard';
       return c.json({ ok: true, mode }, 200);
@@ -104,16 +133,21 @@ export function registerUserPreferencesRoutes(app: Hono): void {
    * Set just the workspace mode preference
    */
   app.put('/user/preferences/workspace-mode', async (c) => {
-    const userId = c.req.query('user_id') ?? 'default';
+    const user = getAuthUser(c);
+    if (!user) {
+      return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
+    }
+
+    const userId = getPrincipalIdentifier(c);
+    if (!userId) {
+      return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
+    }
 
     const parsed = await validateBody(c, UpdateWorkspaceModeSchema);
     if (!parsed.success) return parsed.errorResponse;
 
     try {
-      if (userId === 'default') {
-        await getOrCreateDefaultUser();
-      }
-
+      await ensureUserRole(userId, user.role);
       await updateUserPreferences(userId, { workspaceMode: parsed.data.mode });
       return c.json({ ok: true, mode: parsed.data.mode }, 200);
     } catch (err) {

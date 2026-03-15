@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import type { SettingBackground } from '@arcagentic/schemas';
 import { getSetting } from '../../../shared/api/client.js';
 import { createInitialFormState, mapProfileToForm } from '../transformers.js';
 import type { SettingFormState, SettingFormFieldErrors, SettingFormKey } from '../types.js';
@@ -20,7 +19,7 @@ export const useSettingBuilderForm = (id?: string | null) => {
     setLoadError(null);
 
     getSetting(id)
-      .then((profile: SettingBackground) => {
+      .then((profile) => {
         setForm(mapProfileToForm(profile));
       })
       .catch((err: unknown) => {

@@ -359,6 +359,7 @@ export const studioSessions = pgTable(
   'studio_sessions',
   {
     id: text('id').primaryKey(),
+    ownerEmail: text('owner_email').notNull().default('local'),
     profileSnapshot: jsonb('profile_snapshot').notNull(),
     conversation: jsonb('conversation').notNull().default([]),
     summary: text('summary'),

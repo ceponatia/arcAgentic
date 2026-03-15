@@ -4,7 +4,7 @@ Session-scoped utilities for the RPG engine.
 
 ## Overview
 
-- Instance management for per-session overrides
+- Effective profile helpers for session-specific state
 - Schedule resolution helpers for NPC availability
 - Simulation hooks/services for time and turn changes
 - Tier scoring for NPC interest and promotions
@@ -17,8 +17,6 @@ Session-scoped utilities for the RPG engine.
 - `getEffectiveCharacter(sessionId, character)` — Returns merged character profile
 - `getEffectiveSetting(sessionId, setting)` — Returns merged setting profile
 - `getEffectiveProfiles(sessionId, character, setting)` — Returns both effective profiles
-- `upsertCharacterOverrides(params)` — Applies overrides to a character instance
-- `upsertSettingOverrides(params)` — Applies overrides to a setting instance
 - `deepMergeReplaceArrays(base, override)` — Deep merge utility
 
 ### Schedule Service (`schedule-service.ts`)

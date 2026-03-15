@@ -69,6 +69,10 @@ export async function attachAuthUser(c: Context, next: Next): Promise<void> {
 }
 
 function isAuthRequired(): boolean {
+  if (getEnvFlag('BYPASS_AUTH')) {
+    return false;
+  }
+
   return getEnvFlag('AUTH_REQUIRED');
 }
 
@@ -88,7 +92,7 @@ function isPublicPath(path: string): boolean {
 }
 
 /**
- * Enforces auth for all non-public routes when AUTH_REQUIRED=true.
+ * Enforces auth for all non-public routes unless BYPASS_AUTH is explicitly enabled.
  *
  * Also optionally enforces invite-only access when INVITE_ONLY=true.
  */

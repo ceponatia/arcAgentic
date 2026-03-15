@@ -111,7 +111,7 @@ Infrastructure and DB:
 - `pnpm infra:down -- --all`: Stop and remove the full Docker Compose stack
 - `pnpm infra:down -- --all --volumes`: Stop the full stack and remove named volumes
 - `pnpm db:migrate`: Apply migrations
-- `pnpm db:migrate:fresh`: Drop and re-apply migrations
+- To rebuild from scratch, reset the database, then run `pnpm db:migrate`
 
 ## 4. Tests
 

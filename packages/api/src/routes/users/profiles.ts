@@ -54,7 +54,8 @@ export function registerProfileRoutes(app: Hono, deps: ProfilesRouteDeps): void 
     }
     const dbMapped: CharacterSummary[] = dbProfiles.map((ch) => mapCharacterSummary(ch, 'db'));
 
-    return c.json([...fsMapped, ...dbMapped], 200);
+    const characters = [...fsMapped, ...dbMapped];
+    return c.json({ ok: true, characters, total: characters.length }, 200);
   });
 
   // GET /characters/:id - get full character profile
@@ -65,7 +66,7 @@ export function registerProfileRoutes(app: Hono, deps: ProfilesRouteDeps): void 
     // Check filesystem
     const fsChar = loaded?.characters.find((ch) => ch.id === id);
     if (fsChar) {
-      return c.json(fsChar, 200);
+      return c.json({ ok: true, character: fsChar }, 200);
     }
 
     // Check DB (entity_profiles.id is UUID; avoid passing non-UUID ids)
@@ -74,7 +75,7 @@ export function registerProfileRoutes(app: Hono, deps: ProfilesRouteDeps): void 
       if (dbChar?.entityType === 'character') {
         try {
           const parsed = CharacterProfileSchema.parse(dbChar.profileJson);
-          return c.json(parsed, 200);
+          return c.json({ ok: true, character: parsed }, 200);
         } catch {
           return c.json({ ok: false, error: 'invalid db data' } satisfies ApiError, 500);
         }
@@ -144,7 +145,7 @@ export function registerProfileRoutes(app: Hono, deps: ProfilesRouteDeps): void 
       const deleted = await deleteCharacterFile(id);
       if (deleted) {
         loaded?.characters.splice(fsCharIndex, 1);
-        return c.body(null, 204);
+        return c.json({ ok: true }, 200);
       }
       return c.json(
         { ok: false, error: 'failed to delete filesystem character' } satisfies ApiError,
@@ -166,7 +167,7 @@ export function registerProfileRoutes(app: Hono, deps: ProfilesRouteDeps): void 
     }
 
     await deleteEntityProfile(toId(id));
-    return c.body(null, 204);
+    return c.json({ ok: true }, 200);
   });
 
   // GET /settings - summarized setting profiles
@@ -194,7 +195,8 @@ export function registerProfileRoutes(app: Hono, deps: ProfilesRouteDeps): void 
     }
     const dbMapped: SettingSummary[] = dbProfiles.map((s) => mapSettingSummary(s, 'db'));
 
-    return c.json([...fsMapped, ...dbMapped], 200);
+    const settings = [...fsMapped, ...dbMapped];
+    return c.json({ ok: true, settings, total: settings.length }, 200);
   });
 
   // GET /settings/:id - get full setting profile
@@ -205,7 +207,7 @@ export function registerProfileRoutes(app: Hono, deps: ProfilesRouteDeps): void 
     // Check filesystem
     const fsSet = loaded?.settings.find((s) => s.id === id);
     if (fsSet) {
-      return c.json(fsSet, 200);
+      return c.json({ ok: true, setting: fsSet }, 200);
     }
 
     // Check DB (entity_profiles.id is UUID; avoid passing non-UUID ids)
@@ -214,7 +216,7 @@ export function registerProfileRoutes(app: Hono, deps: ProfilesRouteDeps): void 
       if (dbSet?.entityType === 'setting') {
         try {
           const parsed = SettingProfileSchema.parse(dbSet.profileJson);
-          return c.json(parsed, 200);
+          return c.json({ ok: true, setting: parsed }, 200);
         } catch {
           return c.json({ ok: false, error: 'invalid db data' } satisfies ApiError, 500);
         }
@@ -285,6 +287,6 @@ export function registerProfileRoutes(app: Hono, deps: ProfilesRouteDeps): void 
     }
 
     await deleteEntityProfile(toId(id));
-    return c.body(null, 204);
+    return c.json({ ok: true }, 200);
   });
 }

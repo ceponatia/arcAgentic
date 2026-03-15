@@ -16,7 +16,8 @@ The HTTP backend server for the Minimal RPG application. It exposes REST endpoin
 
 - **Auth**: Authentication and user management (`routes/auth.ts`).
 - **Sessions**: Game session management (`routes/sessions/`).
-- **Turns**: Turn processing and history (`routes/turns.ts`).
+- **Turns**: Game turn processing and bus emission (`routes/game/turns.ts`).
+- **Studio**: Studio NPC generation and refinement routes (`routes/studio.ts`).
 - **Admin**: Database and session administration (`routes/adminDb.ts`, `routes/adminSessions.ts`).
 - **Entities**: Management of items, personas, tags, and location maps.
 - **User Preferences**: Handling user-specific settings (`routes/userPreferences.ts`).
@@ -32,7 +33,7 @@ The HTTP backend server for the Minimal RPG application. It exposes REST endpoin
 ## Package Connections
 
 - **/bus**: World Bus for emitting, persisting, and replaying domain events.
-- **/actors**: Runtime NPC/player actor registry used by turn handling.
+- **/actors**: NPC registry seeding for turns, direct NPC cognition helpers used by turn orchestration, and studio NPC authoring helpers used by studio routes.
 - **/services**: Domain services (physics, time, social, rules) used during turns.
 - **/projections**: Read models for NPC state, locations, and sessions.
 - **/db**: Direct database access for CRUD operations.

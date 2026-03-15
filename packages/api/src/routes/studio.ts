@@ -24,6 +24,7 @@ import { streamSSE } from 'hono/streaming';
 import { generateId } from '@arcagentic/utils';
 import { z } from 'zod';
 import type { ApiError } from '../types.js';
+import { getOwnerEmail } from '../auth/ownerEmail.js';
 import { getConfig } from '../utils/config.js';
 import { getEnvValue } from '../utils/env.js';
 import { studioRateLimiter } from '../middleware/rate-limiter.js';
@@ -382,6 +383,7 @@ export function registerStudioRoutes(app: Hono, options?: RegisterStudioRoutesOp
       }
 
       const { sessionId, userMessage, characterResponse, profile } = parsed.data;
+      const ownerEmail = getOwnerEmail(c);
 
       // Initialize engine
       const engine = new TraitInferenceEngine({
@@ -396,7 +398,7 @@ export function registerStudioRoutes(app: Hono, options?: RegisterStudioRoutesOp
       );
 
       // Persist to session
-      const session = await getStudioSession(sessionId);
+      const session = await getStudioSession(sessionId, ownerEmail);
       if (session) {
         const existingTraits = (session.inferredTraits as unknown as InferredTrait[]) || [];
         // Append new traits to the history
@@ -404,7 +406,7 @@ export function registerStudioRoutes(app: Hono, options?: RegisterStudioRoutesOp
 
         await updateStudioSession(sessionId, {
           inferredTraits: updatedTraits,
-        });
+        }, ownerEmail);
       }
 
       return c.json({ ok: true, inferredTraits });
@@ -442,7 +444,8 @@ export function registerStudioRoutes(app: Hono, options?: RegisterStudioRoutesOp
       }
 
       const { sessionId } = parsed.data;
-      const session = await getStudioSession(sessionId);
+      const ownerEmail = getOwnerEmail(c);
+      const session = await getStudioSession(sessionId, ownerEmail);
 
       if (!session) {
         return c.json({ ok: false, error: 'Session not found' } satisfies ApiError, 404);
@@ -490,7 +493,7 @@ export function registerStudioRoutes(app: Hono, options?: RegisterStudioRoutesOp
             content: m.content,
             timestamp: m.timestamp.toISOString(),
           })),
-        });
+        }, ownerEmail);
 
         return c.json({
           ok: true,
@@ -536,6 +539,7 @@ export function registerStudioRoutes(app: Hono, options?: RegisterStudioRoutesOp
       }
 
       const { message, profile } = parsed.data;
+      const ownerEmail = getOwnerEmail(c);
       let sessionId = parsed.data.sessionId;
 
       // Get or create session
@@ -544,15 +548,17 @@ export function registerStudioRoutes(app: Hono, options?: RegisterStudioRoutesOp
       let actor: StudioNpcActor | undefined;
 
       if (sessionId) {
-        session = await getStudioSession(sessionId);
-        actor = actorCache.get(sessionId);
+        session = await getStudioSession(sessionId, ownerEmail);
+        if (session) {
+          actor = actorCache.get(sessionId);
+        }
       }
       const sessionMs = performance.now() - sessionStart;
 
       if (!session) {
         // Create new session
         sessionId = generateId();
-        session = await createStudioSession(sessionId, profile);
+        session = await createStudioSession(sessionId, profile, ownerEmail);
       }
 
       if (!actor && sessionId) {
@@ -606,7 +612,7 @@ export function registerStudioRoutes(app: Hono, options?: RegisterStudioRoutesOp
         summary: state.summary,
         inferredTraits: state.inferredTraits,
         exploredTopics: Array.from(state.exploredTopics),
-      });
+      }, ownerEmail);
       const persistMs = performance.now() - persistStart;
 
       const totalMs = performance.now() - requestStart;
@@ -654,6 +660,7 @@ export function registerStudioRoutes(app: Hono, options?: RegisterStudioRoutesOp
     }
 
     const { message, profile } = parsed.data;
+    const ownerEmail = getOwnerEmail(c);
     let sessionId = parsed.data.sessionId;
 
     // Get or create session
@@ -661,13 +668,15 @@ export function registerStudioRoutes(app: Hono, options?: RegisterStudioRoutesOp
     let actor: StudioNpcActor | undefined;
 
     if (sessionId) {
-      session = await getStudioSession(sessionId);
-      actor = actorCache.get(sessionId);
+      session = await getStudioSession(sessionId, ownerEmail);
+      if (session) {
+        actor = actorCache.get(sessionId);
+      }
     }
 
     if (!session) {
       sessionId = generateId();
-      session = await createStudioSession(sessionId, profile);
+      session = await createStudioSession(sessionId, profile, ownerEmail);
     }
 
     if (!actor && sessionId) {
@@ -762,7 +771,7 @@ export function registerStudioRoutes(app: Hono, options?: RegisterStudioRoutesOp
           summary: currentState.summary,
           inferredTraits: currentState.inferredTraits,
           exploredTopics: currentState.exploredTopics,
-        });
+        }, ownerEmail);
 
         // Invalidate actor cache so next request gets fresh state
         actorCache.delete(sessionId);
@@ -888,20 +897,20 @@ export function registerStudioRoutes(app: Hono, options?: RegisterStudioRoutesOp
       }
 
       const { sessionId, profile } = parsed.data;
+      const ownerEmail = getOwnerEmail(c);
 
       console.debug('[DilemmaAPI] Request received:', {
         sessionId,
         profileName: profile['name'],
       });
 
+      const session = await getStudioSession(sessionId, ownerEmail);
+      if (!session) {
+        return c.json({ ok: false, error: 'Session not found' }, 404);
+      }
+
       let actor = actorCache.get(sessionId);
       if (!actor) {
-        // Try to restore from DB
-        const session = await getStudioSession(sessionId);
-        if (!session) {
-          return c.json({ ok: false, error: 'Session not found' }, 404);
-        }
-
         if (!llmProvider) {
           return c.json({ ok: false, error: 'LLM not configured' }, 503);
         }
@@ -967,7 +976,7 @@ export function registerStudioRoutes(app: Hono, options?: RegisterStudioRoutesOp
         })),
         inferredTraits: state.inferredTraits,
         exploredTopics: Array.from(state.exploredTopics),
-      });
+      }, ownerEmail);
 
       return c.json({
         ok: true,
@@ -986,6 +995,12 @@ export function registerStudioRoutes(app: Hono, options?: RegisterStudioRoutesOp
   app.delete('/studio/session/:id', async (c) => {
     try {
       const sessionId = c.req.param('id');
+      const ownerEmail = getOwnerEmail(c);
+
+      const session = await getStudioSession(sessionId, ownerEmail);
+      if (!session) {
+        return c.json({ ok: false, error: 'Session not found' }, 404);
+      }
 
       // Remove from cache
       const actor = actorCache.get(sessionId);
@@ -995,7 +1010,7 @@ export function registerStudioRoutes(app: Hono, options?: RegisterStudioRoutesOp
       }
 
       // Remove from database
-      const deleted = await deleteStudioSession(sessionId);
+      const deleted = await deleteStudioSession(sessionId, ownerEmail);
 
       if (!deleted) {
         return c.json({ ok: false, error: 'Session not found' }, 404);
@@ -1012,7 +1027,8 @@ export function registerStudioRoutes(app: Hono, options?: RegisterStudioRoutesOp
   app.get('/studio/session/:id', async (c) => {
     try {
       const sessionId = c.req.param('id');
-      const session = await getStudioSession(sessionId);
+      const ownerEmail = getOwnerEmail(c);
+      const session = await getStudioSession(sessionId, ownerEmail);
 
       if (!session) {
         return c.json({ ok: false, error: 'Session not found' }, 404);

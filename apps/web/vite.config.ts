@@ -8,6 +8,7 @@ import rehypeHighlight from 'rehype-highlight';
 import rehypeSlug from 'rehype-slug';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const packagesDir = path.resolve(__dirname, '../../packages');
 
 export default defineConfig(() => {
   const apiTarget = process.env['VITE_API_BASE_URL'] ?? 'http://localhost:3001';
@@ -36,8 +37,9 @@ export default defineConfig(() => {
     ],
     resolve: {
       alias: {
-        '@arcagentic/schemas': path.resolve(__dirname, '../../packages/schemas/src'),
-        '@arcagentic/utils': path.resolve(__dirname, '../../packages/utils/src'),
+        '@arcagentic/schemas': path.resolve(packagesDir, 'schemas/src'),
+        '@arcagentic/ui': path.resolve(packagesDir, 'ui/src'),
+        '@arcagentic/utils': path.resolve(packagesDir, 'utils/src'),
       },
     },
     server: {

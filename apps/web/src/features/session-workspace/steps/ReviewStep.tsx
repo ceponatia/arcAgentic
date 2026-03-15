@@ -2,7 +2,7 @@
  * Review Step - Final review and launch session
  */
 
-import React, { useMemo } from 'react';
+import React, { useMemo } from "react";
 import {
   useWorkspaceStore,
   useSettingState,
@@ -10,14 +10,15 @@ import {
   usePlayerState,
   useTagsState,
   useValidation,
-} from '../store.js';
+} from "../store.js";
 import type {
   NpcSessionConfig,
   TagSelection,
   StepValidationState,
   WorkspaceStep,
-} from '../store.js';
-import type { CharacterSummary } from '../../../types.js';
+} from "../store.js";
+import type { CharacterSummary } from "../../../types.js";
+import { formatStartTime, resolveTimeConfig } from "../time-config.js";
 
 interface ReviewStepProps {
   characters: CharacterSummary[];
@@ -42,23 +43,23 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
   // Get character name from characters list
   const getCharacterName = (characterId: string): string => {
     const char = characters.find((c) => c.id === characterId);
-    return char?.name ?? 'Unknown';
+    return char?.name ?? "Unknown";
   };
 
   const summary = useMemo(() => {
+    const timeConfig = resolveTimeConfig(settingState.settingProfile);
+
     return {
-      setting: settingState.settingProfile?.name ?? 'Not selected',
+      setting: settingState.settingProfile?.name ?? "Not selected",
       settingId: settingState.settingId,
       npcCount: npcs.length,
       npcs: npcs,
-      player: playerState.personaProfile?.name ?? 'Not configured',
+      player: playerState.personaProfile?.name ?? "Not configured",
       playerId: playerState.personaId,
       tagCount: tags.length,
       tags: tags,
-      timeConfig: settingState.startTime
-        ? `${settingState.startTime.hour.toString().padStart(2, '0')}:${settingState.startTime.minute.toString().padStart(2, '0')}`
-        : '09:00',
-      secondsPerTurn: settingState.secondsPerTurn ?? 60,
+      timeConfig: formatStartTime(settingState.startTime, timeConfig),
+      secondsPerTurn: settingState.secondsPerTurn ?? timeConfig.secondsPerTurn,
     };
   }, [settingState, npcs, playerState, tags]);
 
@@ -84,7 +85,9 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
     <div className="space-y-6">
       {/* Section Header */}
       <div>
-        <h2 className="text-lg font-semibold text-slate-100">Review & Launch</h2>
+        <h2 className="text-lg font-semibold text-slate-100">
+          Review & Launch
+        </h2>
         <p className="text-sm text-slate-400 mt-1">
           Review your session configuration before starting.
         </p>
@@ -93,10 +96,15 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
       {/* Validation Status */}
       {!validation.valid && validationErrors.length > 0 && (
         <div className="p-4 rounded-lg bg-red-900/20 border border-red-800/50">
-          <p className="text-sm font-medium text-red-400 mb-2">Please fix the following issues:</p>
+          <p className="text-sm font-medium text-red-400 mb-2">
+            Please fix the following issues:
+          </p>
           <ul className="space-y-1">
             {validationErrors.map((err, idx) => (
-              <li key={idx} className="text-sm text-red-300 flex items-center gap-2">
+              <li
+                key={idx}
+                className="text-sm text-red-300 flex items-center gap-2"
+              >
                 <span className="text-red-500">•</span>
                 {err.message}
                 {err.step && (
@@ -123,21 +131,23 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
             p-4 rounded-lg border cursor-pointer transition-all
             ${
               summary.settingId
-                ? 'border-emerald-700/50 bg-emerald-900/20'
-                : 'border-red-700/50 bg-red-900/20'
+                ? "border-emerald-700/50 bg-emerald-900/20"
+                : "border-red-700/50 bg-red-900/20"
             }
           `}
-          onClick={() => setStep('setting')}
+          onClick={() => setStep("setting")}
         >
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-slate-500 uppercase tracking-wider">Setting</span>
+            <span className="text-xs text-slate-500 uppercase tracking-wider">
+              Setting
+            </span>
             <span
-              className={`w-2 h-2 rounded-full ${summary.settingId ? 'bg-emerald-500' : 'bg-red-500'}`}
+              className={`w-2 h-2 rounded-full ${summary.settingId ? "bg-emerald-500" : "bg-red-500"}`}
             />
           </div>
           <p className="font-medium text-slate-200">{summary.setting}</p>
           <p className="text-xs text-slate-500 mt-1">
-            Starting at {summary.timeConfig} • {summary.secondsPerTurn}s/turn
+            {summary.timeConfig} • {summary.secondsPerTurn}s/turn
           </p>
         </div>
 
@@ -147,24 +157,28 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
             p-4 rounded-lg border cursor-pointer transition-all
             ${
               npcs.length > 0
-                ? 'border-emerald-700/50 bg-emerald-900/20'
-                : 'border-red-700/50 bg-red-900/20'
+                ? "border-emerald-700/50 bg-emerald-900/20"
+                : "border-red-700/50 bg-red-900/20"
             }
           `}
-          onClick={() => setStep('npcs')}
+          onClick={() => setStep("npcs")}
         >
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-slate-500 uppercase tracking-wider">NPCs</span>
+            <span className="text-xs text-slate-500 uppercase tracking-wider">
+              NPCs
+            </span>
             <span
-              className={`w-2 h-2 rounded-full ${npcs.length > 0 ? 'bg-emerald-500' : 'bg-red-500'}`}
+              className={`w-2 h-2 rounded-full ${npcs.length > 0 ? "bg-emerald-500" : "bg-red-500"}`}
             />
           </div>
-          <p className="font-medium text-slate-200">{summary.npcCount} characters</p>
+          <p className="font-medium text-slate-200">
+            {summary.npcCount} characters
+          </p>
           <p className="text-xs text-slate-500 mt-1">
             {summary.npcs
               .slice(0, 3)
               .map((n: NpcSessionConfig) => getCharacterName(n.characterId))
-              .join(', ')}
+              .join(", ")}
             {summary.npcs.length > 3 && ` +${summary.npcs.length - 3} more`}
           </p>
         </div>
@@ -175,35 +189,39 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
             p-4 rounded-lg border cursor-pointer transition-all
             ${
               playerState.personaId
-                ? 'border-emerald-700/50 bg-emerald-900/20'
-                : 'border-slate-700/50 bg-slate-800/30'
+                ? "border-emerald-700/50 bg-emerald-900/20"
+                : "border-slate-700/50 bg-slate-800/30"
             }
           `}
-          onClick={() => setStep('player')}
+          onClick={() => setStep("player")}
         >
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-slate-500 uppercase tracking-wider">Player</span>
+            <span className="text-xs text-slate-500 uppercase tracking-wider">
+              Player
+            </span>
             <span
-              className={`w-2 h-2 rounded-full ${playerState.personaId ? 'bg-emerald-500' : 'bg-slate-500'}`}
+              className={`w-2 h-2 rounded-full ${playerState.personaId ? "bg-emerald-500" : "bg-slate-500"}`}
             />
           </div>
           <p className="font-medium text-slate-200">{summary.player}</p>
           <p className="text-xs text-slate-500 mt-1">
-            {playerState.personaId && playerState.personaId !== 'anonymous'
-              ? 'Saved persona'
-              : playerState.personaId === 'anonymous'
-                ? 'Quick player'
-                : 'Not selected'}
+            {playerState.personaId && playerState.personaId !== "anonymous"
+              ? "Saved persona"
+              : playerState.personaId === "anonymous"
+                ? "Quick player"
+                : "Not selected"}
           </p>
         </div>
 
         {/* Tags Card */}
         <div
           className="p-4 rounded-lg border border-slate-700/50 bg-slate-800/30 cursor-pointer transition-all hover:border-slate-600"
-          onClick={() => setStep('tags')}
+          onClick={() => setStep("tags")}
         >
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-slate-500 uppercase tracking-wider">Tags</span>
+            <span className="text-xs text-slate-500 uppercase tracking-wider">
+              Tags
+            </span>
             <span className="w-2 h-2 rounded-full bg-slate-500" />
           </div>
           <p className="font-medium text-slate-200">{summary.tagCount} tags</p>
@@ -212,7 +230,7 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
               {summary.tags
                 .slice(0, 3)
                 .map((t: TagSelection) => t.tagName ?? t.tagId)
-                .join(', ')}
+                .join(", ")}
               {summary.tags.length > 3 && ` +${summary.tags.length - 3} more`}
             </p>
           )}
@@ -223,11 +241,16 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
       {npcs.length > 0 && (
         <div className="border border-slate-800 rounded-lg bg-slate-900/30">
           <div className="px-4 py-3 border-b border-slate-800">
-            <span className="text-sm font-medium text-slate-300">NPC Configuration</span>
+            <span className="text-sm font-medium text-slate-300">
+              NPC Configuration
+            </span>
           </div>
           <div className="divide-y divide-slate-800">
             {npcs.map((npc: NpcSessionConfig) => (
-              <div key={npc.characterId} className="px-4 py-3 flex items-center justify-between">
+              <div
+                key={npc.characterId}
+                className="px-4 py-3 flex items-center justify-between"
+              >
                 <div className="flex items-center gap-3">
                   <span className="w-2 h-2 rounded-full bg-emerald-500" />
                   <div>
@@ -240,7 +263,9 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
                   </div>
                 </div>
                 {npc.label && (
-                  <span className="text-xs text-slate-500 max-w-xs truncate">{npc.label}</span>
+                  <span className="text-xs text-slate-500 max-w-xs truncate">
+                    {npc.label}
+                  </span>
                 )}
               </div>
             ))}
@@ -258,7 +283,7 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
       {/* Launch Button */}
       <div className="flex justify-end gap-4">
         <button
-          onClick={() => setStep('setting')}
+          onClick={() => setStep("setting")}
           className="px-6 py-3 text-sm rounded-lg bg-slate-700 text-slate-300 hover:bg-slate-600 transition-colors"
         >
           ← Back to Edit
@@ -270,8 +295,8 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
             px-8 py-3 text-sm font-medium rounded-lg transition-all
             ${
               canLaunch
-                ? 'bg-violet-600 text-white hover:bg-violet-500 shadow-lg shadow-violet-500/25'
-                : 'bg-slate-700 text-slate-500 cursor-not-allowed'
+                ? "bg-violet-600 text-white hover:bg-violet-500 shadow-lg shadow-violet-500/25"
+                : "bg-slate-700 text-slate-500 cursor-not-allowed"
             }
           `}
         >
@@ -281,7 +306,7 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
               Creating Session...
             </span>
           ) : (
-            'Launch Session →'
+            "Launch Session →"
           )}
         </button>
       </div>
@@ -289,7 +314,9 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
       {/* Validation Summary */}
       {validation.valid && (
         <div className="text-center py-4">
-          <p className="text-sm text-emerald-400">✓ All required fields configured</p>
+          <p className="text-sm text-emerald-400">
+            ✓ All required fields configured
+          </p>
         </div>
       )}
     </div>

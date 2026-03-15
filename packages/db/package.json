@@ -19,7 +19,6 @@
     "build": "tsc -b",
     "clean": "rimraf dist node_modules/.cache/tsbuildinfo",
     "db:migrate": "tsx src/migrations/migrate.ts",
-    "db:migrate:fresh": "SQL_DIR=sql-fresh tsx src/migrations/migrate.ts",
     "db:seed": "tsx src/seed.ts",
     "db:seed:test-entities": "tsx src/seed.ts --test-entities --mode upsert",
     "lint": "eslint src --cache --cache-location node_modules/.cache/eslint",
