@@ -12,7 +12,7 @@ import {
 } from '@arcagentic/db/node';
 import type { ApiError } from '../../types.js';
 import { getAuthUser } from '../../auth/middleware.js';
-import { requirePrincipalIdentifier } from '../../auth/ownerEmail.js';
+import { getPrincipalIdentifier } from '../../auth/ownerEmail.js';
 import { validateBody } from '../../utils/request-validation.js';
 
 /**
@@ -40,7 +40,10 @@ export function registerUserPreferencesRoutes(app: Hono): void {
       return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
     }
 
-    const userId = requirePrincipalIdentifier(c);
+    const userId = getPrincipalIdentifier(c);
+    if (!userId) {
+      return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
+    }
 
     try {
       await ensureUserRole(userId, user.role);
@@ -62,7 +65,10 @@ export function registerUserPreferencesRoutes(app: Hono): void {
       return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
     }
 
-    const userId = requirePrincipalIdentifier(c);
+    const userId = getPrincipalIdentifier(c);
+    if (!userId) {
+      return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
+    }
 
     const parsed = await validateBody(c, UpdatePreferencesSchema);
     if (!parsed.success) return parsed.errorResponse;
@@ -91,7 +97,10 @@ export function registerUserPreferencesRoutes(app: Hono): void {
       return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
     }
 
-    const userId = requirePrincipalIdentifier(c);
+    const userId = getPrincipalIdentifier(c);
+    if (!userId) {
+      return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
+    }
 
     try {
       await ensureUserRole(userId, user.role);
@@ -114,7 +123,10 @@ export function registerUserPreferencesRoutes(app: Hono): void {
       return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
     }
 
-    const userId = requirePrincipalIdentifier(c);
+    const userId = getPrincipalIdentifier(c);
+    if (!userId) {
+      return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
+    }
 
     const parsed = await validateBody(c, UpdateWorkspaceModeSchema);
     if (!parsed.success) return parsed.errorResponse;
