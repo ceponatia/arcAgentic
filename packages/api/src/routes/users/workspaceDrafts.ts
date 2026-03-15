@@ -103,7 +103,12 @@ export function registerWorkspaceDraftRoutes(app: Hono): void {
       return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
     }
 
-    const userId = getPrincipalIdentifier(c);
+    let userId: string | undefined;
+    try {
+      userId = getPrincipalIdentifier(c);
+    } catch {
+      return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
+    }
     if (!userId) {
       return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
     }
@@ -138,7 +143,12 @@ export function registerWorkspaceDraftRoutes(app: Hono): void {
     const idResult = validateParamId(c);
     if (!idResult.success) return idResult.errorResponse;
     const id = idResult.data;
-    const userId = getPrincipalIdentifier(c);
+    let userId: string | undefined;
+    try {
+      userId = getPrincipalIdentifier(c);
+    } catch {
+      return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
+    }
     if (!userId) {
       return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
     }
