@@ -40,7 +40,12 @@ export function registerUserPreferencesRoutes(app: Hono): void {
       return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
     }
 
-    const userId = getPrincipalIdentifier(c);
+    let userId: string | null;
+    try {
+      userId = getPrincipalIdentifier(c);
+    } catch {
+      return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
+    }
     if (!userId) {
       return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
     }
@@ -65,7 +70,12 @@ export function registerUserPreferencesRoutes(app: Hono): void {
       return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
     }
 
-    const userId = getPrincipalIdentifier(c);
+    let userId: string | null;
+    try {
+      userId = getPrincipalIdentifier(c);
+    } catch {
+      return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
+    }
     if (!userId) {
       return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
     }
@@ -97,7 +107,12 @@ export function registerUserPreferencesRoutes(app: Hono): void {
       return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
     }
 
-    const userId = getPrincipalIdentifier(c);
+    let userId: string | null;
+    try {
+      userId = getPrincipalIdentifier(c);
+    } catch {
+      return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
+    }
     if (!userId) {
       return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
     }
