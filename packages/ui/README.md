@@ -7,7 +7,7 @@ Shared UI components for Minimal RPG frontends (web and mobile).
 Import components directly:
 
 ```tsx
-import { MessageContent } from '@arcagentic/ui';
+import { MessageContent } from "@arcagentic/ui";
 ```
 
 ## Development
