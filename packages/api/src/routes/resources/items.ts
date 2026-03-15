@@ -61,7 +61,7 @@ export function registerItemRoutes(app: Hono): void {
 
     try {
       const parsed = ItemDefinitionSchema.parse(profile.profileJson);
-      return c.json({ ok: true, item: parsed }, 200);
+      return c.json(parsed, 200);
     } catch {
       return c.json({ ok: false, error: 'invalid db data' } satisfies ApiError, 500);
     }
