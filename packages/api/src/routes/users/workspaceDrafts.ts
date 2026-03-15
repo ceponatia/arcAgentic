@@ -15,7 +15,7 @@ import {
 } from '@arcagentic/db/node';
 import type { ApiError } from '../../types.js';
 import { getAuthUser } from '../../auth/middleware.js';
-import { requirePrincipalIdentifier } from '../../auth/ownerEmail.js';
+import { getPrincipalIdentifier } from '../../auth/ownerEmail.js';
 import { toId } from '../../utils/uuid.js';
 import { validateBody, validateParamId } from '../../utils/request-validation.js';
 
@@ -50,8 +50,18 @@ export function registerWorkspaceDraftRoutes(app: Hono): void {
       return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
     }
 
-    const userId = requirePrincipalIdentifier(c);
-    const limit = parseInt(c.req.query('limit') ?? '20', 10);
+    let userId: string;
+    try {
+      userId = getPrincipalIdentifier(c);
+    } catch {
+      return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
+    }
+    if (!userId) {
+      return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
+    }
+    const parsedLimit = parseInt(c.req.query('limit') ?? '20', 10);
+    const rawLimit = Number.isFinite(parsedLimit) && parsedLimit > 0 ? parsedLimit : 20;
+    const limit = Math.min(rawLimit, 100);
 
     try {
       const drafts = await listWorkspaceDrafts(userId, { limit });
@@ -72,7 +82,15 @@ export function registerWorkspaceDraftRoutes(app: Hono): void {
     const idResult = validateParamId(c);
     if (!idResult.success) return idResult.errorResponse;
     const id = idResult.data;
-    const userId = requirePrincipalIdentifier(c);
+    let userId: string;
+    try {
+      userId = getPrincipalIdentifier(c);
+    } catch {
+      return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
+    }
+    if (!userId) {
+      return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
+    }
 
     try {
       const draft = (await getWorkspaceDraft(toId(id))) as WorkspaceDraftRecord | null;
@@ -96,7 +114,15 @@ export function registerWorkspaceDraftRoutes(app: Hono): void {
       return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
     }
 
-    const userId = requirePrincipalIdentifier(c);
+    let userId: string | undefined;
+    try {
+      userId = getPrincipalIdentifier(c);
+    } catch {
+      return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
+    }
+    if (!userId) {
+      return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
+    }
 
     const parsed = await validateBody(c, CreateDraftSchema);
     if (!parsed.success) return parsed.errorResponse;
@@ -128,7 +154,15 @@ export function registerWorkspaceDraftRoutes(app: Hono): void {
     const idResult = validateParamId(c);
     if (!idResult.success) return idResult.errorResponse;
     const id = idResult.data;
-    const userId = requirePrincipalIdentifier(c);
+    let userId: string | undefined;
+    try {
+      userId = getPrincipalIdentifier(c);
+    } catch {
+      return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
+    }
+    if (!userId) {
+      return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
+    }
 
     const parsed = await validateBody(c, UpdateDraftSchema);
     if (!parsed.success) return parsed.errorResponse;
@@ -169,7 +203,10 @@ export function registerWorkspaceDraftRoutes(app: Hono): void {
     const idResult = validateParamId(c);
     if (!idResult.success) return idResult.errorResponse;
     const id = idResult.data;
-    const userId = requirePrincipalIdentifier(c);
+    const userId = getPrincipalIdentifier(c);
+    if (!userId) {
+      return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
+    }
 
     try {
       const existing = (await getWorkspaceDraft(toId(id))) as WorkspaceDraftRecord | null;

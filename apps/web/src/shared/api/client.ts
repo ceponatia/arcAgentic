@@ -595,10 +595,14 @@ export async function getCharacter(
   characterId: string,
   signal?: AbortSignal
 ): Promise<CharacterProfile> {
-  return http<CharacterProfile>(
+  const response = await http<{ ok: boolean; character?: CharacterProfile }>(
     `/characters/${encodeURIComponent(characterId)}`,
     signal ? { signal } : undefined
   );
+  if (!response.character) {
+    throw new Error('Character not found');
+  }
+  return response.character;
 }
 
 export async function getSetting(settingId: string, signal?: AbortSignal): Promise<SettingProfile> {
@@ -643,14 +647,22 @@ export async function saveSetting(
 }
 
 export async function getPersonas(signal?: AbortSignal): Promise<PersonaSummary[]> {
-  return http<PersonaSummary[]>('/personas', signal ? { signal } : undefined);
+  const response = await http<{ ok: boolean; personas?: PersonaSummary[]; total?: number }>(
+    '/personas',
+    signal ? { signal } : undefined
+  );
+  return response.personas ?? [];
 }
 
 export async function getPersona(personaId: string, signal?: AbortSignal): Promise<PersonaProfile> {
-  return http<PersonaProfile>(
+  const response = await http<{ ok: boolean; persona?: PersonaProfile }>(
     `/personas/${encodeURIComponent(personaId)}`,
     signal ? { signal } : undefined
   );
+  if (!response.persona) {
+    throw new Error('Persona not found');
+  }
+  return response.persona;
 }
 
 export async function savePersona(
@@ -681,19 +693,30 @@ export async function getTags(signal?: AbortSignal): Promise<TagResponse[]> {
 }
 
 export async function getTag(id: string, signal?: AbortSignal): Promise<TagResponse> {
-  return http<TagResponse>(`/tags/${encodeURIComponent(id)}`, signal ? { signal } : undefined);
+  const response = await http<{ ok: boolean; tag?: TagResponse }>(
+    `/tags/${encodeURIComponent(id)}`,
+    signal ? { signal } : undefined
+  );
+  if (!response.tag) {
+    throw new Error('Tag not found');
+  }
+  return response.tag;
 }
 
 export async function createTag(
   data: CreateTagRequest,
   signal?: AbortSignal
 ): Promise<TagResponse> {
-  return http<TagResponse>('/tags', {
+  const response = await http<{ ok: boolean; tag?: TagResponse }>('/tags', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
     ...(signal && { signal }),
   });
+  if (!response.tag) {
+    throw new Error('Failed to create tag');
+  }
+  return response.tag;
 }
 
 export async function updateTag(
@@ -701,12 +724,16 @@ export async function updateTag(
   data: UpdateTagRequest,
   signal?: AbortSignal
 ): Promise<TagResponse> {
-  return http<TagResponse>(`/tags/${encodeURIComponent(id)}`, {
+  const response = await http<{ ok: boolean; tag?: TagResponse }>(`/tags/${encodeURIComponent(id)}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
     ...(signal && { signal }),
   });
+  if (!response.tag) {
+    throw new Error('Failed to update tag');
+  }
+  return response.tag;
 }
 
 export async function deleteTag(id: string, signal?: AbortSignal): Promise<void> {
