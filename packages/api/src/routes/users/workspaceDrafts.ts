@@ -55,7 +55,8 @@ export function registerWorkspaceDraftRoutes(app: Hono): void {
       return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
     }
     const parsedLimit = parseInt(c.req.query('limit') ?? '20', 10);
-    const limit = Number.isFinite(parsedLimit) && parsedLimit > 0 ? parsedLimit : 20;
+    const rawLimit = Number.isFinite(parsedLimit) && parsedLimit > 0 ? parsedLimit : 20;
+    const limit = Math.min(rawLimit, 100);
 
     try {
       const drafts = await listWorkspaceDrafts(userId, { limit });
