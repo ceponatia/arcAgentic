@@ -43,6 +43,12 @@ export type {
   WorkspaceMode,
 };
 
+type CharactersListResponse = {
+  ok: boolean;
+  characters?: CharacterSummary[];
+  total?: number;
+};
+
 interface TurnEndpointResponse {
   message: string;
   events: unknown[];
@@ -214,7 +220,8 @@ export async function getRuntimeConfig(signal?: AbortSignal): Promise<RuntimeCon
 }
 
 export async function getCharacters(signal?: AbortSignal): Promise<CharacterSummary[]> {
-  return http<CharacterSummary[]>('/characters', signal ? { signal } : undefined);
+  const response = await http<CharactersListResponse>('/characters', signal ? { signal } : undefined);
+  return response.characters ?? [];
 }
 
 export async function getSettings(signal?: AbortSignal): Promise<SettingSummary[]> {
