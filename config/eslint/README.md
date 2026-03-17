@@ -9,7 +9,7 @@
 - React hooks rules in a separate export
 - test globals in a separate export
 
-The file intentionally avoids monorepo-only imports and rules. It does not import the local `arcagentic` ESLint plugin, and it does not depend on any `@arcagentic/*` package.
+The file intentionally avoids monorepo-only imports and rules. It does not define the local `arcagentic` rules used by the root config, and it does not depend on any `@arcagentic/*` package.
 
 ## Fork Usage
 
@@ -25,7 +25,7 @@ For a non-React package, omit `reactConfig`.
 
 ## Intentionally Excluded
 
-These rules stay in the root monorepo orchestrator because they depend on repo-specific architecture or paths:
+These rules stay in the root monorepo orchestrator (`eslint.config.mjs`) because they depend on repo-specific architecture or paths:
 
 - `arcagentic/no-duplicate-exported-types`
 - `arcagentic/package-layer-boundaries`
