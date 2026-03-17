@@ -4,6 +4,8 @@ import {
   reactConfig,
   testConfig,
   tsConfig,
+  sourceFiles,
+  testFiles,
 } from './config/eslint/base.mjs';
 import arcagentic from './config/eslint/arcAgentic-eslint-plugin.mjs';
 
@@ -31,16 +33,6 @@ const sourceAndTestImportRules = {
   ],
 };
 
-const sourceFiles = ['packages/*/src/**/*.{ts,tsx,js}', 'apps/*/src/**/*.{ts,tsx,js}'];
-
-const testFiles = [
-  'packages/*/test/**/*.{ts,tsx,js}',
-  'packages/*/src/**/*.{test,spec}.{ts,tsx,js}',
-  'packages/*/src/**/__tests__/**/*.{ts,tsx,js}',
-  'apps/*/test/**/*.{ts,tsx,js}',
-  'apps/*/src/**/*.{test,spec}.{ts,tsx,js}',
-  'apps/*/src/**/__tests__/**/*.{ts,tsx,js}',
-];
 
 const sharedArcagenticRules = {
   'arcagentic/no-duplicate-exported-types': [
