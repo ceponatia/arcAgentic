@@ -139,6 +139,7 @@ export default [
               message:
                 'This package should not import @arcagentic/db directly. Use services/retrieval layer.',
             },
+            ...portableImportPatterns,
             ...monorepoImportPatterns,
           ],
         },
