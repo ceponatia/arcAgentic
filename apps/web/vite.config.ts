@@ -10,6 +10,27 @@ import rehypeSlug from 'rehype-slug';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const packagesDir = path.resolve(__dirname, '../../packages');
 
+const FRAMEWORK_CHUNK_PATTERNS = ['/react/', '/react-dom/', '/zustand/', '/@preact/signals-react/'];
+const FLOW_CHUNK_PATTERNS = ['/@xyflow/'];
+const MARKDOWN_CHUNK_PATTERNS = [
+  '/@mdx-js/',
+  '/react-markdown/',
+  '/rehype-',
+  '/remark-',
+  '/unified/',
+  '/micromark/',
+  '/mdast-',
+  '/hast-',
+  '/unist-',
+  '/vfile/',
+  '/lowlight/',
+  '/highlight.js/',
+];
+
+function matchesChunkPattern(id: string, patterns: readonly string[]): boolean {
+  return patterns.some((pattern) => id.includes(pattern));
+}
+
 export default defineConfig(() => {
   const apiTarget = process.env['VITE_API_BASE_URL'] ?? 'http://localhost:3001';
   return {
@@ -83,12 +104,9 @@ export default defineConfig(() => {
           manualChunks(id) {
             if (!id.includes('node_modules')) return;
 
-            if (id.includes('/react/') || id.includes('/react-dom/')) return 'vendor-react';
-            if (id.includes('/@xyflow/')) return 'vendor-xyflow';
-            if (id.includes('/@tanstack/')) return 'vendor-tanstack';
-            if (id.includes('/zustand/')) return 'vendor-zustand';
-
-            return 'vendor';
+            if (matchesChunkPattern(id, FRAMEWORK_CHUNK_PATTERNS)) return 'vendor-framework';
+            if (matchesChunkPattern(id, FLOW_CHUNK_PATTERNS)) return 'vendor-xyflow';
+            if (matchesChunkPattern(id, MARKDOWN_CHUNK_PATTERNS)) return 'vendor-markdown';
           },
         },
       },

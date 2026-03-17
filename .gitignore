@@ -52,7 +52,7 @@ data/*
 /playwright/.cache/
 
 #Ignore windsurf AI rules
-.windsurfrules
+.windsurf/
 
 #Ignore insiders AI rules
 .github/instructions/codacy.instructions.md

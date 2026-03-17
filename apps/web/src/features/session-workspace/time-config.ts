@@ -31,7 +31,11 @@ function clamp(value: number, min: number, max: number): number {
 function sanitizeTimeConfig(timeConfig: unknown): TimeConfig {
   const parsed = SettingProfileSchema.shape.timeConfig.safeParse(timeConfig);
 
-  return parsed.success ? parsed.data : DEFAULT_TIME_CONFIG;
+  if (!parsed.success || parsed.data === undefined) {
+    return DEFAULT_TIME_CONFIG;
+  }
+
+  return parsed.data as TimeConfig;
 }
 
 export function resolveTimeConfig(settingProfile: SettingProfile | null): TimeConfig {

@@ -43,11 +43,11 @@ export type {
   WorkspaceMode,
 };
 
-type CharactersListResponse = {
+interface CharactersListResponse {
   ok: boolean;
   characters?: CharacterSummary[];
   total?: number;
-};
+}
 
 interface TurnEndpointResponse {
   message: string;
@@ -70,7 +70,6 @@ interface SettingResponse {
   setting?: SettingProfile;
   error?: string;
 }
-
 
 interface HttpOptions extends RequestInit {
   signal?: AbortSignal;

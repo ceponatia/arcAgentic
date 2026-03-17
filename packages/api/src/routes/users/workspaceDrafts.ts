@@ -50,7 +50,7 @@ export function registerWorkspaceDraftRoutes(app: Hono): void {
       return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
     }
 
-    let userId: string;
+    let userId: string | null;
     try {
       userId = getPrincipalIdentifier(c);
     } catch {
@@ -82,7 +82,7 @@ export function registerWorkspaceDraftRoutes(app: Hono): void {
     const idResult = validateParamId(c);
     if (!idResult.success) return idResult.errorResponse;
     const id = idResult.data;
-    let userId: string;
+    let userId: string | null;
     try {
       userId = getPrincipalIdentifier(c);
     } catch {
@@ -114,7 +114,7 @@ export function registerWorkspaceDraftRoutes(app: Hono): void {
       return c.json({ ok: false, error: 'Unauthorized' } satisfies ApiError, 401);
     }
 
-    let userId: string | undefined;
+    let userId: string | null;
     try {
       userId = getPrincipalIdentifier(c);
     } catch {
@@ -154,7 +154,7 @@ export function registerWorkspaceDraftRoutes(app: Hono): void {
     const idResult = validateParamId(c);
     if (!idResult.success) return idResult.errorResponse;
     const id = idResult.data;
-    let userId: string | undefined;
+    let userId: string | null;
     try {
       userId = getPrincipalIdentifier(c);
     } catch {
