@@ -2,5 +2,31 @@ packages:
   - packages/*
   - apps/*
 
+catalog:
+  # Build tooling
+  typescript: ^5.9.3
+  "@types/node": ^24.10.1
+  "@types/pg": ^8.16.0
+  rimraf: ^6.1.2
+  tsx: ^4.20.6
+
+  # Shared runtime
+  zod: ^4.1.12
+  drizzle-orm: ^0.45.1
+  drizzle-kit: ^0.31.8
+  fast-json-patch: ^3.1.1
+  effect: 3.10.13
+  ioredis: ^5.4.1
+  pg: ^8.16.3
+  dotenv: ^17.2.3
+
+  # Frontend
+  react: ^19.2.0
+  react-dom: ^19.2.0
+  "@types/react": ^19.2.5
+  "@types/react-dom": ^19.2.3
+  tailwindcss: ^3.4.14
+  "@vitejs/plugin-react": ^5.1.2
+
 onlyBuiltDependencies:
   - esbuild

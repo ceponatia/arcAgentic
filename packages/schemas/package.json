@@ -29,7 +29,11 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "zod": "^4.1.12"
+    "zod": "catalog:"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "rimraf": "catalog:",
+    "typescript": "catalog:"
+  }
 }

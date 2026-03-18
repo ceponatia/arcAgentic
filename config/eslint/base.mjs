@@ -15,7 +15,7 @@ const toolingFiles = [
   'apps/*/vite.config.ts',
 ];
 
-const sourceFiles = [
+export const sourceFiles = [
   'src/**/*.{ts,tsx,js}',
   'packages/*/src/**/*.{ts,tsx,js}',
   'apps/*/src/**/*.{ts,tsx,js}',
@@ -27,7 +27,7 @@ const reactFiles = [
   'apps/*/src/**/*.{ts,tsx}',
 ];
 
-const testFiles = [
+export const testFiles = [
   'test/**/*.{ts,tsx,js}',
   'src/**/*.{test,spec}.{ts,tsx,js}',
   'src/**/__tests__/**/*.{ts,tsx,js}',

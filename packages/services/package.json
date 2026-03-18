@@ -22,12 +22,12 @@
     "@arcagentic/db": "workspace:*",
     "@arcagentic/llm": "workspace:*",
     "@arcagentic/schemas": "workspace:*",
-    "effect": "3.10.13",
-    "zod": "^3.23.8"
+    "effect": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
-    "@types/node": "^22.10.1",
-    "rimraf": "^6.1.2",
-    "typescript": "^5.6.3"
+    "@types/node": "catalog:",
+    "rimraf": "catalog:",
+    "typescript": "catalog:"
   }
 }

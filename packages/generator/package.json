@@ -21,6 +21,8 @@
     "@arcagentic/schemas": "workspace:*"
   },
   "devDependencies": {
-    "typescript": "^5.4.0"
+    "@types/node": "catalog:",
+    "rimraf": "catalog:",
+    "typescript": "catalog:"
   }
 }

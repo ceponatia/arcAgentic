@@ -21,12 +21,12 @@
     "@arcagentic/bus": "workspace:*",
     "@arcagentic/llm": "workspace:*",
     "@arcagentic/schemas": "workspace:*",
-    "effect": "3.10.13",
+    "effect": "catalog:",
     "xstate": "^5.18.2"
   },
   "devDependencies": {
-    "@types/node": "^22.10.1",
-    "rimraf": "^6.1.2",
-    "typescript": "^5.6.3"
+    "@types/node": "catalog:",
+    "rimraf": "catalog:",
+    "typescript": "catalog:"
   }
 }

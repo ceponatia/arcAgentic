@@ -12,53 +12,35 @@
     "test": "turbo run test",
     "typecheck": "turbo run typecheck"
   },
-  "dependencies": {
-    "drizzle-orm": "^0.45.1",
-    "fast-json-patch": "3.1.1",
-    "pg": "^8.16.3",
-    "zod": "^4.1.12"
-  },
   "devDependencies": {
     "@commitlint/cli": "^20.2.0",
     "@commitlint/config-conventional": "^20.2.0",
     "@eslint/js": "^9.39.1",
-    "@types/node": "^24.10.1",
-    "@types/pg": "^8.16.0",
-    "add": "^2.0.6",
-    "dotenv": "^17.2.3",
-    "drizzle-kit": "^0.31.8",
+    "@types/node": "catalog:",
+    "dotenv": "catalog:",
+    "drizzle-orm": "catalog:",
+    "drizzle-kit": "catalog:",
     "eslint": "^9.39.1",
+    "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-security": "^3.0.1",
+    "fast-json-patch": "catalog:",
     "glob": "^13.0.0",
-    "pnpm": "^10.28.2",
-    "rimraf": "^6.1.2",
-    "sucrase": "^3.35.1",
-    "tsx": "^4.20.6",
+    "pg": "catalog:",
+    "rimraf": "catalog:",
+    "tsx": "catalog:",
     "turbo": "^2.8.3",
-    "typescript": "^5.9.3",
-    "typescript-eslint": "^8.46.4"
+    "typescript": "catalog:",
+    "typescript-eslint": "^8.46.4",
+    "zod": "catalog:"
   },
   "pnpm": {
     "patchedDependencies": {
       "openai@6.17.0": "patches/openai@6.17.0.patch"
     },
     "overrides": {
-      "@isaacs/brace-expansion": "5.0.1",
-      "@commitlint/config-validator>ajv": "8.18.0",
-      "@eslint/config-array>minimatch": "3.1.5",
-      "@eslint/eslintrc>ajv": "6.14.0",
-      "@eslint/eslintrc>minimatch": "3.1.5",
-      "eslint>ajv": "6.14.0",
-      "eslint>minimatch": "3.1.5",
-      "glob": "13.0.0",
-      "glob>minimatch": "10.2.4",
-      "lodash": "4.17.23",
-      "markdown-it": "14.1.1",
-      "rollup": "4.59.0",
-      "table>ajv": "8.18.0",
-      "@typescript-eslint/typescript-estree>minimatch": "9.0.9",
-      "@esbuild-kit/core-utils>esbuild": "0.25.12"
+      "flatted": ">=3.4.0",
+      "lodash": "4.17.23"
     }
   },
   "packageManager": "pnpm@10.28.2+sha512.41872f037ad22f7348e3b1debbaf7e867cfd448f2726d9cf74c08f19507c31d2c8e7a11525b983febc2df640b5438dee6023ebb1f84ed43cc2d654d2bc326264"

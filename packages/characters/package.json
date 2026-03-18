@@ -21,7 +21,12 @@
     "@arcagentic/retrieval": "workspace:*",
     "@arcagentic/schemas": "workspace:*",
     "@arcagentic/utils": "workspace:*",
-    "fast-json-patch": "^3.1.1"
+    "fast-json-patch": "catalog:",
+    "zod": "catalog:"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "rimraf": "catalog:",
+    "typescript": "catalog:"
+  }
 }
