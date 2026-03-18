@@ -32,6 +32,8 @@
     "turbo": "^2.8.3",
     "typescript": "catalog:",
     "typescript-eslint": "^8.46.4",
+    "vitest": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
     "zod": "catalog:"
   },
   "pnpm": {

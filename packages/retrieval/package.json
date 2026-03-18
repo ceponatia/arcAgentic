@@ -9,12 +9,11 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
   "scripts": {
     "build": "tsc -b",
     "clean": "rimraf dist node_modules/.cache/tsbuildinfo",
     "lint": "eslint src --cache --cache-location node_modules/.cache/eslint",
+    "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {

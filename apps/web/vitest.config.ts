@@ -1,18 +1,18 @@
-import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import react from '@vitejs/plugin-react';
+import { defineConfig, mergeConfig } from 'vitest/config';
+import baseConfig from '../../config/vitest/base.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const resolveFromRoot = (relativePath: string) => resolve(__dirname, relativePath);
 
-export default defineConfig({
+export default mergeConfig(baseConfig, defineConfig({
   plugins: [react()],
   test: {
     environment: 'jsdom',
-    globals: true,
     include: ['src/**/*.test.{ts,tsx}', 'test/**/*.test.{ts,tsx}'],
   },
   resolve: {
@@ -22,4 +22,4 @@ export default defineConfig({
       '@arcagentic/utils': resolveFromRoot('../../packages/utils/src'),
     },
   },
-});
+}));

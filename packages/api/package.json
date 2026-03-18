@@ -14,6 +14,7 @@
     "clean": "rimraf dist node_modules/.cache/tsbuildinfo",
     "dev": "tsx watch src/server.ts",
     "lint": "eslint src --cache --cache-location node_modules/.cache/eslint",
+    "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {

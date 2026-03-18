@@ -9,6 +9,8 @@ catalog:
   "@types/pg": ^8.16.0
   rimraf: ^6.1.2
   tsx: ^4.20.6
+  vitest: ^4.1.0
+  "@vitest/coverage-v8": ^4.1.0
 
   # Shared runtime
   zod: ^4.1.12

@@ -8,6 +8,7 @@
     "clean": "rimraf dist node_modules/.cache/tsbuildinfo",
     "dev": "vite",
     "lint": "eslint src --cache --cache-location node_modules/.cache/eslint",
+    "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
