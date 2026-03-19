@@ -8,6 +8,7 @@ import type {
   LLMStreamChunk,
 } from '../types.js';
 import { getOpenRouterEnvSettings, type OpenRouterEnvConfig } from '../config.js';
+import { mapMessagesToOpenAI } from './message-mapping.js';
 import type { ToolCall } from '@arcagentic/schemas';
 
 export interface ProviderRouting {
@@ -47,45 +48,9 @@ export class OpenAIProvider implements LLMProvider {
   chat(messages: LLMMessage[], options?: ChatOptions): Effect.Effect<LLMResponse, Error> {
     return Effect.tryPromise({
       try: async () => {
-        type OpenAIMessageParam = OpenAI.Chat.Completions.ChatCompletionMessageParam;
         type OpenAICreateParams = OpenAI.Chat.Completions.ChatCompletionCreateParamsNonStreaming;
 
-        const openAIMessages: OpenAIMessageParam[] = messages.map((message): OpenAIMessageParam => {
-          switch (message.role) {
-            case 'tool': {
-              return {
-                role: 'tool',
-                content: message.content ?? '',
-                tool_call_id: message.tool_call_id ?? '',
-              };
-            }
-
-            case 'assistant': {
-              return {
-                role: 'assistant',
-                content: message.content,
-                ...(typeof message.name === 'string' ? { name: message.name } : {}),
-                ...(message.tool_calls ? { tool_calls: message.tool_calls } : {}),
-              };
-            }
-
-            case 'system': {
-              return {
-                role: 'system',
-                content: message.content ?? '',
-                ...(typeof message.name === 'string' ? { name: message.name } : {}),
-              };
-            }
-
-            case 'user': {
-              return {
-                role: 'user',
-                content: message.content ?? '',
-                ...(typeof message.name === 'string' ? { name: message.name } : {}),
-              };
-            }
-          }
-        });
+        const openAIMessages = mapMessagesToOpenAI(messages);
 
         const temperature = options?.temperature;
         const maxTokens = options?.max_tokens;
@@ -153,46 +118,10 @@ export class OpenAIProvider implements LLMProvider {
   ): Effect.Effect<AsyncIterable<LLMStreamChunk>, Error> {
     return Effect.tryPromise({
       try: async () => {
-        type OpenAIMessageParam = OpenAI.Chat.Completions.ChatCompletionMessageParam;
         type OpenAICreateParamsStreaming =
           OpenAI.Chat.Completions.ChatCompletionCreateParamsStreaming;
 
-        const openAIMessages: OpenAIMessageParam[] = messages.map((message): OpenAIMessageParam => {
-          switch (message.role) {
-            case 'tool': {
-              return {
-                role: 'tool',
-                content: message.content ?? '',
-                tool_call_id: message.tool_call_id ?? '',
-              };
-            }
-
-            case 'assistant': {
-              return {
-                role: 'assistant',
-                content: message.content,
-                ...(typeof message.name === 'string' ? { name: message.name } : {}),
-                ...(message.tool_calls ? { tool_calls: message.tool_calls } : {}),
-              };
-            }
-
-            case 'system': {
-              return {
-                role: 'system',
-                content: message.content ?? '',
-                ...(typeof message.name === 'string' ? { name: message.name } : {}),
-              };
-            }
-
-            case 'user': {
-              return {
-                role: 'user',
-                content: message.content ?? '',
-                ...(typeof message.name === 'string' ? { name: message.name } : {}),
-              };
-            }
-          }
-        });
+        const openAIMessages = mapMessagesToOpenAI(messages);
 
         const temperature = options?.temperature;
         const maxTokens = options?.max_tokens;

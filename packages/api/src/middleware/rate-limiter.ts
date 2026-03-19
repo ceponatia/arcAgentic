@@ -1,4 +1,5 @@
 import type { Context, Next } from 'hono';
+import type { Redis } from 'ioredis';
 
 interface RateLimitEntry {
   count: number;
@@ -16,9 +17,28 @@ const DEFAULT_OPTIONS: RateLimiterOptions = {
   maxRequests: 120,
 };
 
+let sharedRedis: Redis | undefined;
+
 /**
- * Simple in-memory rate limiter middleware.
- * For production with multiple API instances, use Redis-backed rate limiting.
+ * Set the shared Redis instance for all rate limiters.
+ * When set, rate limiters use Redis-backed storage for distributed limiting.
+ * When not set, rate limiters fall back to in-memory storage.
+ */
+export function initRateLimiterRedis(client: Redis): void {
+  sharedRedis = client;
+}
+
+const RATE_LIMIT_SCRIPT = `
+local count = redis.call('INCR', KEYS[1])
+if count == 1 then
+  redis.call('PEXPIRE', KEYS[1], ARGV[1])
+end
+return count
+`;
+
+/**
+ * Rate limiter middleware with Redis-backed storage when available,
+ * falling back to in-memory storage for tests and development.
  */
 export function createRateLimiter(options?: Partial<RateLimiterOptions>) {
   const config = { ...DEFAULT_OPTIONS, ...options };
@@ -39,28 +59,55 @@ export function createRateLimiter(options?: Partial<RateLimiterOptions>) {
 
   return async (c: Context, next: Next): Promise<Response | void> => {
     const key = config.keyGenerator?.(c) ?? getDefaultKey(c);
-    const now = Date.now();
 
-    let entry = store.get(key);
-    if (!entry || entry.resetAt <= now) {
-      entry = { count: 0, resetAt: now + config.windowMs };
-      store.set(key, entry);
-    }
+    if (sharedRedis) {
+      const redisKey = `ratelimit:${key}`;
+      const count = (await sharedRedis.eval(
+        RATE_LIMIT_SCRIPT,
+        1,
+        redisKey,
+        String(config.windowMs)
+      )) as number;
+      const pttl = await sharedRedis.pttl(redisKey);
+      const resetAt = Date.now() + Math.max(pttl, 0);
 
-    entry.count++;
+      c.header('X-RateLimit-Limit', String(config.maxRequests));
+      c.header('X-RateLimit-Remaining', String(Math.max(0, config.maxRequests - count)));
+      c.header('X-RateLimit-Reset', String(Math.ceil(resetAt / 1000)));
 
-    c.header('X-RateLimit-Limit', String(config.maxRequests));
-    c.header('X-RateLimit-Remaining', String(Math.max(0, config.maxRequests - entry.count)));
-    c.header('X-RateLimit-Reset', String(Math.ceil(entry.resetAt / 1000)));
+      if (count > config.maxRequests) {
+        return c.json(
+          {
+            error: 'Too many requests',
+            retryAfter: Math.ceil(Math.max(pttl, 0) / 1000),
+          },
+          429
+        );
+      }
+    } else {
+      const now = Date.now();
 
-    if (entry.count > config.maxRequests) {
-      return c.json(
-        {
-          error: 'Too many requests',
-          retryAfter: Math.ceil((entry.resetAt - now) / 1000),
-        },
-        429
-      );
+      let entry = store.get(key);
+      if (!entry || entry.resetAt <= now) {
+        entry = { count: 0, resetAt: now + config.windowMs };
+        store.set(key, entry);
+      }
+
+      entry.count++;
+
+      c.header('X-RateLimit-Limit', String(config.maxRequests));
+      c.header('X-RateLimit-Remaining', String(Math.max(0, config.maxRequests - entry.count)));
+      c.header('X-RateLimit-Reset', String(Math.ceil(entry.resetAt / 1000)));
+
+      if (entry.count > config.maxRequests) {
+        return c.json(
+          {
+            error: 'Too many requests',
+            retryAfter: Math.ceil((entry.resetAt - now) / 1000),
+          },
+          429
+        );
+      }
     }
 
     await next();

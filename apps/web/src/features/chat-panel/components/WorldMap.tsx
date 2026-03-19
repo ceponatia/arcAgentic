@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSignals } from '@preact/signals-react/runtime';
-import { activeActors, actorStates } from '../../signals/actors.js';
-import { currentTick } from '../../signals/session.js';
+import { activeActors, actorStates } from '../../../signals/actors.js';
+import { currentTick } from '../../../signals/session.js';
 
 function getActorState<T extends Record<string, unknown>>(
   record: T,

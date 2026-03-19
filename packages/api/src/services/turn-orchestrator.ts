@@ -2,7 +2,7 @@ import { CharacterProfileSchema, type CharacterProfile, type Intent, type WorldE
 import type { LLMProvider } from '@arcagentic/llm';
 import { CognitionLayer, type CognitionContext } from '@arcagentic/actors';
 import { worldBus } from '@arcagentic/bus';
-import { timeService } from '@arcagentic/services';
+import { tickEmitter } from '@arcagentic/services';
 import { getActorState, getEntityProfile } from '@arcagentic/db/node';
 import { isUuid, toId, toSessionId } from '../utils/uuid.js';
 
@@ -162,7 +162,7 @@ export class TurnOrchestrator {
       return;
     }
 
-    await timeService.emitTick();
+    await tickEmitter.emitTick();
 
     // TODO: Replace with a session-aware time service when available.
     void sessionId;

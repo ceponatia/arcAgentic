@@ -19,7 +19,7 @@ This package replays persisted `WorldEvent`s from `@arcagentic/db` into in-memor
 Typical server-side flow (see `@arcagentic/api`):
 
 ```ts
-import { ProjectionManager } from '@arcagentic/projections';
+import { ProjectionManager } from "@arcagentic/projections";
 
 const manager = new ProjectionManager(sessionId);
 await manager.init(); // loads snapshots + replays missing events
@@ -45,7 +45,6 @@ Entry point: `src/index.ts` exports:
   - `Projection<S>`
   - `ReplayOptions`
   - `SnapshotHeader`, `EventBatch`
-  - `StateChangeSource`, `StateSnapshot<T>`
 - **Classes**
   - `Projector<S>` (from `src/projector.ts`)
   - `ProjectionManager` (from `src/manager.ts`)

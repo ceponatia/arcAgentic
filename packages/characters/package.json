@@ -17,7 +17,6 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@arcagentic/retrieval": "workspace:*",
     "@arcagentic/schemas": "workspace:*",
     "@arcagentic/utils": "workspace:*",
     "fast-json-patch": "catalog:",

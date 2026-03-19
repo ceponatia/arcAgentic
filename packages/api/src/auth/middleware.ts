@@ -2,7 +2,7 @@ import type { Context, Next } from 'hono';
 import type { ApiError } from '../types.js';
 import type { AuthUser } from './types.js';
 import { getAuthSecret, verifyAuthToken } from './token.js';
-import { getEnvCsv, getEnvFlag } from '../utils/env.js';
+import { getEnvCsv, getEnvFlag, getEnvValue } from '../utils/env.js';
 
 const AUTH_CONTEXT_KEY = 'authUser';
 
@@ -58,18 +58,29 @@ export async function attachAuthUser(c: Context, next: Next): Promise<void> {
 
   // Bypass auth if configured (dev only)
   if (getEnvFlag('BYPASS_AUTH')) {
-    c.set(AUTH_CONTEXT_KEY as never, {
-      identifier: 'dev-admin',
-      role: 'admin',
-      email: 'admin@example.com',
-    } satisfies AuthUser);
+    if (isBypassAuthAllowed()) {
+      c.set(AUTH_CONTEXT_KEY as never, {
+        identifier: 'dev-admin',
+        role: 'admin',
+        email: 'admin@example.com',
+      } satisfies AuthUser);
+    } else {
+      console.warn(
+        '[auth] BYPASS_AUTH is set but NODE_ENV is not "development". Auth bypass is disabled in non-development environments.'
+      );
+    }
   }
 
   await next();
 }
 
+function isBypassAuthAllowed(): boolean {
+  const nodeEnv = getEnvValue('NODE_ENV');
+  return !nodeEnv || nodeEnv === 'development';
+}
+
 function isAuthRequired(): boolean {
-  if (getEnvFlag('BYPASS_AUTH')) {
+  if (getEnvFlag('BYPASS_AUTH') && isBypassAuthAllowed()) {
     return false;
   }
 

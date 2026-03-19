@@ -21,3 +21,14 @@ This package should remain focused on mechanics and service orchestration. Avoid
 - **schemas**: Shared Zod schemas and domain types for inputs/outputs
 - **db**: Persistence for event logs, snapshots, and state when required
 - **governor** / **agents**: Producers/consumers of intents and effects
+
+## Time Subsystem
+
+The `src/time/` directory contains the in-process tick and scheduling system:
+
+- **TickEmitter** (`tick-emitter.ts`) — emits `TICK` events to the WorldBus on a configurable timer interval. Used as the tick source for single-instance and development deployments. The server starts it via `tickEmitter.start(5000)`.
+- **Scheduler** (`scheduler.ts`) — subscribes to `TICK` events on the WorldBus and processes NPC schedules for all active sessions. Emits `MOVE_INTENT` and `NPC_ACTIVITY_CHANGED` events when NPC locations or activities change.
+- **schedule-service.ts** — pure functions for resolving NPC schedules at a given game time. Used by the Scheduler but also available independently.
+- **types.ts** — shared type definitions for schedule resolution.
+
+For production multi-instance deployments, the BullMQ-based Scheduler in `@arcagentic/workers` replaces `TickEmitter` as the tick source, providing per-session Redis-backed scheduling with horizontal scaling. The services `Scheduler` still processes the resulting tick events regardless of source.

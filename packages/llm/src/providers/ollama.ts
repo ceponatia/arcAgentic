@@ -1,6 +1,7 @@
 import { Effect } from 'effect';
 import { OpenAI } from 'openai';
 import type { ChatOptions, LLMMessage, LLMProvider, LLMResponse, LLMStreamChunk } from '../types.js';
+import { mapMessagesSimple } from './message-mapping.js';
 
 export interface OllamaProviderConfig {
   id: string;
@@ -28,22 +29,9 @@ export class OllamaProvider implements LLMProvider {
   chat(messages: LLMMessage[], options?: ChatOptions): Effect.Effect<LLMResponse, Error> {
     return Effect.tryPromise({
       try: async () => {
-        type OpenAIMessageParam = OpenAI.Chat.Completions.ChatCompletionMessageParam;
         type OpenAICreateParams = OpenAI.Chat.Completions.ChatCompletionCreateParamsNonStreaming;
 
-        const openAIMessages: OpenAIMessageParam[] = messages.map((message): OpenAIMessageParam => {
-          switch (message.role) {
-            case 'assistant':
-              return { role: 'assistant', content: message.content ?? '' };
-            case 'system':
-              return { role: 'system', content: message.content ?? '' };
-            case 'user':
-              return { role: 'user', content: message.content ?? '' };
-            case 'tool':
-              // Ollama does not support tool messages; drop them
-              return { role: 'assistant', content: message.content ?? '' };
-          }
-        });
+        const openAIMessages = mapMessagesSimple(messages);
 
         const temperature = options?.temperature;
         const maxTokens = options?.max_tokens;
@@ -85,22 +73,9 @@ export class OllamaProvider implements LLMProvider {
   stream(messages: LLMMessage[], options?: ChatOptions): Effect.Effect<AsyncIterable<LLMStreamChunk>, Error> {
     return Effect.tryPromise({
       try: async () => {
-        type OpenAIMessageParam = OpenAI.Chat.Completions.ChatCompletionMessageParam;
         type OpenAICreateParamsStreaming = OpenAI.Chat.Completions.ChatCompletionCreateParamsStreaming;
 
-        const openAIMessages: OpenAIMessageParam[] = messages.map((message): OpenAIMessageParam => {
-          switch (message.role) {
-            case 'assistant':
-              return { role: 'assistant', content: message.content ?? '' };
-            case 'system':
-              return { role: 'system', content: message.content ?? '' };
-            case 'user':
-              return { role: 'user', content: message.content ?? '' };
-            case 'tool':
-              // Ollama does not support tool messages; drop them
-              return { role: 'assistant', content: message.content ?? '' };
-          }
-        });
+        const openAIMessages = mapMessagesSimple(messages);
 
         const temperature = options?.temperature;
         const maxTokens = options?.max_tokens;

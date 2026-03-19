@@ -58,17 +58,6 @@ export const promptTags = pgTable('prompt_tags', {
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
-export const plugins = pgTable('plugins', {
-  id: text('id').primaryKey(),
-  name: text('name').notNull(),
-  version: text('version').notNull(),
-  description: text('description'),
-  manifest: jsonb('manifest').notNull(),
-  enabled: boolean('enabled').default(true),
-  installedAt: timestamp('installed_at', { withTimezone: true }).defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
-});
-
 // =============================================================================
 // 002_WORLD
 // =============================================================================
@@ -248,27 +237,6 @@ export const sessionProjections = pgTable('session_projections', {
   lastEventSeq: bigint('last_event_seq', { mode: 'bigint' }).notNull().default(0n),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
-
-export const sessionPluginState = pgTable(
-  'session_plugin_state',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    sessionId: uuid('session_id')
-      .notNull()
-      .references(() => sessions.id, { onDelete: 'cascade' }),
-    pluginId: text('plugin_id')
-      .notNull()
-      .references(() => plugins.id, { onDelete: 'cascade' }),
-    stateJson: jsonb('state_json').notNull().default({}),
-    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
-  },
-  (table) => {
-    return {
-      sessionPluginUnique: unique().on(table.sessionId, table.pluginId),
-    };
-  }
-);
 
 export * from './faction.js';
 

@@ -22,10 +22,6 @@ import type {
   CreateTagRequest,
   UpdateTagRequest,
   EntityUsageSummary,
-  DbColumn,
-  DbTableOverview,
-  DbRelationOverview,
-  DbOverview,
   UserPreferences,
   WorkspaceMode,
 } from '@arcagentic/schemas';
@@ -35,10 +31,6 @@ import type { AuthLoginResponse, AuthMeResponse } from '../auth/types.js';
 
 export type {
   EntityUsageSummary,
-  DbColumn,
-  DbTableOverview,
-  DbRelationOverview,
-  DbOverview,
   UserPreferences,
   WorkspaceMode,
 };
@@ -542,52 +534,6 @@ export async function deleteSetting(settingId: string, signal?: AbortSignal): Pr
     method: 'DELETE',
     ...(signal && { signal }),
   });
-}
-
-export async function getDbOverview(signal?: AbortSignal): Promise<DbOverview> {
-  return http<DbOverview>('/admin/db/overview', signal ? { signal } : undefined);
-}
-
-export async function deleteDbRow(model: string, id: string, signal?: AbortSignal): Promise<void> {
-  await http<void>(`/admin/db/${encodeURIComponent(model)}/${encodeURIComponent(id)}`, {
-    method: 'DELETE',
-    ...(signal && { signal }),
-    timeoutMs: 15000,
-  });
-}
-
-export interface ToolingFailureEventDto {
-  type: 'tooling-failure';
-  timestamp: string | null;
-  payload: Record<string, unknown>;
-  source?: string;
-}
-
-export interface ToolingFailureEntryDto {
-  turnIdx: number;
-  createdAt: string;
-  playerInput: string;
-  events: ToolingFailureEventDto[];
-}
-
-export interface ToolingFailuresResponseDto {
-  ok: true;
-  sessionId: string;
-  limit: number;
-  count: number;
-  failures: ToolingFailureEntryDto[];
-}
-
-export async function getToolingFailures(
-  sessionId: string,
-  limit = 50,
-  signal?: AbortSignal
-): Promise<ToolingFailuresResponseDto> {
-  const qs = new URLSearchParams({ limit: String(limit) });
-  return http<ToolingFailuresResponseDto>(
-    `/admin/sessions/${encodeURIComponent(sessionId)}/tooling-failures?${qs.toString()}`,
-    signal ? { signal } : undefined
-  );
 }
 
 export async function getCharacter(

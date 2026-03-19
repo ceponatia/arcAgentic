@@ -43,25 +43,3 @@ export interface ReplayOptions {
   fastForward?: boolean;
   batchSize?: number;
 }
-
-/**
- * Metadata for state changes, identifying the initiator.
- * Reused from legacy state-manager.
- */
-export type StateChangeSource =
-  | { type: 'agent'; agentType: string }
-  | { type: 'user'; userId?: string }
-  | { type: 'system'; reason: string };
-
-/**
- * A complete state container used for persistence and audit trails.
- * Reused from legacy state-manager.
- */
-export interface StateSnapshot<T> {
-  baseline: T; // The immutable template
-  overrides: Partial<T>; // Current session-specific modifications
-  effective: T; // The final computed state (merged)
-  createdAt: Date;
-  sequence: bigint; // Sequence number from the event log
-  version: number; // Version for optimistic concurrency
-}

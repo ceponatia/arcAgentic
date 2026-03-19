@@ -22,8 +22,9 @@ import {
   getSessionMessages,
 } from "../../shared/api/client.js";
 import { ChatView, type ChatViewMessage } from "@arcagentic/ui";
-import { DebugSidebar } from "../chat/components/index.js";
-import { WorldMap, EventLog } from "../game/index.js";
+import { DebugSidebar } from "./components/DebugSidebar.js";
+import { WorldMap } from "./components/WorldMap.js";
+import { EventLog } from "./components/EventLog.js";
 import { useWorldBus } from "../../hooks/useWorldBus.js";
 import { useSessionHeartbeat } from "../../hooks/useSessionHeartbeat.js";
 import { GOVERNOR_DEV_MODE } from "../../config.js";

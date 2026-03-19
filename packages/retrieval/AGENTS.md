@@ -4,6 +4,12 @@
 
 Knowledge retrieval and semantic search. Converts profile JSON into knowledge nodes, scores them against queries, and returns ranked context for turns.
 
+## Status: Experimental
+
+This package is not currently consumed by any other package in the monorepo. The embedding worker (`@arcagentic/workers`) is still a mock implementation. The design (knowledge nodes, scoring, extraction, sensory modifiers) is sound but not yet integrated into active code paths.
+
+Listed as a dependency in `@arcagentic/api` and `@arcagentic/characters` but neither imports from it — these are phantom dependencies.
+
 ## Scope
 
 - Knowledge node extraction from character/setting profiles

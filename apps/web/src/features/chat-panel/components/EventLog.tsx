@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSignals } from '@preact/signals-react/runtime';
-import { eventLog } from '../../signals/events.js';
-import type { StreamEvent } from '../../types.js';
+import { eventLog } from '../../../signals/events.js';
+import type { StreamEvent } from '../../../types.js';
 
 function toDate(value: StreamEvent['timestamp']): Date | null {
   if (value instanceof Date) return value;

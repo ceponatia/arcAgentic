@@ -25,12 +25,14 @@ import streamRouter from './routes/stream.js';
 import { attachAuthUser, requireAuthIfEnabled } from './auth/middleware.js';
 import {
   worldBus,
+  redis,
   telemetryMiddleware,
   persistenceMiddleware,
   registerPersistenceHandler,
 } from '@arcagentic/bus';
 import { persistWorldEvent } from './services/event-persistence.js';
 import { rulesEngine, Scheduler, tickEmitter } from '@arcagentic/services';
+import { initRateLimiterRedis } from './middleware/rate-limiter.js';
 
 const app = new Hono();
 
@@ -57,6 +59,7 @@ let loaded: LoadedData | undefined = undefined;
 export async function startServer(): Promise<void> {
   try {
     initializeWorldBus();
+    initRateLimiterRedis(redis);
     rulesEngine.start();
     Scheduler.start();
     tickEmitter.start(5000);
@@ -121,6 +124,29 @@ export async function startServer(): Promise<void> {
   app.route('/stream', streamRouter);
 
   const port = cfg.port;
-  serve({ fetch: app.fetch, port, hostname: '0.0.0.0' });
+  const server = serve({ fetch: app.fetch, port, hostname: '0.0.0.0' });
   console.info(`API server listening on http://0.0.0.0:${port}`);
+
+  const shutdown = async (): Promise<void> => {
+    console.info('[server] Shutting down gracefully...');
+    tickEmitter.stop();
+
+    await new Promise<void>((resolve) => {
+      const timeout = setTimeout(() => {
+        console.warn('[server] Shutdown timeout - forcing exit');
+        resolve();
+      }, 10_000);
+
+      server.close(() => {
+        clearTimeout(timeout);
+        resolve();
+      });
+    });
+
+    console.info('[server] Shutdown complete');
+    process.exit(0);
+  };
+
+  process.on('SIGTERM', () => { void shutdown(); });
+  process.on('SIGINT', () => { void shutdown(); });
 }

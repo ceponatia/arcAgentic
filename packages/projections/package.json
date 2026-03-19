@@ -17,7 +17,6 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@arcagentic/bus": "workspace:*",
     "@arcagentic/db": "workspace:*",
     "@arcagentic/schemas": "workspace:*",
     "@arcagentic/utils": "workspace:*",

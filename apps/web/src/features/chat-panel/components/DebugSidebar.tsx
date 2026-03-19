@@ -1,13 +1,17 @@
-import React, { useState } from 'react';
-import type { TurnMetadata, AgentOutputWithType, PhaseTiming } from '../../../types.js';
+import React, { useState } from "react";
+import type {
+  TurnMetadata,
+  AgentOutputWithType,
+  PhaseTiming,
+} from "../../../types.js";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
+  return typeof value === "object" && value !== null;
 }
 
 function getRecordValue<T>(
   record: Record<string, unknown> | undefined,
-  key: string
+  key: string,
 ): T | undefined {
   if (!record) return undefined;
   const entry = Object.getOwnPropertyDescriptor(record, key);
@@ -16,13 +20,16 @@ function getRecordValue<T>(
 
 function getStringValue(
   record: Record<string, unknown> | undefined,
-  key: string
+  key: string,
 ): string | undefined {
   const value = getRecordValue<unknown>(record, key);
-  return typeof value === 'string' ? value : undefined;
+  return typeof value === "string" ? value : undefined;
 }
 
-function getBooleanValue(record: Record<string, boolean>, key: number): boolean {
+function getBooleanValue(
+  record: Record<string, boolean>,
+  key: number,
+): boolean {
   const entry = Object.getOwnPropertyDescriptor(record, String(key));
   return entry?.value === true;
 }
@@ -30,7 +37,7 @@ function getBooleanValue(record: Record<string, boolean>, key: number): boolean 
 function setBooleanValue(
   record: Record<string, boolean>,
   key: number,
-  value: boolean
+  value: boolean,
 ): Record<string, boolean> {
   const next = { ...record };
   Object.defineProperty(next, String(key), {
@@ -66,41 +73,44 @@ export interface DebugSidebarProps {
 }
 
 // Agent display configuration
-const AGENT_CONFIG: Record<string, { label: string; color: string; bgColor: string }> = {
+const AGENT_CONFIG: Record<
+  string,
+  { label: string; color: string; bgColor: string }
+> = {
   map: {
-    label: 'Map',
-    color: 'text-emerald-300',
-    bgColor: 'bg-emerald-950/40',
+    label: "Map",
+    color: "text-emerald-300",
+    bgColor: "bg-emerald-950/40",
   },
   npc: {
-    label: 'NPC',
-    color: 'text-violet-300',
-    bgColor: 'bg-violet-950/40',
+    label: "NPC",
+    color: "text-violet-300",
+    bgColor: "bg-violet-950/40",
   },
   rules: {
-    label: 'Rules',
-    color: 'text-amber-300',
-    bgColor: 'bg-amber-950/40',
+    label: "Rules",
+    color: "text-amber-300",
+    bgColor: "bg-amber-950/40",
   },
   parser: {
-    label: 'Parser',
-    color: 'text-sky-300',
-    bgColor: 'bg-sky-950/40',
+    label: "Parser",
+    color: "text-sky-300",
+    bgColor: "bg-sky-950/40",
   },
   sensory: {
-    label: 'Sensory',
-    color: 'text-pink-300',
-    bgColor: 'bg-pink-950/40',
+    label: "Sensory",
+    color: "text-pink-300",
+    bgColor: "bg-pink-950/40",
   },
   proximity: {
-    label: 'Proximity',
-    color: 'text-cyan-300',
-    bgColor: 'bg-cyan-950/40',
+    label: "Proximity",
+    color: "text-cyan-300",
+    bgColor: "bg-cyan-950/40",
   },
   custom: {
-    label: 'Custom',
-    color: 'text-slate-300',
-    bgColor: 'bg-slate-800/40',
+    label: "Custom",
+    color: "text-slate-300",
+    bgColor: "bg-slate-800/40",
   },
 };
 
@@ -115,8 +125,8 @@ interface ToolCallsSectionProps {
 const ToolCallsSection: React.FC<ToolCallsSectionProps> = ({ events }) => {
   const [expanded, setExpanded] = useState(true);
 
-  const toolCalls = events.filter((e) => e.type === 'tool-called');
-  const toolResults = events.filter((e) => e.type === 'tool-result');
+  const toolCalls = events.filter((e) => e.type === "tool-called");
+  const toolResults = events.filter((e) => e.type === "tool-result");
 
   if (toolCalls.length === 0) {
     return (
@@ -140,26 +150,37 @@ const ToolCallsSection: React.FC<ToolCallsSectionProps> = ({ events }) => {
       >
         <div className="flex items-center gap-2">
           <span className="text-xs font-medium text-blue-300">🔧 Tools</span>
-          <span className="text-xs text-slate-200">{toolCalls.length} called</span>
+          <span className="text-xs text-slate-200">
+            {toolCalls.length} called
+          </span>
         </div>
         <svg
-          className={`w-4 h-4 text-slate-400 transition-transform ${expanded ? 'rotate-180' : ''}`}
+          className={`w-4 h-4 text-slate-400 transition-transform ${expanded ? "rotate-180" : ""}`}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
         >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M19 9l-7 7-7-7"
+          />
         </svg>
       </button>
 
       {expanded && (
         <div className="px-3 py-2 border-t border-slate-700/50 space-y-2">
           {toolCalls.map((call, idx) => {
-            const toolName = String(getStringValue(call.payload, 'tool') ?? 'unknown');
-            const args = getStringValue(call.payload, 'args');
+            const toolName = String(
+              getStringValue(call.payload, "tool") ?? "unknown",
+            );
+            const args = getStringValue(call.payload, "args");
             const result = toolResults.at(idx);
-            const payload = isRecord(result?.payload) ? result.payload : undefined;
-            const success = getRecordValue<boolean>(payload, 'success');
+            const payload = isRecord(result?.payload)
+              ? result.payload
+              : undefined;
+            const success = getRecordValue<boolean>(payload, "success");
 
             let parsedArgs: Record<string, unknown> | null = null;
             if (args) {
@@ -177,12 +198,14 @@ const ToolCallsSection: React.FC<ToolCallsSectionProps> = ({ events }) => {
                 className="rounded border border-slate-700/40 bg-slate-900/50 p-2 space-y-1"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-mono text-blue-300">{toolName}</span>
+                  <span className="text-sm font-mono text-blue-300">
+                    {toolName}
+                  </span>
                   {success !== undefined && (
                     <span
-                      className={`text-[10px] px-1.5 py-0.5 rounded ${success ? 'bg-green-900/50 text-green-300' : 'bg-red-900/50 text-red-300'}`}
+                      className={`text-[10px] px-1.5 py-0.5 rounded ${success ? "bg-green-900/50 text-green-300" : "bg-red-900/50 text-red-300"}`}
                     >
-                      {success ? '✓' : '✗'}
+                      {success ? "✓" : "✗"}
                     </span>
                   )}
                 </div>
@@ -190,9 +213,11 @@ const ToolCallsSection: React.FC<ToolCallsSectionProps> = ({ events }) => {
                   <div className="text-[10px] text-slate-400 font-mono bg-slate-950/50 rounded p-1.5 overflow-x-auto">
                     {Object.entries(parsedArgs).map(([k, v]) => (
                       <div key={k}>
-                        <span className="text-slate-500">{k}:</span>{' '}
+                        <span className="text-slate-500">{k}:</span>{" "}
                         <span className="text-slate-300">
-                          {typeof v === 'object' && v !== null ? JSON.stringify(v) : String(v)}
+                          {typeof v === "object" && v !== null
+                            ? JSON.stringify(v)
+                            : String(v)}
                         </span>
                       </div>
                     ))}
@@ -215,7 +240,9 @@ interface StateChangesSectionProps {
   stateChanges: StateChanges;
 }
 
-const StateChangesSection: React.FC<StateChangesSectionProps> = ({ stateChanges }) => {
+const StateChangesSection: React.FC<StateChangesSectionProps> = ({
+  stateChanges,
+}) => {
   const [expanded, setExpanded] = useState(false);
   const [showPatches, setShowPatches] = useState(false);
 
@@ -241,15 +268,22 @@ const StateChangesSection: React.FC<StateChangesSectionProps> = ({ stateChanges 
       >
         <div className="flex items-center gap-2">
           <span className="text-xs font-medium text-green-300">💾 State</span>
-          <span className="text-xs text-slate-200">{stateChanges.patchCount} patches</span>
+          <span className="text-xs text-slate-200">
+            {stateChanges.patchCount} patches
+          </span>
         </div>
         <svg
-          className={`w-4 h-4 text-slate-400 transition-transform ${expanded ? 'rotate-180' : ''}`}
+          className={`w-4 h-4 text-slate-400 transition-transform ${expanded ? "rotate-180" : ""}`}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
         >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M19 9l-7 7-7-7"
+          />
         </svg>
       </button>
 
@@ -257,7 +291,9 @@ const StateChangesSection: React.FC<StateChangesSectionProps> = ({ stateChanges 
         <div className="px-3 py-2 border-t border-slate-700/50 space-y-2">
           {/* Modified paths */}
           <div>
-            <div className="text-[10px] font-medium text-slate-400 mb-1">Modified Slices</div>
+            <div className="text-[10px] font-medium text-slate-400 mb-1">
+              Modified Slices
+            </div>
             <div className="flex flex-wrap gap-1">
               {stateChanges.modifiedPaths.map((path) => (
                 <span
@@ -280,7 +316,7 @@ const StateChangesSection: React.FC<StateChangesSectionProps> = ({ stateChanges 
                   setShowPatches((p) => !p);
                 }}
               >
-                {showPatches ? 'Hide patches' : 'Show patches'}
+                {showPatches ? "Hide patches" : "Show patches"}
               </button>
 
               {showPatches && (
@@ -291,10 +327,10 @@ const StateChangesSection: React.FC<StateChangesSectionProps> = ({ stateChanges 
                       className="text-[10px] font-mono bg-slate-950/50 rounded p-1.5 overflow-x-auto"
                     >
                       <span
-                        className={`${patch.op === 'add' ? 'text-green-400' : patch.op === 'remove' ? 'text-red-400' : 'text-yellow-400'}`}
+                        className={`${patch.op === "add" ? "text-green-400" : patch.op === "remove" ? "text-red-400" : "text-yellow-400"}`}
                       >
                         {patch.op}
-                      </span>{' '}
+                      </span>{" "}
                       <span className="text-slate-300">{patch.path}</span>
                       {patch.value !== undefined && (
                         <div className="text-slate-400 mt-0.5 pl-2 truncate">
@@ -322,12 +358,17 @@ interface NpcAgentsSectionProps {
   agentOutputs?: AgentOutputWithType[] | undefined;
 }
 
-const NpcAgentsSection: React.FC<NpcAgentsSectionProps> = ({ agentsInvoked, agentOutputs }) => {
+const NpcAgentsSection: React.FC<NpcAgentsSectionProps> = ({
+  agentsInvoked,
+  agentOutputs,
+}) => {
   const [expanded, setExpanded] = useState(true);
-  const [showNarratives, setShowNarratives] = useState<Record<number, boolean>>({});
+  const [showNarratives, setShowNarratives] = useState<Record<number, boolean>>(
+    {},
+  );
 
-  const npcOutputs = agentOutputs?.filter((o) => o.agentType === 'npc') ?? [];
-  const otherAgents = agentsInvoked.filter((a) => a !== 'npc');
+  const npcOutputs = agentOutputs?.filter((o) => o.agentType === "npc") ?? [];
+  const otherAgents = agentsInvoked.filter((a) => a !== "npc");
 
   return (
     <div className="rounded-lg border border-slate-700/50 bg-violet-950/20 overflow-hidden">
@@ -340,15 +381,22 @@ const NpcAgentsSection: React.FC<NpcAgentsSectionProps> = ({ agentsInvoked, agen
       >
         <div className="flex items-center gap-2">
           <span className="text-xs font-medium text-violet-300">🤖 Agents</span>
-          <span className="text-xs text-slate-200">{agentsInvoked.length} invoked</span>
+          <span className="text-xs text-slate-200">
+            {agentsInvoked.length} invoked
+          </span>
         </div>
         <svg
-          className={`w-4 h-4 text-slate-400 transition-transform ${expanded ? 'rotate-180' : ''}`}
+          className={`w-4 h-4 text-slate-400 transition-transform ${expanded ? "rotate-180" : ""}`}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
         >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M19 9l-7 7-7-7"
+          />
         </svg>
       </button>
 
@@ -357,14 +405,16 @@ const NpcAgentsSection: React.FC<NpcAgentsSectionProps> = ({ agentsInvoked, agen
           {/* Agent badges */}
           <div className="flex flex-wrap gap-1">
             {agentsInvoked.map((agent) => {
-              const fallbackConfig = AGENT_CONFIG['custom'] ?? {
-                label: 'Custom',
-                color: 'text-slate-300',
-                bgColor: 'bg-slate-800/40',
+              const fallbackConfig = AGENT_CONFIG["custom"] ?? {
+                label: "Custom",
+                color: "text-slate-300",
+                bgColor: "bg-slate-800/40",
               };
               const config =
-                getRecordValue<(typeof AGENT_CONFIG)[string]>(AGENT_CONFIG, agent) ??
-                fallbackConfig;
+                getRecordValue<(typeof AGENT_CONFIG)[string]>(
+                  AGENT_CONFIG,
+                  agent,
+                ) ?? fallbackConfig;
               return (
                 <span
                   key={agent}
@@ -379,11 +429,15 @@ const NpcAgentsSection: React.FC<NpcAgentsSectionProps> = ({ agentsInvoked, agen
           {/* NPC outputs */}
           {npcOutputs.length > 0 && (
             <div className="space-y-2">
-              <div className="text-[10px] font-medium text-slate-400">NPC Agent Outputs</div>
+              <div className="text-[10px] font-medium text-slate-400">
+                NPC Agent Outputs
+              </div>
               {npcOutputs.map((out, idx) => {
                 const diag = out.output.diagnostics;
-                const debugRecord = isRecord(diag?.debug) ? diag.debug : undefined;
-                const npcId = getStringValue(debugRecord, 'npcId') ?? null;
+                const debugRecord = isRecord(diag?.debug)
+                  ? diag.debug
+                  : undefined;
+                const npcId = getStringValue(debugRecord, "npcId") ?? null;
                 const execTime = diag?.executionTimeMs;
                 const isNarrativeShown = getBooleanValue(showNarratives, idx);
 
@@ -395,7 +449,9 @@ const NpcAgentsSection: React.FC<NpcAgentsSectionProps> = ({ agentsInvoked, agen
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         {npcId && (
-                          <span className="text-xs text-violet-400 font-mono">[{npcId}]</span>
+                          <span className="text-xs text-violet-400 font-mono">
+                            [{npcId}]
+                          </span>
                         )}
                         {execTime !== undefined && (
                           <span className="text-[10px] text-slate-400">
@@ -408,18 +464,23 @@ const NpcAgentsSection: React.FC<NpcAgentsSectionProps> = ({ agentsInvoked, agen
                         className="text-[10px] text-slate-400 hover:text-slate-200"
                         onClick={() => {
                           setShowNarratives((prev) =>
-                            setBooleanValue(prev, idx, !getBooleanValue(prev, idx))
+                            setBooleanValue(
+                              prev,
+                              idx,
+                              !getBooleanValue(prev, idx),
+                            ),
                           );
                         }}
                       >
-                        {isNarrativeShown ? 'Hide' : 'Show'} narrative
+                        {isNarrativeShown ? "Hide" : "Show"} narrative
                       </button>
                     </div>
 
                     {/* Token usage */}
                     {diag?.tokenUsage && (
                       <div className="text-[10px] text-slate-500">
-                        Tokens: {diag.tokenUsage.prompt}p / {diag.tokenUsage.completion}c
+                        Tokens: {diag.tokenUsage.prompt}p /{" "}
+                        {diag.tokenUsage.completion}c
                       </div>
                     )}
 
@@ -438,7 +499,7 @@ const NpcAgentsSection: React.FC<NpcAgentsSectionProps> = ({ agentsInvoked, agen
           {/* Other agent summary */}
           {otherAgents.length > 0 && npcOutputs.length === 0 && (
             <div className="text-[10px] text-slate-400 italic">
-              {otherAgents.join(', ')} agent(s) invoked
+              {otherAgents.join(", ")} agent(s) invoked
             </div>
           )}
         </div>
@@ -458,14 +519,17 @@ interface TimingSectionProps {
 
 const TimingSection: React.FC<TimingSectionProps> = ({ timing, totalMs }) => {
   const phases = [
-    { key: 'contextRetrievalMs', label: 'Context', color: 'bg-blue-500' },
-    { key: 'agentExecutionMs', label: 'Execution', color: 'bg-violet-500' },
-    { key: 'stateUpdateMs', label: 'State', color: 'bg-green-500' },
+    { key: "contextRetrievalMs", label: "Context", color: "bg-blue-500" },
+    { key: "agentExecutionMs", label: "Execution", color: "bg-violet-500" },
+    { key: "stateUpdateMs", label: "State", color: "bg-green-500" },
   ] as const;
 
   const getTimingValue = (key: string): number => {
-    const value = getRecordValue<number>(timing as Record<string, unknown>, key);
-    return typeof value === 'number' ? value : 0;
+    const value = getRecordValue<number>(
+      timing as Record<string, unknown>,
+      key,
+    );
+    return typeof value === "number" ? value : 0;
   };
 
   const knownMs = phases.reduce((sum, p) => sum + getTimingValue(p.key), 0);
@@ -484,18 +548,30 @@ const TimingSection: React.FC<TimingSectionProps> = ({ timing, totalMs }) => {
           const ms = getTimingValue(key);
           const pct = totalMs > 0 ? (ms / totalMs) * 100 : 0;
           if (pct < 1) return null;
-          return <div key={key} className={`${color}`} style={{ width: `${pct}%` }} />;
+          return (
+            <div
+              key={key}
+              className={`${color}`}
+              style={{ width: `${pct}%` }}
+            />
+          );
         })}
         {otherMs > 0 && totalMs > 0 && (
-          <div className="bg-slate-600" style={{ width: `${(otherMs / totalMs) * 100}%` }} />
+          <div
+            className="bg-slate-600"
+            style={{ width: `${(otherMs / totalMs) * 100}%` }}
+          />
         )}
       </div>
 
       {/* Legend */}
       <div className="flex flex-wrap gap-2 text-[10px]">
         {phases.map(({ key, label, color }) => {
-          const ms = getRecordValue<number>(timing as Record<string, unknown>, key);
-          if (typeof ms !== 'number') return null;
+          const ms = getRecordValue<number>(
+            timing as Record<string, unknown>,
+            key,
+          );
+          if (typeof ms !== "number") return null;
           return (
             <span key={key} className="flex items-center gap-1 text-slate-400">
               <span className={`w-2 h-2 rounded-full ${color}`} />
@@ -512,8 +588,13 @@ const TimingSection: React.FC<TimingSectionProps> = ({ timing, totalMs }) => {
 // Main Debug Sidebar
 // =============================================================================
 
-export const DebugSidebar: React.FC<DebugSidebarProps> = ({ metadata, events, stateChanges }) => {
-  const hasData = !!metadata || (!!events && events.length > 0) || !!stateChanges;
+export const DebugSidebar: React.FC<DebugSidebarProps> = ({
+  metadata,
+  events,
+  stateChanges,
+}) => {
+  const hasData =
+    !!metadata || (!!events && events.length > 0) || !!stateChanges;
 
   return (
     <div className="h-full flex flex-col bg-slate-950 border-l border-slate-800">
@@ -533,14 +614,19 @@ export const DebugSidebar: React.FC<DebugSidebarProps> = ({ metadata, events, st
           <>
             {/* Timing */}
             {metadata?.phaseTiming && (
-              <TimingSection timing={metadata.phaseTiming} totalMs={metadata.processingTimeMs} />
+              <TimingSection
+                timing={metadata.phaseTiming}
+                totalMs={metadata.processingTimeMs}
+              />
             )}
 
             {/* Tool Calls */}
             {events && <ToolCallsSection events={events} />}
 
             {/* State Changes */}
-            {stateChanges && <StateChangesSection stateChanges={stateChanges} />}
+            {stateChanges && (
+              <StateChangesSection stateChanges={stateChanges} />
+            )}
 
             {/* Agents */}
             {metadata && (

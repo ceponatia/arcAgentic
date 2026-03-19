@@ -10,7 +10,6 @@ export * from './social/dialogue-service.js';
 export * from './social/faction.js';
 
 // Time
-export * from './time/time-service.js';
 export * from './time/scheduler.js';
 export * from './time/tick-emitter.js';
 export * from './time/schedule-service.js';

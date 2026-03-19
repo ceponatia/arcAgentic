@@ -9,7 +9,7 @@ import { actorRegistry } from '@arcagentic/actors';
 import {
   dialogueService,
   physicsService,
-  timeService,
+  tickEmitter,
   socialEngine,
   rulesEngine,
   Scheduler,
@@ -142,7 +142,7 @@ export function registerTurnRoutes(app: Hono): void {
     // Ensure core services are running (idempotent starts)
     dialogueService.start();
     physicsService.start();
-    timeService.start();
+    tickEmitter.start();
     socialEngine.start();
     rulesEngine.start();
     Scheduler.start();

@@ -4,6 +4,10 @@
 
 Character domain logic and services. Manages character profiles, body maps, hygiene state, and personality data.
 
+## Status
+
+This package currently has zero consumers. No other package in the monorepo imports from `@arcagentic/characters`. The domain helpers (hygiene, body-map, appearance, profile, personality) may have value if the character system is expanded, but are currently unused.
+
 ## Scope
 
 - Character domain models and state shapes
@@ -14,7 +18,5 @@ Character domain logic and services. Manages character profiles, body maps, hygi
 ## Package Connections
 
 - **schemas**: Uses character-related Zod schemas and types
-- **state-manager**: Integrates with state slices for character state
 - **agents**: Provides character context to agents
-- **retrieval**: Extracts knowledge nodes from character profiles
 - **utils**: Shared parsing and formatting helpers

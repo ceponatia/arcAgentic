@@ -295,9 +295,6 @@ importers:
       '@arcagentic/bus':
         specifier: workspace:*
         version: link:../bus
-      '@arcagentic/characters':
-        specifier: workspace:*
-        version: link:../characters
       '@arcagentic/db':
         specifier: workspace:*
         version: link:../db
@@ -307,9 +304,6 @@ importers:
       '@arcagentic/projections':
         specifier: workspace:*
         version: link:../projections
-      '@arcagentic/retrieval':
-        specifier: workspace:*
-        version: link:../retrieval
       '@arcagentic/schemas':
         specifier: workspace:*
         version: link:../schemas
@@ -334,6 +328,9 @@ importers:
       hono:
         specifier: ^4.12.4
         version: 4.12.7
+      ioredis:
+        specifier: 'catalog:'
+        version: 5.9.0
       jose:
         specifier: ^6.1.0
         version: 6.1.3
@@ -381,9 +378,6 @@ importers:
 
   packages/characters:
     dependencies:
-      '@arcagentic/retrieval':
-        specifier: workspace:*
-        version: link:../retrieval
       '@arcagentic/schemas':
         specifier: workspace:*
         version: link:../schemas
@@ -502,9 +496,6 @@ importers:
 
   packages/projections:
     dependencies:
-      '@arcagentic/bus':
-        specifier: workspace:*
-        version: link:../bus
       '@arcagentic/db':
         specifier: workspace:*
         version: link:../db

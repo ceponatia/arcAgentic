@@ -12,9 +12,15 @@ import { resolveNpcSchedulesBatch } from './schedule-service.js';
 type ActorStateRecord = Record<string, unknown>;
 
 /**
- * Scheduler Service
+ * NPC schedule processor that subscribes to TICK events on the WorldBus.
  *
- * Manages NPC schedules and recurring world events.
+ * On each tick, iterates active sessions, resolves NPC schedules via
+ * {@link resolveNpcSchedulesBatch}, and emits:
+ * - `MOVE_INTENT` — when an NPC's scheduled location differs from their current one
+ * - `NPC_ACTIVITY_CHANGED` — when an NPC's activity type changes
+ *
+ * The tick source is typically the {@link TickEmitter} in development or the
+ * BullMQ Scheduler in `@arcagentic/workers` for production.
  */
 export class Scheduler {
   private static processing = new Set<string>();

@@ -2,6 +2,8 @@ import crypto from 'node:crypto';
 import type { AuthTokenPayload } from './types.js';
 import { getEnvValue } from '../utils/env.js';
 
+let localTokenDeprecationWarned = false;
+
 function base64UrlEncode(input: Uint8Array): string {
   return Buffer.from(input)
     .toString('base64')
@@ -37,6 +39,9 @@ export function getAuthSecret(): string {
   return getEnvValue('NODE_ENV') === 'production' ? '' : 'dev-secret-change-me';
 }
 
+/**
+ * @deprecated Local token auth is deprecated. Use Supabase JWT authentication instead.
+ */
 export function signAuthToken(payload: AuthTokenPayload, secret: string): string {
   const header = { alg: 'HS256', typ: 'JWT' };
   const headerPart = base64UrlEncodeJson(header);
@@ -52,6 +57,9 @@ export function signAuthToken(payload: AuthTokenPayload, secret: string): string
   return `${data}.${sigPart}`;
 }
 
+/**
+ * @deprecated Local token auth is deprecated. Use Supabase JWT authentication instead.
+ */
 export function verifyAuthToken(
   token: string,
   secret: string
@@ -89,6 +97,11 @@ export function verifyAuthToken(
 
   const now = Math.floor(Date.now() / 1000);
   if (now >= exp) return { ok: false, error: 'expired' };
+
+  if (!localTokenDeprecationWarned) {
+    localTokenDeprecationWarned = true;
+    console.warn('[auth] Local token auth is deprecated. Migrate to Supabase JWT authentication.');
+  }
 
   return {
     ok: true,
