@@ -270,6 +270,7 @@ export interface AppControllerActions {
   navigateToSessionLibrary: () => void;
   navigateToSessionBuilder: () => void;
   navigateToHome: () => void;
+  navigateToDocs: () => void;
   selectSession: (id: string) => void;
 }
 

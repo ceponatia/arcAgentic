@@ -1,18 +1,22 @@
-import React from 'react';
-import { NavItems } from './NavItems.js';
-import { NavButton, DocumentIcon } from './ShellComponents.js';
-import type { AppControllerValue } from '../types.js';
+import React from "react";
+import { NavItems } from "./NavItems.js";
+import { NavButton, DocumentIcon } from "./ShellComponents.js";
+import type { NavController } from "../routes/LegacyNavAdapter.js";
 
 interface MobileDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  controller: AppControllerValue;
+  controller: NavController;
 }
 
 /**
  * Overlay drawer for mobile navigation.
  */
-export const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose, controller }) => {
+export const MobileDrawer: React.FC<MobileDrawerProps> = ({
+  isOpen,
+  onClose,
+  controller,
+}) => {
   if (!isOpen) return null;
 
   return (
@@ -56,9 +60,9 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose, con
           <NavButton
             icon={<DocumentIcon className="w-5 h-5" />}
             label="Documentation"
-            active={window.location.hash.includes('/docs')}
+            active={controller.viewMode === "docs"}
             onClick={() => {
-              window.location.hash = '#/docs';
+              controller.navigateToDocs();
               onClose();
             }}
           />

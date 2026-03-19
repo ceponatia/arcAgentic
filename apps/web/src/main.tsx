@@ -6,10 +6,11 @@ import { STRICT_MODE } from "./config.js";
 
 const rootEl = document.getElementById("root")!;
 
-// Normalize empty hashes to '#/' on load for consistent hash-based routing.
-const h = window.location.hash;
-if (!h || h === "#") {
-  window.location.hash = "#/";
+// Redirect hash-based URLs to history-based equivalents.
+const hash = window.location.hash;
+if (hash.startsWith("#/")) {
+  const path = hash.slice(1);
+  window.history.replaceState(null, "", path);
 }
 
 const app = <App />;

@@ -1,10 +1,10 @@
 import React from "react";
 import { NavItems } from "./NavItems.js";
 import { DocumentIcon } from "./ShellComponents.js";
-import type { AppControllerValue } from "../types.js";
+import type { NavController } from "../routes/LegacyNavAdapter.js";
 
 interface SidebarProps {
-  controller: AppControllerValue;
+  controller: NavController;
 }
 
 /**
@@ -26,7 +26,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ controller }) => {
       </nav>
       <div className="p-3 border-t border-slate-800 space-y-2">
         <button
-          onClick={() => (window.location.hash = "#/docs")}
+          onClick={() => controller.navigateToDocs()}
           className="flex items-center gap-2 w-full text-xs text-slate-400 hover:text-slate-200 transition-colors"
         >
           <DocumentIcon className="w-4 h-4" />

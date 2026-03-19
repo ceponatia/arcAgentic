@@ -338,6 +338,10 @@ export function useAppController(): AppControllerValue {
     window.location.hash = '#/chat';
   };
 
+  const navigateToDocs = () => {
+    window.location.hash = '#/docs';
+  };
+
   const onStartSession = async (charId?: string, setSelectionId?: string, tags?: string[]) => {
     const finalCharacterId = charId ?? selectedCharacterId;
     const finalSettingId = setSelectionId ?? selectedSettingId;
@@ -471,6 +475,7 @@ export function useAppController(): AppControllerValue {
     navigateToSessionLibrary,
     navigateToSessionBuilder,
     navigateToHome,
+    navigateToDocs,
     selectSession,
   };
 }

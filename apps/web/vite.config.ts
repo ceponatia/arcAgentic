@@ -74,14 +74,29 @@ export default defineConfig(() => {
         '/characters': {
           target: apiTarget,
           changeOrigin: true,
+          bypass(req) {
+            if (req.headers.accept?.includes('text/html')) {
+              return '/index.html';
+            }
+          },
         },
         '/settings': {
           target: apiTarget,
           changeOrigin: true,
+          bypass(req) {
+            if (req.headers.accept?.includes('text/html')) {
+              return '/index.html';
+            }
+          },
         },
         '/sessions': {
           target: apiTarget,
           changeOrigin: true,
+          bypass(req) {
+            if (req.headers.accept?.includes('text/html')) {
+              return '/index.html';
+            }
+          },
         },
       },
     },
