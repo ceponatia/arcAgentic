@@ -1,32 +1,46 @@
-import React, { useState } from 'react';
-import { SettingBackgroundSchema } from '@arcagentic/schemas';
-import { mapZodErrorsToFields } from '@arcagentic/utils';
-import { saveSetting, deleteSetting } from '../../shared/api/client.js';
-import { PreviewSidebar } from './components/PreviewSidebar.js';
-import { SettingGeneralForm } from './components/SettingGeneralForm.js';
-import { SettingRulesForm } from './components/SettingRulesForm.js';
-import { SettingTimeConfig } from './components/SettingTimeConfig.js';
-import { SettingFactionsForm } from './components/SettingFactionsForm.js';
-import { useSettingBuilderForm } from './hooks/useSettingBuilderForm.js';
-import { buildProfile } from './transformers.js';
-import { MODE_CONFIGS, type SettingFormFieldErrors, type SettingFormKey } from './types.js';
-import { useAutoSave } from '../../hooks/useAutoSave.js';
+import React, { useState } from "react";
+import { SettingBackgroundSchema } from "@arcagentic/schemas";
+import { mapZodErrorsToFields } from "@arcagentic/utils";
+import { saveSetting, deleteSetting } from "../../shared/api/client.js";
+import { PreviewSidebar } from "./components/PreviewSidebar.js";
+import { SettingGeneralForm } from "./components/SettingGeneralForm.js";
+import { SettingRulesForm } from "./components/SettingRulesForm.js";
+import { SettingTimeConfig } from "./components/SettingTimeConfig.js";
+import { SettingFactionsForm } from "./components/SettingFactionsForm.js";
+import { useSettingBuilderForm } from "./hooks/useSettingBuilderForm.js";
+import { buildProfile } from "./transformers.js";
+import {
+  MODE_CONFIGS,
+  type SettingFormFieldErrors,
+  type SettingFormKey,
+} from "./types.js";
+import { useAutoSave } from "../../hooks/useAutoSave.js";
 
-export const SettingBuilder: React.FC<{
+interface SettingBuilderProps {
   id?: string | null;
   onSave?: () => void;
   onCancel?: () => void;
-}> = ({ id, onSave: onSaveCallback, onCancel }) => {
+  onNavigate?: (opts: { to: string; params?: Record<string, string> }) => void;
+}
+
+export const SettingBuilder: React.FC<SettingBuilderProps> = ({
+  id,
+  onSave: onSaveCallback,
+  onCancel,
+  onNavigate,
+}) => {
   const { form, fieldErrors, setFieldErrors, updateField, loading, loadError } =
     useSettingBuilderForm(id);
 
-  const [activeTab, setActiveTab] = useState<'general' | 'rules' | 'time' | 'factions'>('general');
+  const [activeTab, setActiveTab] = useState<
+    "general" | "rules" | "time" | "factions"
+  >("general");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
   // Auto-save draft
-  useAutoSave(`setting-draft-${id ?? 'new'}`, form, 1000, !saving && !loading);
+  useAutoSave(`setting-draft-${id ?? "new"}`, form, 1000, !saving && !loading);
 
   const isEditing = Boolean(id);
   const modeConfig = MODE_CONFIGS.standard; // Only standard mode for now
@@ -35,7 +49,7 @@ export const SettingBuilder: React.FC<{
     if (!id) return;
     setError(null);
     await deleteSetting(id);
-    window.location.hash = '';
+    onCancel?.();
   };
 
   const handleSave = async () => {
@@ -53,14 +67,24 @@ export const SettingBuilder: React.FC<{
         pathToField: (path) => {
           const key = path[0] as string;
           // Map known top-level keys
-          if (['id', 'name', 'lore', 'themes', 'tags', 'tone', 'startingScenario'].includes(key)) {
+          if (
+            [
+              "id",
+              "name",
+              "lore",
+              "themes",
+              "tags",
+              "tone",
+              "startingScenario",
+            ].includes(key)
+          ) {
             return key as SettingFormKey;
           }
           return undefined as unknown as SettingFormKey;
         },
       });
       setFieldErrors(fieldMap as SettingFormFieldErrors);
-      setError('Please fix the highlighted fields.');
+      setError("Please fix the highlighted fields.");
       setSaving(false);
       return;
     }
@@ -69,15 +93,18 @@ export const SettingBuilder: React.FC<{
       const result = await saveSetting(profile);
       const savedId = result.setting?.id;
       if (savedId && savedId !== form.id) {
-        updateField('id', savedId);
+        updateField("id", savedId);
         if (!id) {
-          window.location.hash = `#/setting-builder?id=${encodeURIComponent(savedId)}`;
+          void onNavigate?.({
+            to: "/settings/builder/$id",
+            params: { id: savedId },
+          });
         }
       }
-      setSuccess('Saved successfully');
+      setSuccess("Saved successfully");
       if (onSaveCallback) onSaveCallback();
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Network error');
+      setError(e instanceof Error ? e.message : "Network error");
     } finally {
       setSaving(false);
     }
@@ -86,20 +113,32 @@ export const SettingBuilder: React.FC<{
   const disabled = saving || loading;
 
   const tabs = [
-    { id: 'general', label: 'General', visible: modeConfig.sections.general },
-    { id: 'rules', label: 'Rules & Safety', visible: modeConfig.sections.rules },
-    { id: 'time', label: 'Time & Sim', visible: modeConfig.sections.time },
-    { id: 'factions', label: 'Factions', visible: modeConfig.sections.factions },
+    { id: "general", label: "General", visible: modeConfig.sections.general },
+    {
+      id: "rules",
+      label: "Rules & Safety",
+      visible: modeConfig.sections.rules,
+    },
+    { id: "time", label: "Time & Sim", visible: modeConfig.sections.time },
+    {
+      id: "factions",
+      label: "Factions",
+      visible: modeConfig.sections.factions,
+    },
   ] as const;
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-slate-200">Setting Builder</h2>
+        <h2 className="text-xl font-semibold text-slate-200">
+          Setting Builder
+        </h2>
       </div>
 
       {loading && <p className="text-sm text-slate-400">Loading setting...</p>}
-      {loadError && !loading && <p className="text-sm text-amber-300">{loadError}</p>}
+      {loadError && !loading && (
+        <p className="text-sm text-amber-300">{loadError}</p>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2 flex flex-col h-[calc(100vh-200px)]">
@@ -115,26 +154,34 @@ export const SettingBuilder: React.FC<{
                     px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap
                     ${
                       activeTab === tab.id
-                        ? 'border-violet-500 text-violet-400'
-                        : 'border-transparent text-slate-400 hover:text-slate-200 hover:border-slate-600'
+                        ? "border-violet-500 text-violet-400"
+                        : "border-transparent text-slate-400 hover:text-slate-200 hover:border-slate-600"
                     }
                   `}
                   >
                     {tab.label}
                   </button>
-                )
+                ),
             )}
           </div>
 
           <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 space-y-4">
-            {activeTab === 'general' && (
-              <SettingGeneralForm form={form} fieldErrors={fieldErrors} updateField={updateField} />
+            {activeTab === "general" && (
+              <SettingGeneralForm
+                form={form}
+                fieldErrors={fieldErrors}
+                updateField={updateField}
+              />
             )}
-            {activeTab === 'rules' && (
-              <SettingRulesForm form={form} fieldErrors={fieldErrors} updateField={updateField} />
+            {activeTab === "rules" && (
+              <SettingRulesForm
+                form={form}
+                fieldErrors={fieldErrors}
+                updateField={updateField}
+              />
             )}
-            {activeTab === 'time' && <SettingTimeConfig />}
-            {activeTab === 'factions' && <SettingFactionsForm />}
+            {activeTab === "time" && <SettingTimeConfig />}
+            {activeTab === "factions" && <SettingFactionsForm />}
           </div>
         </div>
 

@@ -1,31 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { DocNavigation } from './components/DocNavigation.js';
-import { DocPage } from './components/DocPage.js';
+import React, { useState } from "react";
+import { DocNavigation } from "./components/DocNavigation.js";
+import { DocPage } from "./components/DocPage.js";
 
 export const DocsViewer: React.FC = () => {
-  const [currentPath, setCurrentPath] = useState('index');
-
-  useEffect(() => {
-    // Parse the current hash to get the doc path
-    const hash = window.location.hash;
-    const match = /#\/docs\/?(.*)$/.exec(hash);
-    const path = match?.[1] ?? 'index';
-    setCurrentPath(path);
-
-    // Listen for hash changes
-    const handleHashChange = () => {
-      const newHash = window.location.hash;
-      const newMatch = /#\/docs\/?(.*)$/.exec(newHash);
-      const newPath = newMatch?.[1] ?? 'index';
-      setCurrentPath(newPath);
-    };
-
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []);
+  const [currentPath, setCurrentPath] = useState("index");
 
   const handleNavigate = (path: string) => {
-    window.location.hash = `#/docs/${path}`;
+    setCurrentPath(path);
   };
 
   return (

@@ -6,7 +6,6 @@ import { Sidebar } from "../layouts/Sidebar.js";
 import { ShellHeader } from "../layouts/ShellHeader.js";
 import { MobileDrawer } from "../layouts/MobileDrawer.js";
 import { useLegacyNavAdapter } from "./LegacyNavAdapter.js";
-import { LegacyDataProvider } from "./LegacyDataContext.js";
 import type { ViewMode } from "../types.js";
 
 // Same function as in LegacyNavAdapter - duplicated to avoid circular deps
@@ -38,35 +37,33 @@ export function RootLayout(): React.JSX.Element {
   const viewMode = pathToViewMode(pathname);
 
   return (
-    <LegacyDataProvider viewMode={viewMode}>
-      <div className="h-screen w-screen overflow-hidden bg-slate-950 text-slate-200 font-sans flex flex-col">
-        <ShellHeader
-          onMenuClick={() => setNavOpen(true)}
-          onLogoClick={() => controller.navigateToHome()}
-        />
-        <div className="flex flex-1 overflow-hidden">
-          <Sidebar controller={controller} />
-          <main className="flex-1 flex flex-col overflow-hidden">
-            <div
-              id="app-main-view"
-              className={`flex-1 ${
-                ["chat", "character-studio"].includes(viewMode)
-                  ? "overflow-hidden"
-                  : "overflow-y-auto custom-scrollbar p-4 md:p-6"
-              }`}
-            >
-              <Outlet />
-            </div>
-            <AppFooter />
-          </main>
-        </div>
-        <MobileDrawer
-          isOpen={navOpen}
-          onClose={() => setNavOpen(false)}
-          controller={controller}
-        />
-        {import.meta.env.DEV && <TanStackRouterDevtools />}
+    <div className="h-screen w-screen overflow-hidden bg-slate-950 text-slate-200 font-sans flex flex-col">
+      <ShellHeader
+        onMenuClick={() => setNavOpen(true)}
+        onLogoClick={() => controller.navigateToHome()}
+      />
+      <div className="flex flex-1 overflow-hidden">
+        <Sidebar controller={controller} />
+        <main className="flex-1 flex flex-col overflow-hidden">
+          <div
+            id="app-main-view"
+            className={`flex-1 ${
+              ["chat", "character-studio"].includes(viewMode)
+                ? "overflow-hidden"
+                : "overflow-y-auto custom-scrollbar p-4 md:p-6"
+            }`}
+          >
+            <Outlet />
+          </div>
+          <AppFooter />
+        </main>
       </div>
-    </LegacyDataProvider>
+      <MobileDrawer
+        isOpen={navOpen}
+        onClose={() => setNavOpen(false)}
+        controller={controller}
+      />
+      {import.meta.env.DEV && <TanStackRouterDevtools />}
+    </div>
   );
 }
