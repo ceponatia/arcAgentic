@@ -1,1 +1,13 @@
-export * from './client.js';
+export { http } from './http.js';
+export type { HttpOptions } from './http.js';
+export * from './auth.js';
+export * from './sessions.js';
+export * from './characters.js';
+export * from './settings.js';
+export * from './tags.js';
+export * from './items.js';
+export * from './personas.js';
+export * from './workspace-drafts.js';
+export * from './user-preferences.js';
+export * from './entity-usage.js';
+export * from './types.js';

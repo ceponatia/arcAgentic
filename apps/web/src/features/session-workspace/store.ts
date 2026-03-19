@@ -9,188 +9,33 @@
  * - Draft persistence
  */
 
-import { useMemo } from 'react';
 import { create } from 'zustand';
 import { persist, devtools, subscribeWithSelector } from 'zustand/middleware';
-import { API_BASE_URL } from '../../config.js';
+import { setupServerSync, loadModePreference, createPersistenceActions } from './sync.js';
+import { createValidationActions } from './validation.js';
 import type {
-  CharacterProfile,
-  SettingProfile,
-  PersonaProfile,
-  TagTargetType,
-  WorkspaceValidationResult as SharedWorkspaceValidationResult,
-} from '@arcagentic/schemas';
-import {
-  createWorkspaceDraft,
-  updateWorkspaceDraft,
-  deleteWorkspaceDraft as apiDeleteWorkspaceDraft,
-  getWorkspaceModePreference,
-  setWorkspaceModePreference,
-} from '../../shared/api/client.js';
-
-// ============================================================================
-// Types
-// ============================================================================
-
-export type WorkspaceStep =
-  | 'setting'
-  | 'locations'
-  | 'npcs'
-  | 'player'
-  | 'tags'
-  | 'relationships'
-  | 'review';
-
-export interface SettingWorkspaceState {
-  settingId: string | null;
-  settingProfile: SettingProfile | null;
-  startTime?: {
-    year?: number;
-    month?: number;
-    day?: number;
-    hour: number;
-    minute: number;
-  } | undefined;
-  secondsPerTurn?: number | undefined;
-}
-
-export interface LocationMapState {
-  mapId: string | null;
-  mapName?: string;
-  startLocationId: string | null;
-}
-
-export type NpcRole = 'primary' | 'supporting' | 'background' | 'antagonist';
-export type SessionNpcTier = 'major' | 'minor' | 'transient';
-
-export interface NpcSessionConfig {
-  characterId: string;
-  characterProfile?: CharacterProfile;
-  role: NpcRole;
-  tier: SessionNpcTier;
-  startLocationId?: string;
-  label?: string;
-}
-
-export interface PlayerSessionConfig {
-  personaId: string | null;
-  personaProfile?: PersonaProfile;
-  startLocationId?: string;
-}
-
-export interface TagSelection {
-  tagId: string;
-  tagName?: string;
-  targetType: TagTargetType;
-  /** Optional: specific entity IDs when targetType requires explicit targets (e.g., character, location) */
-  targetEntityIds?: string[];
-}
-
-export interface RelationshipConfig {
-  fromActorId: string;
-  toActorId: string;
-  relationshipType: string;
-  affinitySeed?: {
-    trust?: number;
-    fondness?: number;
-    fear?: number;
-  };
-}
-
-export interface StepValidationState {
-  valid: boolean;
-  errors: string[];
-}
-
-export type WorkspaceValidationSummary = SharedWorkspaceValidationResult<
   WorkspaceStep,
-  StepValidationState
->;
+  WorkspaceState,
+  WorkspaceStore,
+} from './types.js';
 
-export interface WorkspaceState {
-  // Navigation
-  currentStep: WorkspaceStep;
-  completedSteps: Set<WorkspaceStep>;
-
-  // Step Data
-  setting: SettingWorkspaceState;
-  locations: LocationMapState;
-  npcs: NpcSessionConfig[];
-  player: PlayerSessionConfig;
-  tags: TagSelection[];
-  relationships: RelationshipConfig[];
-
-  // Persistence
-  draftId: string | null;
-  isDirty: boolean;
-  lastSavedAt: number | null;
-  isSaving: boolean;
-
-  // UI mode
-  mode: 'wizard' | 'compact';
-}
-
-export interface WorkspaceActions {
-  // Navigation
-  setStep: (step: WorkspaceStep) => void;
-  markStepComplete: (step: WorkspaceStep) => void;
-
-  // Setting
-  updateSetting: (partial: Partial<SettingWorkspaceState>) => void;
-  selectSetting: (settingId: string, profile: SettingProfile) => void;
-  clearSetting: () => void;
-
-  // Locations
-  updateLocations: (partial: Partial<LocationMapState>) => void;
-  setLocations: (locations: LocationMapState | null) => void;
-
-  // NPCs
-  addNpc: (npc: NpcSessionConfig) => void;
-  updateNpc: (characterId: string, partial: Partial<NpcSessionConfig>) => void;
-  removeNpc: (characterId: string) => void;
-  clearNpcs: () => void;
-
-  // Player
-  updatePlayer: (partial: Partial<PlayerSessionConfig>) => void;
-  selectPersona: (personaId: string, profile: PersonaProfile) => void;
-  clearPersona: () => void;
-
-  // Tags
-  addTag: (tag: TagSelection) => void;
-  updateTag: (tagId: string, partial: Partial<TagSelection>) => void;
-  removeTag: (tagId: string) => void;
-  clearTags: () => void;
-
-  // Relationships
-  addRelationship: (rel: RelationshipConfig) => void;
-  updateRelationship: (
-    fromActorId: string,
-    toActorId: string,
-    partial: Partial<RelationshipConfig>
-  ) => void;
-  removeRelationship: (fromActorId: string, toActorId: string) => void;
-
-  // Persistence
-  setDraftId: (id: string | null) => void;
-  markDirty: () => void;
-  markSaved: () => void;
-  setIsSaving: (saving: boolean) => void;
-  saveDraftToServer: () => Promise<void>;
-  deleteDraftFromServer: () => Promise<void>;
-
-  // Mode
-  setMode: (mode: 'wizard' | 'compact') => void;
-
-  // Validation
-  validate: () => WorkspaceValidationSummary;
-  validateStep: (step: WorkspaceStep) => StepValidationState;
-
-  // Reset
-  reset: () => void;
-  loadFromDraft: (draft: Partial<WorkspaceState>) => void;
-}
-
-export type WorkspaceStore = WorkspaceState & WorkspaceActions;
+// Re-export all types for backward compatibility
+export type {
+  WorkspaceStep,
+  SettingWorkspaceState,
+  LocationMapState,
+  NpcRole,
+  SessionNpcTier,
+  NpcSessionConfig,
+  PlayerSessionConfig,
+  TagSelection,
+  RelationshipConfig,
+  StepValidationState,
+  WorkspaceValidationSummary,
+  WorkspaceState,
+  WorkspaceActions,
+  WorkspaceStore,
+} from './types.js';
 
 // ============================================================================
 // Initial State
@@ -219,88 +64,6 @@ const initialState: WorkspaceState = {
   isSaving: false,
   mode: 'wizard',
 };
-
-// ============================================================================
-// Validation Functions
-// ============================================================================
-
-function validateSettingStep(state: WorkspaceState): StepValidationState {
-  const errors: string[] = [];
-  if (!state.setting.settingId) {
-    errors.push('Please select a setting');
-  }
-  return { valid: errors.length === 0, errors };
-}
-
-function validateLocationsStep(): StepValidationState {
-  // Locations are optional in MVP
-  return { valid: true, errors: [] };
-}
-
-function validateNpcsStep(state: WorkspaceState): StepValidationState {
-  const errors: string[] = [];
-  if (state.npcs.length === 0) {
-    errors.push('Please add at least one NPC to the session');
-  }
-  return { valid: errors.length === 0, errors };
-}
-
-function validatePlayerStep(): StepValidationState {
-  // Player/Persona is optional
-  return { valid: true, errors: [] };
-}
-
-function validateTagsStep(state: WorkspaceState): StepValidationState {
-  // Tags are optional, but any selected targeted tags must be fully configured.
-  const errors: string[] = [];
-
-  for (const tag of state.tags) {
-    const tagName = tag.tagName ?? tag.tagId;
-
-    if (tag.targetType === 'character') {
-      if (state.npcs.length === 0) {
-        errors.push(`Tag "${tagName}" targets characters but no NPCs are in the session`);
-        continue;
-      }
-      if (!tag.targetEntityIds || tag.targetEntityIds.length === 0) {
-        errors.push(`Select one or more characters for tag "${tagName}"`);
-      }
-    }
-
-    if (tag.targetType === 'location') {
-      if (!state.locations.mapId) {
-        errors.push(`Tag "${tagName}" targets locations but no location map is selected`);
-        continue;
-      }
-      if (!tag.targetEntityIds || tag.targetEntityIds.length === 0) {
-        errors.push(`Select one or more locations for tag "${tagName}"`);
-      }
-    }
-  }
-
-  return { valid: errors.length === 0, errors };
-}
-
-function validateRelationshipsStep(): StepValidationState {
-  // Relationships are optional - players can configure them or leave as defaults
-  return { valid: true, errors: [] };
-}
-
-function validateReviewStep(state: WorkspaceState): StepValidationState {
-  // Review step is valid if setting and NPCs are valid
-  const settingValid = validateSettingStep(state);
-  const npcsValid = validateNpcsStep(state);
-
-  const errors: string[] = [];
-  if (!settingValid.valid) {
-    errors.push('Setting step is incomplete');
-  }
-  if (!npcsValid.valid) {
-    errors.push('NPCs step is incomplete');
-  }
-
-  return { valid: errors.length === 0, errors };
-}
 
 // ============================================================================
 // Store Creation
@@ -510,131 +273,10 @@ export const useWorkspaceStore = create<WorkspaceStore>()(
           markDirty: () => set({ isDirty: true }, false, 'markDirty'),
           markSaved: () => set({ isDirty: false, lastSavedAt: Date.now() }, false, 'markSaved'),
           setIsSaving: (saving) => set({ isSaving: saving }, false, 'setIsSaving'),
-
-          /**
-           * Save the current workspace state to the server.
-           * Creates a new draft if none exists, otherwise updates.
-           */
-          saveDraftToServer: async () => {
-            const state = get();
-            if (state.isSaving) return; // Already saving
-
-            set({ isSaving: true }, false, 'saveDraftToServer:start');
-
-            try {
-              // Serialize state for API
-              const workspaceState: Record<string, unknown> = {
-                setting: state.setting,
-                locations: state.locations,
-                npcs: state.npcs,
-                player: state.player,
-                tags: state.tags,
-                relationships: state.relationships,
-                completedSteps: Array.from(state.completedSteps),
-                mode: state.mode,
-              };
-
-              if (state.draftId) {
-                // Update existing draft
-                await updateWorkspaceDraft(state.draftId, {
-                  workspaceState,
-                  currentStep: state.currentStep,
-                });
-                console.info('[Workspace] Draft updated:', state.draftId);
-              } else {
-                // Create new draft
-                const draft = await createWorkspaceDraft({
-                  workspaceState,
-                  currentStep: state.currentStep,
-                });
-                set({ draftId: draft.id }, false, 'saveDraftToServer:created');
-                console.info('[Workspace] Draft created:', draft.id);
-              }
-
-              set({ isDirty: false, lastSavedAt: Date.now() }, false, 'saveDraftToServer:done');
-            } catch (err) {
-              console.error('[Workspace] Failed to save draft to server:', err);
-              // Don't throw - just log. Next save attempt will retry
-            } finally {
-              set({ isSaving: false }, false, 'saveDraftToServer:end');
-            }
-          },
-
-          /**
-           * Delete the current draft from the server (after session creation or reset).
-           */
-          deleteDraftFromServer: async () => {
-            const state = get();
-            if (!state.draftId) return;
-
-            try {
-              await apiDeleteWorkspaceDraft(state.draftId);
-              console.info('[Workspace] Draft deleted:', state.draftId);
-              set({ draftId: null }, false, 'deleteDraftFromServer');
-            } catch (err) {
-              console.error('[Workspace] Failed to delete draft:', err);
-            }
-          },
-
-          // Mode
-          setMode: (mode) => {
-            set({ mode }, false, 'setMode');
-            // Persist to server (fire and forget)
-            void setWorkspaceModePreference(mode).catch((err) => {
-              console.warn('[Workspace] Failed to persist mode preference:', err);
-            });
-          },
+          ...createPersistenceActions(set, get),
 
           // Validation
-          validateStep: (step) => {
-            const state = get();
-            switch (step) {
-              case 'setting':
-                return validateSettingStep(state);
-              case 'locations':
-                return validateLocationsStep();
-              case 'npcs':
-                return validateNpcsStep(state);
-              case 'player':
-                return validatePlayerStep();
-              case 'tags':
-                return validateTagsStep(state);
-              case 'relationships':
-                return validateRelationshipsStep();
-              case 'review':
-                return validateReviewStep(state);
-              default:
-                return { valid: true, errors: [] };
-            }
-          },
-          validate: () => {
-            const steps: WorkspaceStep[] = [
-              'setting',
-              'locations',
-              'npcs',
-              'player',
-              'tags',
-              'relationships',
-              'review',
-            ];
-            const stepErrors: Partial<Record<WorkspaceStep, StepValidationState>> = {};
-            let valid = true;
-
-            for (const step of steps) {
-              const validation = get().validateStep(step);
-              Object.defineProperty(stepErrors, step, {
-                value: validation,
-                writable: true,
-                enumerable: true,
-                configurable: true,
-              });
-              if (!validation.valid && (step === 'setting' || step === 'npcs')) {
-                valid = false;
-              }
-            }
-
-            return { valid, stepErrors };
-          },
+          ...createValidationActions(get),
 
           // Reset
           reset: () => set({ ...initialState, completedSteps: new Set() }, false, 'reset'),
@@ -682,196 +324,25 @@ export const useWorkspaceStore = create<WorkspaceStore>()(
   )
 );
 
-// ============================================================================
-// Server Sync Configuration
-// ============================================================================
-
-/** Debounce interval for server sync (60 seconds as per spec) */
-const SYNC_DEBOUNCE_MS = 60_000;
-
-/** Minimum time between syncs */
-const MIN_SYNC_INTERVAL_MS = 5_000;
-
-/** Track debounce timer globally */
-let syncTimeoutId: ReturnType<typeof setTimeout> | null = null;
-let lastSyncTime = 0;
-
-/**
- * Schedule a debounced sync to the server.
- * Called automatically when state changes.
- */
-function scheduleDebouncedSync(): void {
-  // Clear any existing timeout
-  if (syncTimeoutId) {
-    clearTimeout(syncTimeoutId);
-  }
-
-  syncTimeoutId = setTimeout(() => {
-    const state = useWorkspaceStore.getState();
-    if (state.isDirty && !state.isSaving) {
-      void state.saveDraftToServer();
-    }
-    syncTimeoutId = null;
-  }, SYNC_DEBOUNCE_MS);
-}
-
-/**
- * Trigger immediate sync if enough time has passed.
- * Used for step changes and beforeunload.
- */
-function triggerImmediateSync(): void {
-  const now = Date.now();
-  if (now - lastSyncTime < MIN_SYNC_INTERVAL_MS) {
-    return; // Too soon, let debounce handle it
-  }
-
-  const state = useWorkspaceStore.getState();
-  if (state.isDirty && !state.isSaving) {
-    lastSyncTime = now;
-    void state.saveDraftToServer();
-  }
-}
-
-/**
- * Subscribe to store changes and schedule syncs.
- * Called once at module load.
- */
-function setupServerSync(): void {
-  // Subscribe to isDirty changes
-  useWorkspaceStore.subscribe(
-    (state) => state.isDirty,
-    (isDirty) => {
-      if (isDirty) {
-        scheduleDebouncedSync();
-      }
-    }
-  );
-
-  // Sync on step changes (more aggressive)
-  useWorkspaceStore.subscribe(
-    (state) => state.currentStep,
-    () => {
-      triggerImmediateSync();
-    }
-  );
-
-  // Sync on page unload
-  if (typeof window !== 'undefined') {
-    window.addEventListener('beforeunload', () => {
-      const state = useWorkspaceStore.getState();
-      if (state.isDirty && state.draftId) {
-        // Use sendBeacon for reliable delivery on page close
-        const workspaceState: Record<string, unknown> = {
-          setting: state.setting,
-          locations: state.locations,
-          npcs: state.npcs,
-          player: state.player,
-          tags: state.tags,
-          relationships: state.relationships,
-          completedSteps: Array.from(state.completedSteps),
-          mode: state.mode,
-        };
-
-        const payload = JSON.stringify({
-          workspaceState,
-          currentStep: state.currentStep,
-        });
-
-        // Try sendBeacon first (most reliable for unload)
-        const url = new URL(`/workspace-drafts/${state.draftId}`, API_BASE_URL).toString();
-        const success = navigator.sendBeacon(
-          url,
-          new Blob([payload], { type: 'application/json' })
-        );
-
-        if (!success) {
-          console.warn('[Workspace] sendBeacon failed, data may be lost');
-        }
-      }
-    });
-  }
-}
-
 // Initialize server sync on module load
-setupServerSync();
-
-/**
- * Load user's mode preference from the server and apply to store.
- * Called once on module load to sync with persisted preference.
- */
-async function loadModePreference(): Promise<void> {
-  try {
-    const mode = await getWorkspaceModePreference();
-    const currentMode = useWorkspaceStore.getState().mode;
-    if (mode !== currentMode) {
-      // Use setState directly to avoid triggering the server save
-      useWorkspaceStore.setState({ mode }, false, 'loadModePreference');
-      console.info('[Workspace] Loaded mode preference from server:', mode);
-    }
-  } catch (err) {
-    console.warn('[Workspace] Failed to load mode preference:', err);
-    // Keep localStorage/default mode
-  }
-}
+setupServerSync(useWorkspaceStore);
 
 // Load mode preference on module init (after a small delay to not block initial render)
 if (typeof window !== 'undefined') {
   setTimeout(() => {
-    void loadModePreference();
+    void loadModePreference(useWorkspaceStore);
   }, 100);
 }
 
-// ============================================================================
-// Selector Hooks
-// ============================================================================
-
-export const useCurrentStep = () => useWorkspaceStore((s) => s.currentStep);
-export const useSettingState = () => useWorkspaceStore((s) => s.setting);
-export const useNpcsState = (): NpcSessionConfig[] => useWorkspaceStore((s) => s.npcs);
-export const usePlayerState = () => useWorkspaceStore((s) => s.player);
-export const useTagsState = () => useWorkspaceStore((s) => s.tags);
-export const useWorkspaceMode = () => useWorkspaceStore((s) => s.mode);
-export const useIsDirty = () => useWorkspaceStore((s) => s.isDirty);
-
-/**
- * Use validation state. This hook memoizes the validation result
- * based on the actual data that affects validation (setting + npcs).
- */
-export const useValidation = (): WorkspaceValidationSummary => {
-  const setting = useWorkspaceStore((s) => s.setting);
-  const npcs = useWorkspaceStore((s) => s.npcs);
-  const player = useWorkspaceStore((s) => s.player);
-  const tags = useWorkspaceStore((s) => s.tags);
-  const locations = useWorkspaceStore((s) => s.locations);
-  const relationships = useWorkspaceStore((s) => s.relationships);
-  const validate = useWorkspaceStore((s) => s.validate);
-
-  // Memoize validation result to avoid infinite re-renders
-  return useMemo(() => {
-    const validationState = { setting, npcs, player, tags, locations, relationships };
-    void validationState;
-    return validate();
-  }, [locations, npcs, player, relationships, setting, tags, validate]);
-};
-
-/**
- * Hook that returns save status and actions for the workspace.
- * Provides manual save trigger and status indicators.
- */
-export const useSaveStatus = () => {
-  const isDirty = useWorkspaceStore((s) => s.isDirty);
-  const isSaving = useWorkspaceStore((s) => s.isSaving);
-  const lastSavedAt = useWorkspaceStore((s) => s.lastSavedAt);
-  const draftId = useWorkspaceStore((s) => s.draftId);
-  const saveDraftToServer = useWorkspaceStore((s) => s.saveDraftToServer);
-  const deleteDraftFromServer = useWorkspaceStore((s) => s.deleteDraftFromServer);
-
-  return {
-    isDirty,
-    isSaving,
-    lastSavedAt,
-    hasDraft: !!draftId,
-    save: saveDraftToServer,
-    deleteDraft: deleteDraftFromServer,
-  };
-};
+// Re-export selector hooks for backward compatibility
+export {
+  useCurrentStep,
+  useSettingState,
+  useNpcsState,
+  usePlayerState,
+  useTagsState,
+  useWorkspaceMode,
+  useIsDirty,
+  useValidation,
+  useSaveStatus,
+} from './hooks.js';

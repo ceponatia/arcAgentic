@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, type Dispatch, type SetStateAction } from 'react';
 import { getErrorMessage } from '@arcagentic/utils';
-import { useSignals } from '@preact/signals-react/runtime';
 import {
   createSession,
   createSessionFull,
@@ -12,7 +11,7 @@ import { useSettings } from '../../shared/hooks/useSettings.js';
 import { useCharacters } from '../../shared/hooks/useCharacters.js';
 import { usePersonas } from '../../shared/hooks/usePersonas.js';
 import { useRefreshOnViewEnter } from '../../shared/hooks/useRefreshOnViewEnter.js';
-import { currentSessionId as currentSessionIdSignal } from '../../signals/session.js';
+import { useSessionStore } from '../../shared/stores/session-store.js';
 import type { AppControllerValue, ViewMode } from '../../types.js';
 
 function parseHashRoute(): {
@@ -145,16 +144,16 @@ function parseHashRoute(): {
 }
 
 export function useAppController(): AppControllerValue {
-  useSignals();
   const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(null);
   const [selectedSettingId, setSelectedSettingId] = useState<string | null>(null);
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
 
-  // Bridge local state with signal
-  const currentSessionId = currentSessionIdSignal.value;
+  // Bridge local state with Zustand store
+  const currentSessionId = useSessionStore((s) => s.currentSessionId);
   const setCurrentSessionId: Dispatch<SetStateAction<string | null>> = (value) => {
-    const nextValue = typeof value === 'function' ? value(currentSessionIdSignal.value) : value;
-    currentSessionIdSignal.value = nextValue;
+    const store = useSessionStore.getState();
+    const nextValue = typeof value === 'function' ? value(store.currentSessionId) : value;
+    store.setSessionId(nextValue);
   };
 
   const [viewMode, setViewMode] = useState<ViewMode>(() => {

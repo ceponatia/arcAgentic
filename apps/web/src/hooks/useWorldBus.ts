@@ -1,13 +1,8 @@
 import { useEffect } from 'react';
 import { connectStream } from '../services/stream.js';
 import { API_BASE_URL } from '../config.js';
-import {
-  updateSessionStatus,
-  addEvent,
-  updateActorState,
-  incrementTick,
-  setTick,
-} from '../signals/index.js';
+import { useSessionStore } from '../shared/stores/session-store.js';
+import { useRuntimeStore } from '../shared/stores/runtime-store.js';
 import type { StreamEvent } from '../types.js';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -31,6 +26,9 @@ export interface UseWorldBusOptions {
 export function useWorldBus(sessionId: string | null, options?: UseWorldBusOptions) {
   useEffect(() => {
     if (!sessionId) return;
+
+    const { updateSessionStatus, setTick, incrementTick } = useSessionStore.getState();
+    const { addEvent, updateActorState } = useRuntimeStore.getState();
 
     const url = new URL(`/stream/${sessionId}`, API_BASE_URL).toString();
 

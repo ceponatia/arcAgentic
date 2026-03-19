@@ -1,27 +1,29 @@
-import React from 'react';
-import { useSignals } from '@preact/signals-react/runtime';
-import { activeActors, actorStates } from '../../../signals/actors.js';
-import { currentTick } from '../../../signals/session.js';
+import React from "react";
+import { useRuntimeStore } from "../../../shared/stores/runtime-store.js";
+import { useSessionStore } from "../../../shared/stores/session-store.js";
 
 function getActorState<T extends Record<string, unknown>>(
   record: T,
-  actorId: string
+  actorId: string,
 ): T[string] | undefined {
   const entry = Object.getOwnPropertyDescriptor(record, actorId);
   return entry?.value as T[string] | undefined;
 }
 
 export const WorldMap: React.FC = () => {
-  useSignals();
-  const actors = activeActors.value;
-  const states = actorStates.value;
-  const tick = currentTick.value;
+  const actors = useRuntimeStore((s) => s.activeActorIds);
+  const states = useRuntimeStore((s) => s.actorStates);
+  const tick = useSessionStore((s) => s.currentTick);
 
   return (
     <div className="flex flex-col h-full bg-slate-900 border border-slate-700 rounded-lg overflow-hidden">
       <div className="px-3 py-2 bg-slate-800 border-b border-slate-700 flex items-center justify-between">
-        <h3 className="text-xs font-semibold text-slate-300 uppercase tracking-wider">World Map</h3>
-        <span className="text-[10px] font-mono text-emerald-500">Tick: {tick}</span>
+        <h3 className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+          World Map
+        </h3>
+        <span className="text-[10px] font-mono text-emerald-500">
+          Tick: {tick}
+        </span>
       </div>
       <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
         {actors.length === 0 ? (
@@ -51,22 +53,28 @@ export const WorldMap: React.FC = () => {
                   className="p-3 bg-slate-800/50 rounded border border-slate-700/50 flex flex-col gap-2"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-violet-300">{actorId}</span>
+                    <span className="text-sm font-medium text-violet-300">
+                      {actorId}
+                    </span>
                     <span
-                      className={`w-2 h-2 rounded-full ${state ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-slate-600'}`}
+                      className={`w-2 h-2 rounded-full ${state ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-slate-600"}`}
                     />
                   </div>
                   {state ? (
                     <div className="text-[10px] space-y-1">
                       <div className="flex justify-between">
                         <span className="text-slate-500">Location:</span>
-                        <span className="text-slate-300">{state.locationId ?? 'Unknown'}</span>
+                        <span className="text-slate-300">
+                          {state.locationId ?? "Unknown"}
+                        </span>
                       </div>
                       {state.hpPercent !== undefined && (
                         <div className="space-y-1">
                           <div className="flex justify-between text-[9px]">
                             <span className="text-slate-500">Health</span>
-                            <span className="text-slate-400">{state.hpPercent}%</span>
+                            <span className="text-slate-400">
+                              {state.hpPercent}%
+                            </span>
                           </div>
                           <div className="h-1 bg-slate-900 rounded-full overflow-hidden">
                             <div
@@ -78,7 +86,9 @@ export const WorldMap: React.FC = () => {
                       )}
                     </div>
                   ) : (
-                    <span className="text-[10px] text-slate-500 italic">No state data yet</span>
+                    <span className="text-[10px] text-slate-500 italic">
+                      No state data yet
+                    </span>
                   )}
                 </div>
               );
