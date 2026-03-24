@@ -1,5 +1,6 @@
 import { worldBus } from '@arcagentic/bus';
-import { type WorldEvent } from '@arcagentic/schemas';
+import { createLogger } from '@arcagentic/logger';
+import { extractLocationId, type Intent, type WorldEvent } from '@arcagentic/schemas';
 import { Validators, type ValidationContext } from './validators.js';
 import {
   getActorState,
@@ -7,6 +8,12 @@ import {
   getInventoryItems,
   getSessionGameTime,
 } from '@arcagentic/db';
+
+const log = createLogger('services', 'rules');
+
+function isIntentEvent(event: WorldEvent): event is Intent {
+  return event.type.endsWith('_INTENT');
+}
 
 /**
  * Rules Engine Service
@@ -18,15 +25,18 @@ export class RulesEngine {
 
   private handler = async (event: WorldEvent): Promise<void> => {
     // Only validate *_INTENT events
-    if (!event.type.endsWith('_INTENT')) {
+    if (!isIntentEvent(event)) {
       return;
     }
 
     const sessionId = event.sessionId;
-    const actorId = (event as { actorId?: string }).actorId;
+    const actorId = event.actorId;
 
     if (!sessionId || !actorId) {
-      console.warn(`[RulesEngine] Missing sessionId or actorId in ${event.type}`);
+      log.warn(
+        { eventType: event.type, sessionId, actorId },
+        'missing sessionId or actorId'
+      );
       return;
     }
 
@@ -35,7 +45,16 @@ export class RulesEngine {
       const result = await Validators.validateAction(event, context);
 
       if (!result.valid) {
-        console.debug(`[RulesEngine] Rejected ${event.type}: ${result.reason}`);
+        log.debug(
+          {
+            eventType: event.type,
+            sessionId,
+            actorId,
+            reason: result.reason,
+            suggestion: result.suggestion,
+          },
+          'action rejected'
+        );
 
         await worldBus.emit({
           type: 'ACTION_REJECTED',
@@ -48,49 +67,13 @@ export class RulesEngine {
         });
       }
     } catch (error) {
-      console.error(`[RulesEngine] Error validating ${event.type}:`, error);
+      log.error(
+        { err: error, eventType: event.type, sessionId, actorId },
+        'error validating action'
+      );
       // On error, allow the action (fail open for now)
     }
   };
-
-  private extractLocationId(state: unknown): string | null {
-    if (!state || typeof state !== 'object') return null;
-    const record = state as Record<string, unknown>;
-
-    const location = record['location'];
-    if (location && typeof location === 'object') {
-      const locationRecord = location as Record<string, unknown>;
-      if (typeof locationRecord['currentLocationId'] === 'string') {
-        return locationRecord['currentLocationId'];
-      }
-    }
-
-    const locationState = record['locationState'];
-    if (locationState && typeof locationState === 'object') {
-      const locationStateRecord = locationState as Record<string, unknown>;
-      if (typeof locationStateRecord['locationId'] === 'string') {
-        return locationStateRecord['locationId'];
-      }
-    }
-
-    const simulation = record['simulation'];
-    if (simulation && typeof simulation === 'object') {
-      const simulationRecord = simulation as Record<string, unknown>;
-      const currentState = simulationRecord['currentState'];
-      if (currentState && typeof currentState === 'object') {
-        const currentStateRecord = currentState as Record<string, unknown>;
-        if (typeof currentStateRecord['locationId'] === 'string') {
-          return currentStateRecord['locationId'];
-        }
-      }
-    }
-
-    if (typeof record['locationId'] === 'string') {
-      return record['locationId'];
-    }
-
-    return null;
-  }
 
   /**
    * Build validation context from session state.
@@ -100,8 +83,7 @@ export class RulesEngine {
     actorId: string
   ): Promise<ValidationContext> {
     const actorState = await getActorState(sessionId, actorId);
-    const currentLocationId =
-      this.extractLocationId(actorState?.state) ?? 'unknown';
+    const currentLocationId = extractLocationId(actorState?.state) ?? 'unknown';
 
     const actorsAtLocation = await getActorsAtLocation(sessionId, currentLocationId);
     const actorIds = actorsAtLocation
@@ -132,14 +114,14 @@ export class RulesEngine {
     if (this.started) return;
     void worldBus.subscribe(this.handler);
     this.started = true;
-    console.info('[RulesEngine] Started');
+    log.info('started');
   }
 
   stop(): void {
     if (!this.started) return;
     worldBus.unsubscribe(this.handler);
     this.started = false;
-    console.info('[RulesEngine] Stopped');
+    log.info('stopped');
   }
 }
 

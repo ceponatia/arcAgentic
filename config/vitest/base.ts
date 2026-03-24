@@ -6,5 +6,11 @@ export default defineConfig({
     globals: true,
     include: ['test/**/*.test.ts'],
     passWithNoTests: true,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      reportsDirectory: './coverage',
+      enabled: false,
+    },
   },
 });

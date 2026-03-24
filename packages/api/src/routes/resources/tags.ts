@@ -1,4 +1,5 @@
 import type { Hono } from 'hono';
+import { createLogger } from '@arcagentic/logger';
 import {
   listPromptTags,
   getPromptTag,
@@ -25,6 +26,8 @@ import {
   validateParamId,
   validateQuery,
 } from '../../utils/request-validation.js';
+
+const log = createLogger('api', 'resources');
 
 // DB row types for tag responses (aligned with Drizzle schema)
 interface PromptTagRow {
@@ -128,7 +131,7 @@ export function registerTagRoutes(app: Hono): void {
       }
       return c.json({ ok: true, tag: toTagResponse(tag) }, 200);
     } catch (err) {
-      console.error('[API] Failed to get tag:', err);
+      log.error({ err, tagId: id }, 'failed to get tag');
       return c.json({ ok: false, error: 'Failed to get tag' } satisfies ApiError, 500);
     }
   });
@@ -157,7 +160,7 @@ export function registerTagRoutes(app: Hono): void {
       }
       return c.json({ ok: true, tag: toTagResponse(tag) }, 201);
     } catch (err) {
-      console.error('[API] Failed to create tag:', err);
+      log.error({ err }, 'failed to create tag');
       return c.json({ ok: false, error: 'Failed to create tag' } satisfies ApiError, 500);
     }
   });
@@ -192,7 +195,7 @@ export function registerTagRoutes(app: Hono): void {
       }
       return c.json({ ok: true, tag: toTagResponse(updated) }, 200);
     } catch (err) {
-      console.error('[API] Failed to update tag:', err);
+      log.error({ err, tagId: id }, 'failed to update tag');
       return c.json({ ok: false, error: 'Failed to update tag' } satisfies ApiError, 500);
     }
   });
@@ -209,7 +212,7 @@ export function registerTagRoutes(app: Hono): void {
       }
       return c.json({ ok: true }, 200);
     } catch (err) {
-      console.error('[API] Failed to delete tag:', err);
+      log.error({ err, tagId: id }, 'failed to delete tag');
       return c.json({ ok: false, error: 'Failed to delete tag' } satisfies ApiError, 500);
     }
   });
@@ -240,7 +243,7 @@ export function registerTagRoutes(app: Hono): void {
         200
       );
     } catch (err) {
-      console.error('[API] Failed to get session tag bindings:', err);
+      log.error({ err, sessionId }, 'failed to get session tag bindings');
       return c.json({ ok: false, error: 'Failed to get session tags' } satisfies ApiError, 500);
     }
   });
@@ -269,7 +272,7 @@ export function registerTagRoutes(app: Hono): void {
 
       return c.json({ ok: true, binding: toBindingResponse(binding) }, 201);
     } catch (err) {
-      console.error('[API] Failed to create session tag binding:', err);
+      log.error({ err, sessionId }, 'failed to create session tag binding');
       return c.json({ ok: false, error: 'Failed to bind tag to session' } satisfies ApiError, 500);
     }
   });
@@ -278,6 +281,7 @@ export function registerTagRoutes(app: Hono): void {
   app.patch('/sessions/:sessionId/tags/:bindingId', async (c) => {
     const sessionIdResult = validateParamId(c, 'sessionId');
     if (!sessionIdResult.success) return sessionIdResult.errorResponse;
+    const sessionId = sessionIdResult.data;
     const bindingIdResult = validateParamId(c, 'bindingId');
     if (!bindingIdResult.success) return bindingIdResult.errorResponse;
     const bindingId = bindingIdResult.data;
@@ -292,7 +296,7 @@ export function registerTagRoutes(app: Hono): void {
       }
       return c.json({ ok: true, binding: toBindingResponse(updated) }, 200);
     } catch (err) {
-      console.error('[API] Failed to toggle session tag binding:', err);
+      log.error({ err, sessionId, bindingId }, 'failed to toggle session tag binding');
       return c.json({ ok: false, error: 'Failed to toggle binding' } satisfies ApiError, 500);
     }
   });
@@ -301,6 +305,7 @@ export function registerTagRoutes(app: Hono): void {
   app.delete('/sessions/:sessionId/tags/:bindingId', async (c) => {
     const sessionIdResult = validateParamId(c, 'sessionId');
     if (!sessionIdResult.success) return sessionIdResult.errorResponse;
+    const sessionId = sessionIdResult.data;
     const bindingIdResult = validateParamId(c, 'bindingId');
     if (!bindingIdResult.success) return bindingIdResult.errorResponse;
     const bindingId = bindingIdResult.data;
@@ -312,7 +317,7 @@ export function registerTagRoutes(app: Hono): void {
       }
       return c.json({ ok: true }, 200);
     } catch (err) {
-      console.error('[API] Failed to delete session tag binding:', err);
+      log.error({ err, sessionId, bindingId }, 'failed to delete session tag binding');
       return c.json({ ok: false, error: 'Failed to remove binding' } satisfies ApiError, 500);
     }
   });

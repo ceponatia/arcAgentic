@@ -1,6 +1,9 @@
 import type { PresenceRecord, PresenceSchedulerStopOnly } from '@arcagentic/schemas';
+import { createLogger, type Logger } from '@arcagentic/logger';
 
 const DEFAULT_MONITOR_INTERVAL_MS = 30_000;
+const createWorkersLogger = createLogger as (pkg: string, subsystem?: string) => Logger;
+const log = createWorkersLogger('workers', 'heartbeat');
 
 type PresenceScheduler = PresenceSchedulerStopOnly;
 
@@ -44,7 +47,7 @@ export class HeartbeatMonitor {
     this.intervalId = setInterval(() => {
       void this.checkOnce();
     }, this.intervalMs);
-    console.info('[HeartbeatMonitor] Started');
+    log.info('started heartbeat monitor');
   }
 
   /**
@@ -54,7 +57,7 @@ export class HeartbeatMonitor {
     if (!this.intervalId) return;
     clearInterval(this.intervalId);
     this.intervalId = null;
-    console.info('[HeartbeatMonitor] Stopped');
+    log.info('stopped heartbeat monitor');
   }
 
   /**
@@ -68,11 +71,19 @@ export class HeartbeatMonitor {
       const msSinceHeartbeat = now.getTime() - session.lastHeartbeatAt.getTime();
       if (msSinceHeartbeat <= this.pauseThresholdMs) continue;
 
-      await this.scheduler.stopWorldTick(session.sessionId);
-      this.presence.removeSession(session.sessionId);
-      console.info(
-        `[HeartbeatMonitor] Paused session ${session.sessionId} after ${msSinceHeartbeat}ms without heartbeat`
-      );
+      try {
+        await this.scheduler.stopWorldTick(session.sessionId);
+        this.presence.removeSession(session.sessionId);
+        log.info(
+          { sessionId: session.sessionId, msSinceHeartbeat },
+          'paused session after missing heartbeat'
+        );
+      } catch (error) {
+        log.error(
+          { err: error, sessionId: session.sessionId, msSinceHeartbeat },
+          'failed to pause stale session'
+        );
+      }
     }
   }
 }

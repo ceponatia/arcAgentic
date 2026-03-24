@@ -1,5 +1,8 @@
 import type { SessionMessageDto, SpokePayload } from './types.js';
+import { createLogger } from '@arcagentic/logger';
 import { isUuid } from '../../../utils/uuid.js';
+
+const log = createLogger('api', 'sessions');
 
 export interface SpokeEventLike {
   actorId: string;
@@ -54,11 +57,7 @@ export async function mapSpokeEventsToMessages(
     if (existing) return existing;
 
     const promise = deps.getProfileName(profileId).catch((err: unknown) => {
-      console.warn('[API] Failed to load speaker profile for session message', {
-        sessionId: deps.sessionId,
-        candidateProfileId: profileId,
-        error: err instanceof Error ? err.message : String(err),
-      });
+      log.warn({ err, sessionId: deps.sessionId, candidateProfileId: profileId }, 'failed to load speaker profile for session message');
       return null;
     });
 
@@ -74,11 +73,7 @@ export async function mapSpokeEventsToMessages(
     if (existing) return existing;
 
     const promise = deps.getActorDisplayName(actorId).catch((err: unknown) => {
-      console.warn('[API] Failed to load actor display name for session message', {
-        sessionId: deps.sessionId,
-        actorId,
-        error: err instanceof Error ? err.message : String(err),
-      });
+      log.warn({ err, sessionId: deps.sessionId, actorId }, 'failed to load actor display name for session message');
       return null;
     });
 

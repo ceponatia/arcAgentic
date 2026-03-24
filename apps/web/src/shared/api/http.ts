@@ -75,25 +75,19 @@ export async function http<T>(path: string, init?: HttpOptions): Promise<T> {
     });
 
     if (!res.ok) {
-      // Try to surface server-provided error details
-      try {
-        const maybeJson: unknown = await res.clone().json();
-        const msg =
-          maybeJson && typeof maybeJson === 'object' && 'error' in maybeJson
-            ? String((maybeJson as { error?: unknown }).error)
-            : undefined;
-        if (msg) throw new Error(`HTTP ${res.status}: ${msg}`);
-      } catch (jsonErr) {
-        // Ignore JSON parse errors and fall back to text parsing below.
-        void jsonErr;
+      // Try to surface server-provided error details.
+      const maybeJson: unknown = await res.clone().json().catch(() => undefined);
+      const jsonMessage =
+        maybeJson && typeof maybeJson === 'object' && 'error' in maybeJson
+          ? String((maybeJson as { error?: unknown }).error)
+          : undefined;
+      if (jsonMessage) {
+        throw new Error(`HTTP ${res.status}: ${jsonMessage}`);
       }
 
-      try {
-        const text = await res.text();
-        if (text) throw new Error(`HTTP ${res.status}: ${text}`);
-      } catch (textErr) {
-        // Ignore text parsing errors; we'll throw a generic HTTP error below.
-        void textErr;
+      const text = await res.text().catch(() => '');
+      if (text) {
+        throw new Error(`HTTP ${res.status}: ${text}`);
       }
 
       throw new Error(`HTTP ${res.status}`);

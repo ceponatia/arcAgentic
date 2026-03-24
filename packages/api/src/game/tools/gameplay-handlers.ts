@@ -1,12 +1,17 @@
 /**
  * Gameplay tool handlers - execute tool calls that change game state.
  */
+import { createLogger } from '@arcagentic/logger';
 import type { ToolResult } from './types.js';
-import type { InventoryItem, LocationMap, LocationNode } from '@arcagentic/schemas';
 import {
+  extractLocationId,
+  isRecord,
   InventoryStateSchema,
   LocationConnectionSchema,
   LocationNodeSchema,
+  type InventoryItem,
+  type LocationMap,
+  type LocationNode,
 } from '@arcagentic/schemas';
 import {
   getActorState,
@@ -28,6 +33,8 @@ import {
   NavigatePlayerArgsSchema,
   UseItemArgsSchema,
 } from './tool-args.js';
+
+const log = createLogger('api', 'gameplay-tools');
 
 export interface GameplayToolContext {
   /** Owner key for tenancy scoping */
@@ -320,7 +327,7 @@ async function loadSessionLocationMap(
     mapRow = await getLocationMap(session.locationMapId);
   } catch (error) {
     if (error instanceof LocationDataValidationError) {
-      console.error('[GameplayTools] Invalid location map data detected', error.details);
+      log.error({ error: error.details, locationMapId: session.locationMapId, sessionId: context.sessionId }, 'invalid location map data detected');
       return null;
     }
     throw error;
@@ -574,42 +581,4 @@ function safeJsonParse(value: string): unknown {
   } catch {
     return null;
   }
-}
-
-/**
- * Extract a location id from stored state.
- */
-function extractLocationId(state: unknown): string | null {
-  if (!isRecord(state)) return null;
-
-  const location = state['location'];
-  if (isRecord(location) && typeof location['currentLocationId'] === 'string') {
-    return location['currentLocationId'];
-  }
-
-  const locationState = state['locationState'];
-  if (isRecord(locationState) && typeof locationState['locationId'] === 'string') {
-    return locationState['locationId'];
-  }
-
-  const simulation = state['simulation'];
-  if (isRecord(simulation)) {
-    const currentState = simulation['currentState'];
-    if (isRecord(currentState) && typeof currentState['locationId'] === 'string') {
-      return currentState['locationId'];
-    }
-  }
-
-  if (typeof state['locationId'] === 'string') {
-    return state['locationId'];
-  }
-
-  return null;
-}
-
-/**
- * Check if a value is a record.
- */
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 }

@@ -1,10 +1,21 @@
-import { CharacterProfileSchema, type CharacterProfile, type Intent, type WorldEvent } from '@arcagentic/schemas';
+import {
+  CharacterProfileSchema,
+  extractLocationId,
+  isRecord,
+  NpcLocationStateSchema,
+  type CharacterProfile,
+  type Intent,
+  type WorldEvent,
+} from '@arcagentic/schemas';
+import { createLogger } from '@arcagentic/logger';
 import type { LLMProvider } from '@arcagentic/llm';
 import { CognitionLayer, type CognitionContext } from '@arcagentic/actors';
 import { worldBus } from '@arcagentic/bus';
 import { tickEmitter } from '@arcagentic/services';
 import { getActorState, getEntityProfile } from '@arcagentic/db/node';
 import { isUuid, toId, toSessionId } from '../utils/uuid.js';
+
+const log = createLogger('api', 'turns');
 
 /**
  * Configuration for turn handling.
@@ -195,21 +206,19 @@ export class TurnOrchestrator {
 
     const actorState = await getActorState(toSessionId(sessionId), focusedNpcId);
     if (!actorState) {
-      console.warn(`[TurnOrchestrator] Missing actor state for NPC ${focusedNpcId}`);
+      log.warn({ npcId: focusedNpcId, sessionId }, 'missing actor state for npc');
       return null;
     }
 
     const profile = await this.loadNpcProfile(focusedNpcId, actorState.entityProfileId ?? null);
     if (!profile) {
-      console.warn(`[TurnOrchestrator] Missing profile for NPC ${focusedNpcId}`);
+      log.warn({ npcId: focusedNpcId, sessionId }, 'missing profile for npc');
       return null;
     }
 
-    const rawState =
-      actorState.state && typeof actorState.state === 'object'
-        ? (actorState.state as Record<string, unknown>)
-        : {};
-    const locationId = typeof rawState['locationId'] === 'string' ? rawState['locationId'] : 'unknown';
+    const rawState = isRecord(actorState.state) ? actorState.state : {};
+    const locationId = extractLocationId(actorState.state) ?? 'unknown';
+    const locationStateResult = NpcLocationStateSchema.safeParse(rawState['locationState']);
     const spawnedAt = actorState.createdAt ?? new Date();
     const lastActiveAt = actorState.updatedAt ?? new Date();
     const recentEvents = Array.isArray(rawState['recentEvents'])
@@ -218,7 +227,7 @@ export class TurnOrchestrator {
     const goals = Array.isArray(rawState['goals']) ? (rawState['goals'] as string[]) : [];
 
     if (locationId === 'unknown') {
-      console.warn(`[TurnOrchestrator] Missing locationId for NPC ${focusedNpcId}`);
+      log.warn({ npcId: focusedNpcId, sessionId }, 'missing location id for npc');
     }
 
     const context: CognitionContext = {
@@ -233,7 +242,7 @@ export class TurnOrchestrator {
           },
         ],
         nearbyActors: [],
-        locationState: locationId,
+        locationState: locationStateResult.success ? locationStateResult.data : undefined,
       },
       state: {
         id: actorState.actorId,

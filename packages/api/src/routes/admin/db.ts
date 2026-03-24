@@ -1,8 +1,11 @@
 import type { Hono } from 'hono';
+import { createLogger } from '@arcagentic/logger';
 import { getDbOverview, getDbPathInfo, deleteDbRow } from '@arcagentic/db/node';
 import type { ApiError } from '../../types.js';
 import type { AdminDbOverview, AdminDbPathInfo } from '../../db/types.js';
 import { requireAdmin } from '../../auth/middleware.js';
+
+const log = createLogger('api', 'admin');
 
 export function registerAdminDbRoutes(app: Hono) {
   // GET /admin/db/overview - schema + sample rows for all models
@@ -11,7 +14,7 @@ export function registerAdminDbRoutes(app: Hono) {
       const result: AdminDbOverview = await getDbOverview();
       return c.json(result, 200);
     } catch (err) {
-      console.error('DB overview error', (err as Error).message);
+      log.error({ err }, 'db overview request failed');
       return c.json({ ok: false, error: 'Failed to load DB overview' } satisfies ApiError, 500);
     }
   });
@@ -33,7 +36,7 @@ export function registerAdminDbRoutes(app: Hono) {
 
     try {
       await deleteDbRow(modelParam, idParam);
-      console.warn(`[admin-db] delete ${modelParam} id=${idParam}`);
+      log.warn({ model: modelParam, id: idParam }, 'deleted admin db row');
       return c.body(null, 204);
     } catch (err) {
       const msg = (err as Error).message;
@@ -47,7 +50,7 @@ export function registerAdminDbRoutes(app: Hono) {
       ) {
         return c.json({ ok: false, error: msg } satisfies ApiError, 400);
       }
-      console.error('DB delete error', msg);
+      log.error({ err, model: modelParam, id: idParam }, 'db delete request failed');
       return c.json({ ok: false, error: 'Failed to delete row' } satisfies ApiError, 500);
     }
   });

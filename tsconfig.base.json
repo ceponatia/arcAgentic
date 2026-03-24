@@ -25,6 +25,9 @@
       "@arcagentic/generator": [
         "./packages/generator/src/index.ts"
       ],
+      "@arcagentic/logger": [
+        "./packages/logger/src/index.ts"
+      ],
       "@arcagentic/llm": [
         "./packages/llm/src/index.ts"
       ],

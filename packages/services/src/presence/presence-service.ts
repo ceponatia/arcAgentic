@@ -1,10 +1,13 @@
 import { updateSessionHeartbeat } from '@arcagentic/db';
+import { createLogger } from '@arcagentic/logger';
 import type {
   PresenceRecord,
   PresenceScheduler,
   PresenceServiceConfig,
   RecordHeartbeatResult,
 } from './types.js';
+
+const log = createLogger('services', 'presence');
 
 export const HEARTBEAT_INTERVAL_MS = 60_000;
 export const PAUSE_THRESHOLD_MS = 5 * 60_000;
@@ -45,14 +48,14 @@ export class PresenceService {
     try {
       await updateSessionHeartbeat(sessionId, now);
     } catch (error) {
-      console.warn('[Presence] Failed to persist heartbeat', error);
+      log.warn({ err: error, sessionId }, 'failed to persist heartbeat');
     }
 
     if (wasInactive && this.scheduler) {
       try {
         await this.scheduler.startWorldTick(sessionId);
       } catch (error) {
-        console.warn('[Presence] Failed to resume world tick', error);
+        log.warn({ err: error, sessionId }, 'failed to resume world tick');
       }
       return { sessionId, status: 'resumed', lastHeartbeatAt: now };
     }

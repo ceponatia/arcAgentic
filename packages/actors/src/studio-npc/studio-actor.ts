@@ -170,42 +170,46 @@ export class StudioNpcActor {
    * Request a moral dilemma.
    */
   async requestDilemma(): Promise<StudioResponse> {
-    return this.requestAdvancedFeature('REQUEST_DILEMMA');
+    return this.requestAdvancedFeature({ type: 'REQUEST_DILEMMA' });
   }
 
   /**
    * Request emotional range demonstration.
    */
   async requestEmotionalRange(request: EmotionalRangeRequest): Promise<StudioResponse> {
-    return this.requestAdvancedFeature('REQUEST_EMOTIONAL_RANGE', { request });
+    return this.requestAdvancedFeature({ type: 'REQUEST_EMOTIONAL_RANGE', request });
   }
 
   /**
    * Request a relationship vignette.
    */
   async requestVignette(request: VignetteRequest): Promise<StudioResponse> {
-    return this.requestAdvancedFeature('REQUEST_VIGNETTE', { request });
+    return this.requestAdvancedFeature({ type: 'REQUEST_VIGNETTE', request });
   }
 
   /**
    * Request memory excavation.
    */
   async requestMemory(topic: MemoryTopic): Promise<StudioResponse> {
-    return this.requestAdvancedFeature('REQUEST_MEMORY', { topic });
+    return this.requestAdvancedFeature({ type: 'REQUEST_MEMORY', topic });
   }
 
   /**
    * Request first impression analysis.
    */
   async requestFirstImpression(context?: FirstImpressionContext): Promise<StudioResponse> {
-    return this.requestAdvancedFeature('REQUEST_FIRST_IMPRESSION', context as unknown as Record<string, unknown>);
+    return this.requestAdvancedFeature(
+      context === undefined
+        ? { type: 'REQUEST_FIRST_IMPRESSION' }
+        : { type: 'REQUEST_FIRST_IMPRESSION', context }
+    );
   }
 
   /**
    * Request voice fingerprint analysis.
    */
   async requestVoiceFingerprint(): Promise<StudioResponse> {
-    return this.requestAdvancedFeature('REQUEST_VOICE_FINGERPRINT');
+    return this.requestAdvancedFeature({ type: 'REQUEST_VOICE_FINGERPRINT' });
   }
 
   /**
@@ -261,8 +265,18 @@ export class StudioNpcActor {
   }
 
   private async requestAdvancedFeature(
-    type: string,
-    payload?: Record<string, unknown>
+    event: Extract<
+      StudioMachineEvent,
+      {
+        type:
+          | 'REQUEST_DILEMMA'
+          | 'REQUEST_EMOTIONAL_RANGE'
+          | 'REQUEST_VIGNETTE'
+          | 'REQUEST_MEMORY'
+          | 'REQUEST_FIRST_IMPRESSION'
+          | 'REQUEST_VOICE_FINGERPRINT';
+      }
+    >
   ): Promise<StudioResponse> {
     return new Promise((resolve, reject) => {
       const subscription = this.machine.subscribe((state) => {
@@ -277,7 +291,7 @@ export class StudioNpcActor {
         }
       });
 
-      this.machine.send({ type, ...payload } as unknown as StudioMachineEvent);
+      this.machine.send(event);
     });
   }
 }

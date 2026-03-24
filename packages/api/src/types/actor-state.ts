@@ -4,7 +4,14 @@
  * These types define the shape of the JSON stored in actor_states.state column.
  * The column is typed as `unknown` in Drizzle, so we need these types to safely access properties.
  */
-import type { ActorState, NpcActorState, PlayerActorState } from '@arcagentic/schemas';
+import {
+  ActorStateSchema,
+  NpcActorStateSchema,
+  PlayerActorStateSchema,
+  type ActorState,
+  type NpcActorState,
+  type PlayerActorState,
+} from '@arcagentic/schemas';
 
 export type { ActorState, AffinityRecord, NpcActorState, PlayerActorState } from '@arcagentic/schemas';
 
@@ -14,18 +21,18 @@ export type { ActorState, AffinityRecord, NpcActorState, PlayerActorState } from
  * @example
  * const state = actorRow.state as ActorState;
  * if (isNpcState(state)) {
- *   console.log(state.tier); // TypeScript knows this is NpcActorState
+ *   state.tier; // TypeScript knows this is NpcActorState
  * }
  */
 export function isNpcState(state: ActorState): state is NpcActorState {
-  return 'tier' in state || 'role' in state;
+  return NpcActorStateSchema.safeParse(state).success;
 }
 
 /**
  * Type guard to check if an actor state is a player state.
  */
 export function isPlayerState(state: ActorState): state is PlayerActorState {
-  return 'profile' in state && !('tier' in state);
+  return PlayerActorStateSchema.safeParse(state).success;
 }
 
 /**
@@ -37,7 +44,8 @@ export function isPlayerState(state: ActorState): state is PlayerActorState {
  * if (isNpcState(state)) { ... }
  */
 export function asActorState(state: unknown): ActorState {
-  return state as ActorState;
+  const parsed = ActorStateSchema.safeParse(state);
+  return parsed.success ? parsed.data : (state as ActorState);
 }
 
 /**
@@ -49,7 +57,8 @@ export function asActorState(state: unknown): ActorState {
  * const npcState = asNpcState(actorRow.state);
  */
 export function asNpcState(state: unknown): NpcActorState {
-  return state as NpcActorState;
+  const parsed = NpcActorStateSchema.safeParse(state);
+  return parsed.success ? parsed.data : (state as NpcActorState);
 }
 
 /**
@@ -57,5 +66,6 @@ export function asNpcState(state: unknown): NpcActorState {
  * Only use when you KNOW the actor is a player.
  */
 export function asPlayerState(state: unknown): PlayerActorState {
-  return state as PlayerActorState;
+  const parsed = PlayerActorStateSchema.safeParse(state);
+  return parsed.success ? parsed.data : (state as PlayerActorState);
 }

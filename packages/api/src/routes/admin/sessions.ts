@@ -1,12 +1,12 @@
 import type { Hono } from 'hono';
+import { createLogger } from '@arcagentic/logger';
 import { getEventsForSession } from '@arcagentic/db/node';
+import { isRecord } from '@arcagentic/schemas';
 import type { ApiError } from '../../types.js';
 import { requireAdmin } from '../../auth/middleware.js';
 import { toSessionId } from '../../utils/uuid.js';
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return Boolean(value) && typeof value === 'object';
-}
+const log = createLogger('api', 'admin');
 
 interface ToolingFailureEventDto {
   type: 'tooling-failure';
@@ -87,7 +87,7 @@ export function registerAdminSessionRoutes(app: Hono) {
         200
       );
     } catch (err) {
-      console.error('[admin-sessions] tooling-failures error', (err as Error).message);
+      log.error({ err, sessionId, limit }, 'failed to load tooling failure events');
       return c.json(
         { ok: false, error: 'Failed to load tooling failure events' } satisfies ApiError,
         500

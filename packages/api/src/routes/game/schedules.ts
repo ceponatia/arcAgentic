@@ -1,4 +1,5 @@
 import type { Hono } from 'hono';
+import { createLogger } from '@arcagentic/logger';
 import { z } from 'zod';
 import { ScheduleTemplateSchema, NpcScheduleSchema, type NpcSchedule } from '@arcagentic/schemas';
 import {
@@ -12,8 +13,10 @@ import {
 } from '@arcagentic/db/node';
 import type { ApiError } from '../../types.js';
 import { toSessionId, toId } from '../../utils/uuid.js';
-import { asNpcState, type NpcActorState } from '../../types/index.js';
+import { asNpcState } from '../../types/index.js';
 import { validateBody, validateParam, validateParamId } from '../../utils/request-validation.js';
+
+const log = createLogger('api', 'schedules');
 
 // =============================================================================
 // Request/Response Schemas
@@ -78,7 +81,7 @@ export function registerScheduleRoutes(app: Hono): void {
         })),
       });
     } catch (error) {
-      console.error('Error listing schedule templates:', error);
+      log.error({ err: error }, 'failed to list schedule templates');
       return c.json(
         { ok: false, error: 'Failed to list schedule templates' } satisfies ApiError,
         500
@@ -118,7 +121,7 @@ export function registerScheduleRoutes(app: Hono): void {
         },
       });
     } catch (error) {
-      console.error('Error fetching schedule template:', error);
+      log.error({ err: error, templateId: id }, 'failed to fetch schedule template');
       return c.json(
         { ok: false, error: 'Failed to fetch schedule template' } satisfies ApiError,
         500
@@ -171,7 +174,7 @@ export function registerScheduleRoutes(app: Hono): void {
         201
       );
     } catch (error) {
-      console.error('Error creating schedule template:', error);
+      log.error({ err: error }, 'failed to create schedule template');
       return c.json(
         { ok: false, error: 'Failed to create schedule template' } satisfies ApiError,
         500
@@ -232,7 +235,7 @@ export function registerScheduleRoutes(app: Hono): void {
         },
       });
     } catch (error) {
-      console.error('Error updating schedule template:', error);
+      log.error({ err: error, templateId: id }, 'failed to update schedule template');
       return c.json(
         { ok: false, error: 'Failed to update schedule template' } satisfies ApiError,
         500
@@ -253,7 +256,7 @@ export function registerScheduleRoutes(app: Hono): void {
       await db.delete(scheduleTemplates).where(eq(scheduleTemplates.id, toId(id)));
       return c.json({ ok: true });
     } catch (error) {
-      console.error('Error deleting schedule template:', error);
+      log.error({ err: error, templateId: id }, 'failed to delete schedule template');
       return c.json(
         { ok: false, error: 'Failed to delete schedule template' } satisfies ApiError,
         500
@@ -302,7 +305,7 @@ export function registerScheduleRoutes(app: Hono): void {
         schedules,
       });
     } catch (error) {
-      console.error('Error listing NPC schedules:', error);
+      log.error({ err: error, sessionId }, 'failed to list npc schedules');
       return c.json({ ok: false, error: 'Failed to list NPC schedules' } satisfies ApiError, 500);
     }
   });
@@ -338,7 +341,7 @@ export function registerScheduleRoutes(app: Hono): void {
         },
       });
     } catch (error) {
-      console.error('Error fetching NPC schedule:', error);
+      log.error({ err: error, sessionId, npcId }, 'failed to fetch npc schedule');
       return c.json({ ok: false, error: 'Failed to fetch NPC schedule' } satisfies ApiError, 500);
     }
   });
@@ -370,14 +373,13 @@ export function registerScheduleRoutes(app: Hono): void {
       }
 
       const npcState = asNpcState(actorState.state);
-      const validatedSchedule = scheduleValidation.data;
-      const schedulePayload: NpcActorState['schedule'] = {
-        scheduleData: validatedSchedule,
+      const schedulePayload = {
+        scheduleData: scheduleValidation.data,
         ...(templateId ? { templateId } : {}),
         ...(placeholderMappings ? { placeholderMappings } : {}),
       };
 
-      const newState: NpcActorState = {
+      const newState = {
         ...npcState,
         ...(schedulePayload ? { schedule: schedulePayload } : {}),
       };
@@ -387,7 +389,7 @@ export function registerScheduleRoutes(app: Hono): void {
         actorType: actorState.actorType,
         actorId: npcId,
         entityProfileId: actorState.entityProfileId ?? null,
-        state: newState as unknown as Record<string, unknown>,
+        state: { ...newState },
         lastEventSeq: actorState.lastEventSeq,
       });
 
@@ -397,14 +399,14 @@ export function registerScheduleRoutes(app: Hono): void {
           schedule: {
             npcId,
             ...(templateId ? { templateId } : {}),
-            scheduleData: validatedSchedule,
+            scheduleData: scheduleValidation.data,
             ...(placeholderMappings ? { placeholderMappings } : {}),
           },
         },
         201
       );
     } catch (error) {
-      console.error('Error creating NPC schedule:', error);
+      log.error({ err: error, sessionId }, 'failed to create npc schedule');
       return c.json({ ok: false, error: 'Failed to create NPC schedule' } satisfies ApiError, 500);
     }
   });
@@ -449,14 +451,14 @@ export function registerScheduleRoutes(app: Hono): void {
       const existingSchedule = asNpcState(actorState.state).schedule ?? {};
 
       const npcState = asNpcState(actorState.state);
-      const schedulePayload: NpcActorState['schedule'] = {
+      const schedulePayload = {
         ...existingSchedule,
         ...(templateId ? { templateId } : {}),
         ...(validatedSchedule ? { scheduleData: validatedSchedule } : {}),
         ...(placeholderMappings !== undefined ? { placeholderMappings } : {}),
       };
 
-      const newState: NpcActorState = {
+      const newState = {
         ...npcState,
         ...(schedulePayload ? { schedule: schedulePayload } : {}),
       };
@@ -466,7 +468,7 @@ export function registerScheduleRoutes(app: Hono): void {
         actorType: actorState.actorType,
         actorId: npcId,
         entityProfileId: actorState.entityProfileId ?? null,
-        state: newState as unknown as Record<string, unknown>,
+        state: { ...newState },
         lastEventSeq: actorState.lastEventSeq,
       });
 
@@ -475,7 +477,7 @@ export function registerScheduleRoutes(app: Hono): void {
         schedule: newState.schedule,
       });
     } catch (error) {
-      console.error('Error updating NPC schedule:', error);
+      log.error({ err: error, sessionId, npcId }, 'failed to update npc schedule');
       return c.json({ ok: false, error: 'Failed to update NPC schedule' } satisfies ApiError, 500);
     }
   });
@@ -508,13 +510,13 @@ export function registerScheduleRoutes(app: Hono): void {
         actorType: actorState.actorType,
         actorId: npcId,
         entityProfileId: actorState.entityProfileId ?? null,
-        state: remainingState as unknown as Record<string, unknown>,
+        state: { ...remainingState },
         lastEventSeq: actorState.lastEventSeq,
       });
 
       return c.json({ ok: true });
     } catch (error) {
-      console.error('Error deleting NPC schedule:', error);
+      log.error({ err: error, sessionId, npcId }, 'failed to delete npc schedule');
       return c.json({ ok: false, error: 'Failed to delete NPC schedule' } satisfies ApiError, 500);
     }
   });

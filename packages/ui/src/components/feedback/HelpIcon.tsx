@@ -13,6 +13,14 @@ export const HelpIcon: React.FC<HelpIconProps> = ({
 }) => {
   const [showTooltip, setShowTooltip] = useState(false);
 
+  const show = () => {
+    setShowTooltip(true);
+  };
+
+  const hide = () => {
+    setShowTooltip(false);
+  };
+
   const sizeClasses = (() => {
     switch (size) {
       case 'md':
@@ -36,8 +44,10 @@ export const HelpIcon: React.FC<HelpIconProps> = ({
       <button
         type="button"
         className={`${sizeClasses} rounded-full border border-slate-600 bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200 hover:border-slate-500 transition-colors inline-flex items-center justify-center ${docLink ? 'cursor-pointer' : 'cursor-help'}`}
-        onMouseEnter={() => setShowTooltip(true)}
-        onMouseLeave={() => setShowTooltip(false)}
+        onMouseEnter={show}
+        onMouseLeave={hide}
+        onFocus={show}
+        onBlur={hide}
         onClick={handleClick}
         aria-label="Help"
       >

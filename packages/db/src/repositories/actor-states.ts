@@ -3,6 +3,7 @@ import { actorStates } from '../schema/index.js';
 import { eq, and, sql } from 'drizzle-orm';
 import {
   getRecordOptional,
+  isRecord,
   NpcScheduleSchema,
   type NpcSchedule,
   type NpcScheduleRef,
@@ -10,13 +11,6 @@ import {
 import type { UUID } from '../types.js';
 
 type ActorStateRecord = Record<string, unknown>;
-
-/**
- * Check if a value is a plain record.
- */
-function isRecord(value: unknown): value is ActorStateRecord {
-  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
-}
 
 /**
  * Convert unknown input into a record of strings if possible.

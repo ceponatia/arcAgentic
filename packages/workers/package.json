@@ -21,6 +21,7 @@
     "@arcagentic/actors": "workspace:*",
     "@arcagentic/bus": "workspace:*",
     "@arcagentic/db": "workspace:*",
+    "@arcagentic/logger": "workspace:*",
     "@arcagentic/llm": "workspace:*",
     "@arcagentic/schemas": "workspace:*",
     "@arcagentic/services": "workspace:*",

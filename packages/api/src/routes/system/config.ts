@@ -1,7 +1,10 @@
 import type { Hono } from 'hono';
+import { createLogger } from '@arcagentic/logger';
 import { getConfig } from '../../utils/config.js';
 import type { HelloResponse, RuntimeConfigResponse, HealthResponse } from '../../types.js';
 import { getVersion } from '../../utils/version.js';
+
+const log = createLogger('api', 'health');
 
 // Registers /hello, /config, /health routes on the provided app
 export function registerConfigRoutes(app: Hono) {
@@ -52,7 +55,7 @@ export function registerConfigRoutes(app: Hono) {
       await pool.query('SELECT 1');
       dbOk = true;
     } catch (error) {
-      console.warn('Database health check failed', error);
+      log.warn({ err: error }, 'database health check failed');
     }
 
     const cfg = getConfig();

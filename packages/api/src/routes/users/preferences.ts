@@ -4,6 +4,7 @@
  * GET/PUT endpoints for the authenticated user's preferences.
  */
 import type { Hono } from 'hono';
+import { createLogger } from '@arcagentic/logger';
 import { z } from 'zod';
 import {
   getUserPreferences,
@@ -14,6 +15,8 @@ import type { ApiError } from '../../types.js';
 import { getAuthUser } from '../../auth/middleware.js';
 import { getPrincipalIdentifier } from '../../auth/ownerEmail.js';
 import { validateBody } from '../../utils/request-validation.js';
+
+const log = createLogger('api', 'users');
 
 /**
  * Schema for updating preferences
@@ -55,7 +58,7 @@ export function registerUserPreferencesRoutes(app: Hono): void {
       const preferences = await getUserPreferences(userId);
       return c.json({ ok: true, preferences }, 200);
     } catch (err) {
-      console.error('[API] Failed to get user preferences:', err);
+      log.error({ err, userId }, 'failed to get user preferences');
       return c.json({ ok: false, error: 'failed to get preferences' } satisfies ApiError, 500);
     }
   });
@@ -92,7 +95,7 @@ export function registerUserPreferencesRoutes(app: Hono): void {
       const preferences = await updateUserPreferences(userId, update);
       return c.json({ ok: true, preferences }, 200);
     } catch (err) {
-      console.error('[API] Failed to update user preferences:', err);
+      log.error({ err, userId }, 'failed to update user preferences');
       return c.json({ ok: false, error: 'failed to update preferences' } satisfies ApiError, 500);
     }
   });
@@ -123,7 +126,7 @@ export function registerUserPreferencesRoutes(app: Hono): void {
       const mode = preferences.workspaceMode ?? 'wizard';
       return c.json({ ok: true, mode }, 200);
     } catch (err) {
-      console.error('[API] Failed to get workspace mode:', err);
+      log.error({ err, userId }, 'failed to get workspace mode');
       return c.json({ ok: false, error: 'failed to get workspace mode' } satisfies ApiError, 500);
     }
   });
@@ -151,7 +154,7 @@ export function registerUserPreferencesRoutes(app: Hono): void {
       await updateUserPreferences(userId, { workspaceMode: parsed.data.mode });
       return c.json({ ok: true, mode: parsed.data.mode }, 200);
     } catch (err) {
-      console.error('[API] Failed to set workspace mode:', err);
+      log.error({ err, userId, mode: parsed.data.mode }, 'failed to set workspace mode');
       return c.json({ ok: false, error: 'failed to set workspace mode' } satisfies ApiError, 500);
     }
   });

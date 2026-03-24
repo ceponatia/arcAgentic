@@ -3,6 +3,7 @@
  * CRUD operations for location maps and prefabs using Drizzle repositories.
  */
 import type { Context, Hono } from 'hono';
+import { createLogger } from '@arcagentic/logger';
 import { z } from 'zod';
 import {
   LocationNodeSchema,
@@ -30,6 +31,8 @@ import {
   validateQuery,
 } from '../../utils/request-validation.js';
 import { badRequest } from '../../utils/responses.js';
+
+const log = createLogger('api', 'resources');
 
 // ============================================================================
 // Types
@@ -245,7 +248,7 @@ export function registerLocationMapRoutes(app: Hono): void {
     } catch (err) {
       const locationError = handleLocationDataError(c, err);
       if (locationError) return locationError;
-      console.error('[API] Failed to get location map:', err);
+      log.error({ err, mapId: id }, 'failed to get location map');
       return c.json({ ok: false, error: 'failed to get map' } satisfies ApiError, 500);
     }
   });
@@ -289,7 +292,7 @@ export function registerLocationMapRoutes(app: Hono): void {
     } catch (err) {
       const locationError = handleLocationDataError(c, err);
       if (locationError) return locationError;
-      console.error('[API] Failed to create location map:', err);
+      log.error({ err, ownerEmail }, 'failed to create location map');
       return c.json({ ok: false, error: 'failed to create map' } satisfies ApiError, 500);
     }
   });
@@ -337,7 +340,7 @@ export function registerLocationMapRoutes(app: Hono): void {
     } catch (err) {
       const locationError = handleLocationDataError(c, err);
       if (locationError) return locationError;
-      console.error('[API] Failed to update location map:', err);
+      log.error({ err, mapId: id }, 'failed to update location map');
       return c.json({ ok: false, error: 'failed to update map' } satisfies ApiError, 500);
     }
   });
@@ -354,7 +357,7 @@ export function registerLocationMapRoutes(app: Hono): void {
       }
       return c.json({ ok: true }, 200);
     } catch (err) {
-      console.error('[API] Failed to delete location map:', err);
+      log.error({ err, mapId: id }, 'failed to delete location map');
       return c.json({ ok: false, error: 'failed to delete map' } satisfies ApiError, 500);
     }
   });
@@ -400,7 +403,7 @@ export function registerLocationMapRoutes(app: Hono): void {
     } catch (err) {
       const locationError = handleLocationDataError(c, err);
       if (locationError) return locationError;
-      console.error('[API] Failed to duplicate location map:', err);
+      log.error({ err, mapId: id, ownerEmail }, 'failed to duplicate location map');
       return c.json({ ok: false, error: 'failed to duplicate map' } satisfies ApiError, 500);
     }
   });
@@ -427,7 +430,7 @@ export function registerLocationMapRoutes(app: Hono): void {
     } catch (err) {
       const locationError = handleLocationDataError(c, err);
       if (locationError) return locationError;
-      console.error('[API] Failed to list prefabs:', err);
+      log.error({ err, category }, 'failed to list location prefabs');
       return c.json({ ok: false, error: 'failed to list prefabs' } satisfies ApiError, 500);
     }
   });
@@ -446,7 +449,7 @@ export function registerLocationMapRoutes(app: Hono): void {
     } catch (err) {
       const locationError = handleLocationDataError(c, err);
       if (locationError) return locationError;
-      console.error('[API] Failed to get prefab:', err);
+      log.error({ err, prefabId: id }, 'failed to get location prefab');
       return c.json({ ok: false, error: 'failed to get prefab' } satisfies ApiError, 500);
     }
   });
@@ -488,7 +491,7 @@ export function registerLocationMapRoutes(app: Hono): void {
     } catch (err) {
       const locationError = handleLocationDataError(c, err);
       if (locationError) return locationError;
-      console.error('[API] Failed to create prefab:', err);
+      log.error({ err, ownerEmail }, 'failed to create location prefab');
       return c.json({ ok: false, error: 'failed to create prefab' } satisfies ApiError, 500);
     }
   });

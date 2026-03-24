@@ -14,11 +14,10 @@ export class DialogueService {
   private handler = async (event: WorldEvent): Promise<void> => {
     if (event.type !== 'SPEAK_INTENT') return;
 
-    const source = event as Record<string, unknown>;
-    const actorId = typeof source['actorId'] === 'string' ? source['actorId'] : 'unknown';
-    const sessionId = typeof source['sessionId'] === 'string' ? source['sessionId'] : undefined;
-    const content = typeof source['content'] === 'string' ? source['content'] : '';
-    const timestamp = source['timestamp'] instanceof Date ? source['timestamp'] : new Date();
+    const actorId = event.actorId ?? 'unknown';
+    const sessionId = event.sessionId;
+    const content = event.content;
+    const timestamp = event.timestamp ?? new Date();
 
     if (!sessionId) {
       // Speech without session context cannot be persisted or routed safely.
@@ -29,8 +28,7 @@ export class DialogueService {
       type: 'SPOKE',
       actorId,
       content,
-      targetActorId:
-        typeof source['targetActorId'] === 'string' ? source['targetActorId'] : undefined,
+      targetActorId: event.targetActorId,
       sessionId,
       timestamp,
     };

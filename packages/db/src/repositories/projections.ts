@@ -1,41 +1,9 @@
 import { drizzle as db } from '../connection/index.js';
 import type { UUID } from '../types.js';
-import { InventoryStateSchema, SessionTimeStateSchema } from '@arcagentic/schemas';
+import { extractLocationId, InventoryStateSchema, SessionTimeStateSchema } from '@arcagentic/schemas';
 import type { GameTime, InventoryItem } from '@arcagentic/schemas';
 import { listActorStatesForSession } from './actor-states.js';
 import type { ActorsAtLocationResult } from './types.js';
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
-}
-
-function extractLocationId(state: unknown): string | null {
-  if (!isRecord(state)) return null;
-
-  const location = state['location'];
-  if (isRecord(location) && typeof location['currentLocationId'] === 'string') {
-    return location['currentLocationId'];
-  }
-
-  const locationState = state['locationState'];
-  if (isRecord(locationState) && typeof locationState['locationId'] === 'string') {
-    return locationState['locationId'];
-  }
-
-  const simulation = state['simulation'];
-  if (isRecord(simulation)) {
-    const currentState = simulation['currentState'];
-    if (isRecord(currentState) && typeof currentState['locationId'] === 'string') {
-      return currentState['locationId'];
-    }
-  }
-
-  if (typeof state['locationId'] === 'string') {
-    return state['locationId'];
-  }
-
-  return null;
-}
 
 /**
  * List actors at a specific location based on actor state records.

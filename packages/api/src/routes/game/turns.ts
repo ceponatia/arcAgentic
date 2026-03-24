@@ -1,4 +1,5 @@
 import type { Hono } from 'hono';
+import { createLogger } from '@arcagentic/logger';
 import { getOwnerEmail } from '../../auth/ownerEmail.js';
 import { getSession } from '../../db/sessionsClient.js';
 import { getEntityProfile, listActorStatesForSession } from '@arcagentic/db/node';
@@ -14,12 +15,14 @@ import {
   rulesEngine,
   Scheduler,
 } from '@arcagentic/services';
-import type { CharacterProfile, WorldEvent } from '@arcagentic/schemas';
+import { isRecord, type CharacterProfile, type WorldEvent } from '@arcagentic/schemas';
 import { OpenAIProvider, createOpenRouterProviderFromEnv } from '@arcagentic/llm';
 import { toSessionId } from '../../utils/uuid.js';
 import { validateBody, validateParamId } from '../../utils/request-validation.js';
 import { getEnvValue } from '../../utils/env.js';
 import { z } from 'zod';
+
+const log = createLogger('api', 'turns');
 
 interface SessionRecord {
   id: string;
@@ -57,13 +60,6 @@ const defaultTurnLlmProvider =
     : null);
 
 /**
- * Guard for generic record objects.
- */
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
-}
-
-/**
  * Parse a stored profile JSON blob into a CharacterProfile, if possible.
  */
 function parseProfileJson(raw: unknown): CharacterProfile | null {
@@ -74,7 +70,7 @@ function parseProfileJson(raw: unknown): CharacterProfile | null {
       const parsed = JSON.parse(raw) as unknown;
       return isRecord(parsed) ? (parsed as CharacterProfile) : null;
     } catch (error) {
-      console.warn('[API] Failed to parse NPC profile JSON', error);
+      log.warn({ err: error }, 'failed to parse npc profile json');
       return null;
     }
   }
@@ -88,7 +84,7 @@ function parseProfileJson(raw: unknown): CharacterProfile | null {
 async function resolveNpcProfileAndName(
   actorState: Awaited<ReturnType<typeof listActorStatesForSession>>[number]
 ): Promise<{ profile: CharacterProfile | null; name: string | null }> {
-  const rawState = actorState.state as Record<string, unknown>;
+  const rawState = isRecord(actorState.state) ? actorState.state : {};
   const stateName = typeof rawState['name'] === 'string' ? rawState['name'] : null;
   const stateLabel = typeof rawState['label'] === 'string' ? rawState['label'] : null;
 
@@ -156,7 +152,7 @@ export function registerTurnRoutes(app: Hono): void {
       if (actorState.actorType !== 'npc') continue;
       const actorId = actorState.actorId;
 
-      const rawState = actorState.state as Record<string, unknown>;
+      const rawState = isRecord(actorState.state) ? actorState.state : {};
       const location = rawState['location'];
       const locationId =
         location && typeof location === 'object'
@@ -212,7 +208,7 @@ export function registerTurnRoutes(app: Hono): void {
       try {
         worldBus.unsubscribe(handler);
       } catch (error) {
-        console.warn('[API] Failed to unsubscribe world bus handler', error);
+        log.warn({ err: error, sessionId }, 'failed to unsubscribe world bus handler');
       }
     }
 

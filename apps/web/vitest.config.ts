@@ -13,6 +13,7 @@ export default mergeConfig(baseConfig, defineConfig({
   plugins: [react()],
   test: {
     environment: 'jsdom',
+    setupFiles: ['test/setup.ts'],
     include: ['src/**/*.test.{ts,tsx}', 'test/**/*.test.{ts,tsx}'],
   },
   resolve: {

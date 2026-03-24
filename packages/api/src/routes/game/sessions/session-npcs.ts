@@ -4,6 +4,7 @@
  * POST /sessions/:id/npcs - create additional NPC instance
  */
 import type { Context } from 'hono';
+import { createLogger } from '@arcagentic/logger';
 import { getSession, listActorStatesForSession, upsertActorState } from '@arcagentic/db/node';
 import type { LoadedDataGetter } from '../../../loaders/types.js';
 import { notFound, serverError, conflict } from '../../../utils/responses.js';
@@ -12,6 +13,8 @@ import { CreateNpcInstanceRequestSchema, findCharacter } from './shared.js';
 import { getOwnerEmail } from '../../../auth/ownerEmail.js';
 import { toId, toSessionId } from '../../../utils/uuid.js';
 import { validateBody, validateParamId } from '../../../utils/request-validation.js';
+
+const log = createLogger('api', 'sessions');
 
 interface NpcActorState {
   role?: string;
@@ -95,7 +98,7 @@ export async function handleCreateNpc(c: Context, getLoaded: LoadedDataGetter): 
       lastEventSeq: 0n,
     });
   } catch (err) {
-    console.error('[API] Failed to create NPC instance', err);
+    log.error({ err, sessionId: session.id, templateId, npcInstanceId }, 'failed to create npc instance');
     return serverError(c, 'failed to create npc instance');
   }
 

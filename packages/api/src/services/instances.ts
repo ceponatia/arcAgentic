@@ -29,7 +29,7 @@ export async function upsertCharacterOverrides(params: {
   }
 
   const currentProfile = (actorState.state as CharacterProfile) || baseline;
-  const previous = { ...(currentProfile as unknown as Record<string, unknown>) };
+  const previous = { ...currentProfile };
   const nextProfile = deepMergeReplaceArrays<CharacterProfile>(currentProfile, overrides);
   const parsedNext = CharacterProfileSchema.safeParse(nextProfile);
 
@@ -65,7 +65,7 @@ export async function upsertSettingOverrides(params: {
   }
 
   const currentProfile = (projection.worldState as SettingProfile) ?? baseline;
-  const previous = { ...(currentProfile as unknown as Record<string, unknown>) };
+  const previous = { ...currentProfile };
   const nextProfile = deepMergeReplaceArrays<SettingProfile>(currentProfile, overrides);
   const parsedNext = SettingProfileSchema.safeParse(nextProfile);
 

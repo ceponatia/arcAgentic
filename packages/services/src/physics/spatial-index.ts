@@ -74,8 +74,7 @@ export class SpatialIndex {
    * Get general proximity level to an NPC.
    */
   static getNpcProximityLevel(state: ProximityState, npcId: string): ProximityLevel | undefined {
-    const proximity = state.npcProximity as Record<string, ProximityLevel | undefined>;
-    return getRecordOptional(proximity, npcId);
+    return getRecordOptional(state.npcProximity, npcId);
   }
 
   /**
@@ -86,8 +85,7 @@ export class SpatialIndex {
     npcId: string,
     level: ProximityLevel
   ): SpatialUpdateResult {
-    const proximity = state.npcProximity as Record<string, ProximityLevel | undefined>;
-    const currentLevel = getRecordOptional(proximity, npcId);
+    const currentLevel = getRecordOptional(state.npcProximity, npcId);
     if (currentLevel === level) {
       return {
         success: true,
@@ -95,7 +93,7 @@ export class SpatialIndex {
       };
     }
 
-    setRecord(proximity, npcId, level);
+    setRecord(state.npcProximity, npcId, level);
     return {
       success: true,
       description: `Proximity to ${npcId} changed from ${currentLevel ?? 'none'} to ${level}`,
@@ -111,8 +109,7 @@ export class SpatialIndex {
   ): SpatialUpdateResult {
     const { npcId, bodyPart, senseType, action, newIntensity, currentTick } = params;
     const key = makeEngagementKey(npcId, bodyPart, senseType);
-    const engagements = state.engagements as Record<string, SensoryEngagement | undefined>;
-    const existing = getRecordOptional(engagements, key);
+    const existing = getRecordOptional(state.engagements, key);
 
     switch (action) {
       case 'engage':
@@ -164,8 +161,7 @@ export class SpatialIndex {
       lastActiveAt: params.currentTick,
     };
 
-    const engagements = state.engagements as Record<string, SensoryEngagement | undefined>;
-    setRecord(engagements, key, engagement);
+    setRecord(state.engagements, key, engagement);
     return {
       success: true,
       engagement,
@@ -189,7 +185,6 @@ export class SpatialIndex {
       };
     }
 
-    const engagements = state.engagements as Record<string, SensoryEngagement | undefined>;
     if (!existing) {
       const engagement: SensoryEngagement = {
         npcId: params.npcId,
@@ -199,7 +194,7 @@ export class SpatialIndex {
         startedAt: currentTick,
         lastActiveAt: currentTick,
       };
-      setRecord(engagements, key, engagement);
+      setRecord(state.engagements, key, engagement);
       return {
         success: true,
         engagement,
@@ -284,8 +279,7 @@ export class SpatialIndex {
       };
     }
 
-    const engagements = state.engagements as Record<string, SensoryEngagement | undefined>;
-    Reflect.deleteProperty(engagements, key);
+    Reflect.deleteProperty(state.engagements, key);
     return {
       success: true,
       description: `Ended engagement ${key}`,
@@ -300,8 +294,7 @@ export class SpatialIndex {
     key: string,
     currentTick: number
   ): SpatialUpdateResult {
-    const engagements = state.engagements as Record<string, SensoryEngagement | undefined>;
-    const existing = getRecordOptional(engagements, key);
+    const existing = getRecordOptional(state.engagements, key);
     if (!existing) {
       return {
         success: false,
@@ -322,16 +315,15 @@ export class SpatialIndex {
    * End all engagements for an NPC.
    */
   static endAllEngagementsForNpc(state: ProximityState, npcId: string): SpatialUpdateResult {
-    const engagements = state.engagements as Record<string, SensoryEngagement | undefined>;
-    const keys = Object.keys(engagements);
+    const keys = Object.keys(state.engagements);
     const count = keys.length;
     for (const key of keys) {
-      const engagement = getRecordOptional(engagements, key);
+      const engagement = getRecordOptional(state.engagements, key);
       if (engagement?.npcId === npcId) {
-        Reflect.deleteProperty(engagements, key);
+        Reflect.deleteProperty(state.engagements, key);
       }
     }
-    const newCount = Object.keys(engagements).length;
+    const newCount = Object.keys(state.engagements).length;
     const removed = count - newCount;
 
     return {

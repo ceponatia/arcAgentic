@@ -16,6 +16,9 @@
       "path": "../db"
     },
     {
+      "path": "../logger"
+    },
+    {
       "path": "../llm"
     },
     {

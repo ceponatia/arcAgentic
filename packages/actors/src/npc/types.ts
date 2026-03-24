@@ -1,4 +1,4 @@
-import type { WorldEvent } from '@arcagentic/schemas';
+import type { NpcLocationState, WorldEvent } from '@arcagentic/schemas';
 import type { BaseActorState } from '../base/types.js';
 import type { LLMProvider } from '@arcagentic/llm';
 import type { CharacterProfile } from '@arcagentic/schemas';
@@ -27,7 +27,7 @@ export interface PerceptionContext {
   /** Nearby actors/entities */
   nearbyActors: string[];
   /** Current location state */
-  locationState?: unknown;
+  locationState?: NpcLocationState | undefined;
 }
 
 /**

@@ -5,8 +5,9 @@
  * Full authentication not implemented yet.
  */
 import crypto from 'node:crypto';
-import { pool } from '../utils/client.js';
-import type { DbRow } from '../types.js';
+import { eq, sql } from 'drizzle-orm';
+import { drizzle as db } from '../connection/index.js';
+import { userAccounts } from '../schema/index.js';
 import type { UserPreferences, UserRole, UserAccount } from './types.js';
 
 // =============================================================================
@@ -21,23 +22,7 @@ import type { UserPreferences, UserRole, UserAccount } from './types.js';
  * User account record.
  */
 
-/**
- * Row type from the database.
- */
-interface UserAccountRow extends DbRow {
-  id: string;
-  email?: string | null;
-  identifier: string;
-  display_name: string | null;
-  role?: string;
-  auth_provider?: string;
-  supabase_user_id?: string | null;
-  preferences: unknown;
-  password_hash?: string | null;
-  last_login_at?: Date | string | null;
-  created_at: Date;
-  updated_at: Date;
-}
+type UserAccountRow = typeof userAccounts.$inferSelect;
 
 // =============================================================================
 // Helpers
@@ -83,19 +68,29 @@ function rowToUserAccount(row: UserAccountRow): UserAccount {
   return {
     id: row.id,
     identifier: row.identifier,
-    displayName: row.display_name,
+    displayName: row.displayName,
     role,
     authProvider: 'local',
     preferences: parsePreferences(row.preferences),
-    lastLoginAt: row.last_login_at ? toIsoDate(row.last_login_at) : null,
-    createdAt: toIsoDate(row.created_at),
-    updatedAt: toIsoDate(row.updated_at),
+    lastLoginAt: row.lastLoginAt ? toIsoDate(row.lastLoginAt) : null,
+    createdAt: toIsoDate(row.createdAt),
+    updatedAt: toIsoDate(row.updatedAt),
   };
 }
 
 function readPasswordHash(row: UserAccountRow): string | null {
-  const v = row.password_hash;
+  const v = row.passwordHash;
   return typeof v === 'string' && v.length > 0 ? v : null;
+}
+
+async function getUserAccountRowByIdentifier(identifier: string): Promise<UserAccountRow | null> {
+  const [row] = await db
+    .select()
+    .from(userAccounts)
+    .where(eq(userAccounts.identifier, identifier))
+    .limit(1);
+
+  return row ?? null;
 }
 
 async function hashPassword(password: string): Promise<string> {
@@ -162,25 +157,19 @@ function scryptKey(
  * Creates the default user if it doesn't exist.
  */
 export async function getUserByIdentifier(identifier: string): Promise<UserAccount | null> {
-  const res = await pool.query(`SELECT * FROM user_accounts WHERE identifier = $1 LIMIT 1`, [
-    identifier,
-  ]);
-
-  if (res.rows.length === 0) {
-    return null;
-  }
-
-  const row = res.rows[0] as UserAccountRow;
-  return rowToUserAccount(row);
+  const row = await getUserAccountRowByIdentifier(identifier);
+  return row ? rowToUserAccount(row) : null;
 }
 
 export async function getUserRoleByIdentifier(identifier: string): Promise<UserRole | null> {
-  const res = await pool.query(`SELECT role FROM user_accounts WHERE identifier = $1 LIMIT 1`, [
-    identifier,
-  ]);
-  if (res.rows.length === 0) return null;
-  const row = res.rows[0] as Record<string, unknown>;
-  return row['role'] === 'admin' ? 'admin' : 'user';
+  const [row] = await db
+    .select({ role: userAccounts.role })
+    .from(userAccounts)
+    .where(eq(userAccounts.identifier, identifier))
+    .limit(1);
+
+  if (!row) return null;
+  return row.role === 'admin' ? 'admin' : 'user';
 }
 
 /**
@@ -193,26 +182,45 @@ export async function getOrCreateDefaultUser(): Promise<UserAccount> {
     return existing;
   }
 
-  // Create default user
-  const res = await pool.query(
-    `INSERT INTO user_accounts (identifier, display_name, preferences)
-     VALUES ('default', 'Default User', '{"workspaceMode": "wizard"}'::jsonb)
-     ON CONFLICT (identifier) DO UPDATE SET updated_at = NOW()
-     RETURNING *`,
-    []
-  );
+  const [row] = await db
+    .insert(userAccounts)
+    .values({
+      identifier: 'default',
+      displayName: 'Default User',
+      preferences: { workspaceMode: 'wizard' },
+    })
+    .onConflictDoUpdate({
+      target: userAccounts.identifier,
+      set: {
+        updatedAt: new Date(),
+      },
+    })
+    .returning();
 
-  const row = res.rows[0] as UserAccountRow;
+  if (!row) {
+    throw new Error('Failed to create default user');
+  }
+
   return rowToUserAccount(row);
 }
 
 export async function ensureUserRole(identifier: string, role: UserRole): Promise<void> {
-  await pool.query(
-    `INSERT INTO user_accounts (identifier, display_name, preferences, role, auth_provider)
-     VALUES ($1, NULL, '{}'::jsonb, $2, 'local')
-     ON CONFLICT (identifier) DO UPDATE SET role = EXCLUDED.role`,
-    [identifier, role]
-  );
+  await db
+    .insert(userAccounts)
+    .values({
+      identifier,
+      displayName: null,
+      preferences: {},
+      role,
+      authProvider: 'local',
+    })
+    .onConflictDoUpdate({
+      target: userAccounts.identifier,
+      set: {
+        role,
+        updatedAt: new Date(),
+      },
+    });
 }
 
 /**
@@ -232,19 +240,31 @@ export async function ensureUserByEmail(options: {
   const displayName = options.displayName ?? null;
   const role = options.role ?? 'user';
 
-  const res = await pool.query(
-    `INSERT INTO user_accounts (email, identifier, display_name, preferences, role, auth_provider)
-     VALUES ($1, $2, $3, '{}'::jsonb, $4, 'local')
-     ON CONFLICT (email) DO UPDATE
-       SET identifier = EXCLUDED.identifier,
-           display_name = COALESCE(EXCLUDED.display_name, user_accounts.display_name),
-           role = EXCLUDED.role,
-           updated_at = NOW()
-     RETURNING *`,
-    [email, identifier, displayName, role]
-  );
+  const [row] = await db
+    .insert(userAccounts)
+    .values({
+      email,
+      identifier,
+      displayName,
+      preferences: {},
+      role,
+      authProvider: 'local',
+    })
+    .onConflictDoUpdate({
+      target: userAccounts.email,
+      set: {
+        identifier,
+        displayName: sql`coalesce(${displayName}, ${userAccounts.displayName})`,
+        role,
+        updatedAt: new Date(),
+      },
+    })
+    .returning();
 
-  const row = res.rows[0] as UserAccountRow;
+  if (!row) {
+    throw new Error(`Failed to ensure user by email: ${email}`);
+  }
+
   return rowToUserAccount(row);
 }
 
@@ -256,28 +276,39 @@ export async function ensureLocalAdminUser(options: {
   const identifier = options.identifier ?? 'admin';
   const displayName = options.displayName ?? 'Admin';
 
-  // Ensure row exists and role is admin
-  await pool.query(
-    `INSERT INTO user_accounts (identifier, display_name, preferences, role, auth_provider)
-     VALUES ($1, $2, '{}'::jsonb, 'admin', 'local')
-     ON CONFLICT (identifier) DO UPDATE SET role = 'admin'`,
-    [identifier, displayName]
-  );
+  await db
+    .insert(userAccounts)
+    .values({
+      identifier,
+      displayName,
+      preferences: {},
+      role: 'admin',
+      authProvider: 'local',
+    })
+    .onConflictDoUpdate({
+      target: userAccounts.identifier,
+      set: {
+        role: 'admin',
+        updatedAt: new Date(),
+      },
+    });
 
-  // Only set password hash if missing
-  const existing = await pool.query(`SELECT * FROM user_accounts WHERE identifier = $1 LIMIT 1`, [
-    identifier,
-  ]);
-  const row = existing.rows[0] as UserAccountRow;
+  const row = await getUserAccountRowByIdentifier(identifier);
+  if (!row) {
+    throw new Error('Failed to load ensured local admin user');
+  }
+
   const existingHash = readPasswordHash(row);
   if (!existingHash) {
     const passwordHash = await hashPassword(options.password);
-    await pool.query(
-      `UPDATE user_accounts
-       SET password_hash = $2, last_login_at = COALESCE(last_login_at, NOW())
-       WHERE identifier = $1`,
-      [identifier, passwordHash]
-    );
+    await db
+      .update(userAccounts)
+      .set({
+        passwordHash,
+        lastLoginAt: row.lastLoginAt ?? new Date(),
+        updatedAt: new Date(),
+      })
+      .where(eq(userAccounts.identifier, identifier));
   }
 
   const updated = await getUserByIdentifier(identifier);
@@ -291,23 +322,22 @@ export async function verifyLocalUserPassword(options: {
   identifier: string;
   password: string;
 }): Promise<{ ok: true; user: UserAccount } | { ok: false; error: 'invalid-credentials' }> {
-  const res = await pool.query(`SELECT * FROM user_accounts WHERE identifier = $1 LIMIT 1`, [
-    options.identifier,
-  ]);
-  if (res.rows.length === 0) return { ok: false, error: 'invalid-credentials' };
+  const row = await getUserAccountRowByIdentifier(options.identifier);
+  if (!row) return { ok: false, error: 'invalid-credentials' };
 
-  const row = res.rows[0] as UserAccountRow;
   const passwordHash = readPasswordHash(row);
   if (!passwordHash) return { ok: false, error: 'invalid-credentials' };
 
   const ok = await verifyPassword(options.password, passwordHash);
   if (!ok) return { ok: false, error: 'invalid-credentials' };
 
-  await pool.query(`UPDATE user_accounts SET last_login_at = NOW() WHERE identifier = $1`, [
-    options.identifier,
-  ]);
+  const lastLoginAt = new Date();
+  await db
+    .update(userAccounts)
+    .set({ lastLoginAt, updatedAt: new Date() })
+    .where(eq(userAccounts.identifier, options.identifier));
 
-  return { ok: true, user: rowToUserAccount(row) };
+  return { ok: true, user: rowToUserAccount({ ...row, lastLoginAt }) };
 }
 
 /**
@@ -332,20 +362,30 @@ export async function updateUserPreferences(
     await getOrCreateDefaultUser();
   }
 
-  const res = await pool.query(
-    `UPDATE user_accounts
-     SET preferences = preferences || $2::jsonb
-     WHERE identifier = $1
-     RETURNING *`,
-    [identifier, JSON.stringify(preferences)]
-  );
-
-  if (res.rows.length === 0) {
+  const row = await getUserAccountRowByIdentifier(identifier);
+  if (!row) {
     throw new Error(`User not found: ${identifier}`);
   }
 
-  const row = res.rows[0] as UserAccountRow;
-  return parsePreferences(row.preferences);
+  const nextPreferences = {
+    ...parsePreferences(row.preferences),
+    ...preferences,
+  } satisfies UserPreferences;
+
+  const [updated] = await db
+    .update(userAccounts)
+    .set({
+      preferences: nextPreferences,
+      updatedAt: new Date(),
+    })
+    .where(eq(userAccounts.identifier, identifier))
+    .returning({ preferences: userAccounts.preferences });
+
+  if (!updated) {
+    throw new Error(`User not found: ${identifier}`);
+  }
+
+  return parsePreferences(updated.preferences);
 }
 
 /**

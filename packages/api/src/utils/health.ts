@@ -1,8 +1,12 @@
 // src/util/health.ts (or wherever this lives)
+import { createLogger } from '@arcagentic/logger';
+
 export interface OllamaHealth {
   ok: boolean;
   version?: string;
 }
+
+const log = createLogger('api', 'health');
 
 export async function checkOllama(baseUrl: string): Promise<OllamaHealth> {
   const url = `${trimTrailingSlash(baseUrl)}/api/version`;
@@ -25,7 +29,7 @@ export async function checkOllama(baseUrl: string): Promise<OllamaHealth> {
 
     return { ok: true };
   } catch (error) {
-    console.warn('Ollama health check failed', error);
+    log.warn({ err: error, url }, 'ollama health check failed');
     return { ok: false };
   }
 }

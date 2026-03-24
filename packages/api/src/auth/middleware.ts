@@ -1,10 +1,12 @@
 import type { Context, Next } from 'hono';
+import { createLogger } from '@arcagentic/logger';
 import type { ApiError } from '../types.js';
 import type { AuthUser } from './types.js';
 import { getAuthSecret, verifyAuthToken } from './token.js';
 import { getEnvCsv, getEnvFlag, getEnvValue } from '../utils/env.js';
 
 const AUTH_CONTEXT_KEY = 'authUser';
+const log = createLogger('api', 'auth');
 
 function parseBearerToken(authHeader: string | null): string | null {
   if (!authHeader) return null;
@@ -26,12 +28,15 @@ export async function attachAuthUser(c: Context, next: Next): Promise<void> {
   const debugAuth = getEnvFlag('DEBUG_AUTH');
 
   if (debugAuth) {
-    console.info('[auth] attachAuthUser', {
-      method: c.req.method,
-      path: c.req.path,
-      hasAuthorizationHeader: Boolean(authHeader),
-      hasBearerToken: Boolean(token),
-    });
+    log.info(
+      {
+        method: c.req.method,
+        path: c.req.path,
+        hasAuthorizationHeader: Boolean(authHeader),
+        hasBearerToken: Boolean(token),
+      },
+      'attach auth user'
+    );
   }
 
   if (token) {
@@ -45,14 +50,17 @@ export async function attachAuthUser(c: Context, next: Next): Promise<void> {
           email: null,
         } satisfies AuthUser);
         if (debugAuth) {
-          console.info('[auth] Local auth token verified', {
-            identifier: verified.payload.sub,
-            role: verified.payload.role,
-          });
+          log.info(
+            {
+              identifier: verified.payload.sub,
+              role: verified.payload.role,
+            },
+            'local auth token verified'
+          );
         }
       }
     } else if (debugAuth) {
-      console.warn('[auth] Local auth secret missing (AUTH_SECRET)');
+      log.warn('local auth secret missing');
     }
   }
 
@@ -65,8 +73,11 @@ export async function attachAuthUser(c: Context, next: Next): Promise<void> {
         email: 'admin@example.com',
       } satisfies AuthUser);
     } else {
-      console.warn(
-        '[auth] BYPASS_AUTH is set but NODE_ENV is not "development". Auth bypass is disabled in non-development environments.'
+      log.warn(
+        {
+          nodeEnv: getEnvValue('NODE_ENV'),
+        },
+        'bypass auth is disabled outside development'
       );
     }
   }

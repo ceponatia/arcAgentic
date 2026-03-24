@@ -1,5 +1,9 @@
 import { type Queue } from 'bullmq';
+import { createLogger, type Logger } from '@arcagentic/logger';
 import { type JobData, type TickTask, type JobResult } from '../types.js';
+
+const createWorkersLogger = createLogger as (pkg: string, subsystem?: string) => Logger;
+const log = createWorkersLogger('workers', 'scheduler');
 
 export class Scheduler {
   constructor(private tickQueue: Queue<JobData<TickTask>, JobResult>) { }
@@ -13,7 +17,7 @@ export class Scheduler {
     const repeatableJobs = await this.tickQueue.getRepeatableJobs();
     const existingJob = repeatableJobs.find((job) => job.name === jobName);
     if (existingJob && typeof existingJob.every === 'number' && existingJob.every === intervalMs) {
-      console.info(`[Scheduler] World tick already scheduled for session ${sessionId}`);
+      log.info({ sessionId, intervalMs }, 'world tick already scheduled');
       return;
     }
     if (existingJob) {
@@ -38,7 +42,7 @@ export class Scheduler {
       }
     );
 
-    console.info(`[Scheduler] Started world tick for session ${sessionId} every ${intervalMs}ms`);
+    log.info({ sessionId, intervalMs }, 'started world tick');
   }
 
   /**
@@ -52,6 +56,6 @@ export class Scheduler {
         await this.tickQueue.removeRepeatableByKey(job.key);
       }
     }
-    console.info(`[Scheduler] Stopped world tick for session ${sessionId}`);
+    log.info({ sessionId }, 'stopped world tick');
   }
 }

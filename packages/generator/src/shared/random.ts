@@ -8,7 +8,7 @@ import type { ValuePool, WeightedValue } from '../types.js';
 /**
  * Check if a pool contains weighted values.
  */
-function isWeightedPool<T>(pool: ValuePool<T>): pool is readonly WeightedValue<T>[] {
+export function isWeightedPool<T>(pool: ValuePool<T>): pool is readonly WeightedValue<T>[] {
   return pool.length > 0 && typeof pool[0] === 'object' && 'weight' in (pool[0] as object);
 }
 

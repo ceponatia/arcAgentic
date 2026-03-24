@@ -1,4 +1,5 @@
 import { worldBus } from '@arcagentic/bus';
+import { createLogger, type Logger } from '@arcagentic/logger';
 import { TieredCognitionRouter, OpenAIProvider } from '@arcagentic/llm';
 import { createWorker, getOpenAiWorkerConfig } from './config.js';
 import { createCognitionProcessor } from './processors/cognition.js';
@@ -13,6 +14,9 @@ import {
   listStaleSessionsByHeartbeat,
 } from '@arcagentic/db/node';
 
+const createWorkersLogger = createLogger as (pkg: string, subsystem?: string) => Logger;
+const log = createWorkersLogger('workers', 'main');
+
 /**
  * Main Worker Entry Point
  */
@@ -25,7 +29,7 @@ async function hydratePresenceFromDatabase(scheduler: Scheduler): Promise<void> 
   const recentSessions = await listRecentSessionsByHeartbeat(cutoff);
 
   if (staleSessions.length > 0) {
-    console.info(`[Presence] Stopping ${staleSessions.length} stale session ticks`);
+    log.info({ count: staleSessions.length }, 'stopping stale session ticks');
   }
 
   for (const session of staleSessions) {
@@ -44,7 +48,7 @@ async function hydratePresenceFromDatabase(scheduler: Scheduler): Promise<void> 
  * Main Worker Entry Point
  */
 async function main(): Promise<{ scheduler: Scheduler; heartbeatMonitor: HeartbeatMonitor }> {
-  console.info('Starting Minimal RPG Background Workers...');
+  log.info('starting background workers');
 
   // 1. Initialize dependencies
   const { apiKey, model, baseUrl } = getOpenAiWorkerConfig();
@@ -76,7 +80,7 @@ async function main(): Promise<{ scheduler: Scheduler; heartbeatMonitor: Heartbe
   presenceService.setScheduler(scheduler);
 
   await hydratePresenceFromDatabase(scheduler).catch((error) => {
-    console.warn('[Presence] Failed to hydrate presence from database', error);
+    log.warn({ err: error }, 'failed to hydrate presence from database');
   });
 
   const heartbeatMonitor = new HeartbeatMonitor({
@@ -87,11 +91,11 @@ async function main(): Promise<{ scheduler: Scheduler; heartbeatMonitor: Heartbe
 
   heartbeatMonitor.start();
 
-  console.info('Workers initialized and listening for jobs.');
+  log.info('workers initialized and listening for jobs');
 
   // Handle shutdown
   const shutdown = async () => {
-    console.info('Shutting down workers...');
+    log.info('shutting down workers');
     heartbeatMonitor.stop();
     await Promise.all([
       cognitionWorker.close(),
@@ -117,7 +121,7 @@ async function main(): Promise<{ scheduler: Scheduler; heartbeatMonitor: Heartbe
 // Start if executed directly
 if (import.meta.url === `file://${process.argv[1]}`) {
   void main().catch((err) => {
-    console.error('Failed to start workers:', err);
+    log.error({ err }, 'failed to start workers');
     process.exit(1);
   });
 }

@@ -205,7 +205,7 @@ export class DiscoveryGuide {
       'values': ['value', 'believe', 'important', 'principle', 'moral', 'right', 'wrong'],
       'fears': ['fear', 'afraid', 'scared', 'nightmare', 'dread', 'worry', 'anxious'],
       'relationships': ['friend', 'family', 'trust', 'love', 'relationship', 'people', 'alone'],
-      'backstory': ['past', 'childhood', 'grew up', 'memory', 'history', 'origin', 'born'],
+      'backstory': ['backstory', 'past', 'childhood', 'grew up', 'memory', 'history', 'origin', 'born'],
       'stress-response': ['stress', 'pressure', 'overwhelm', 'panic', 'react', 'cope'],
       'social-behavior': ['group', 'leader', 'follow', 'conflict', 'argue', 'disagree'],
       'communication-style': ['speak', 'talk', 'say', 'words', 'express', 'tell'],

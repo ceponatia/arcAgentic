@@ -1,5 +1,6 @@
 import type { WorldEvent } from '@arcagentic/schemas';
 import type { PerceptionContext, NpcRuntimeState } from './types.js';
+import { getStringField, getWorldEventPayload } from './event-access.js';
 
 /**
  * Perception layer - filters and processes events for an NPC.
@@ -16,26 +17,24 @@ export class PerceptionLayer {
    * Check if an event is relevant to this NPC.
    */
   static isRelevant(event: WorldEvent, state: NpcRuntimeState): boolean {
-    const rawEvent = event as Record<string, unknown>;
-    const payload = rawEvent['payload'] as Record<string, unknown> | undefined;
+    const payload = getWorldEventPayload(event);
 
     // Session filter
     const eventSessionId =
-      (rawEvent['sessionId'] as string | undefined) ??
-      (payload?.['sessionId'] as string | undefined);
+      getStringField(event, 'sessionId') ?? getStringField(payload, 'sessionId');
     if (eventSessionId && eventSessionId !== state.sessionId) {
       return false;
     }
 
     // Location-based relevance
     const locationCandidates = [
-      rawEvent['locationId'],
-      rawEvent['toLocationId'],
-      rawEvent['fromLocationId'],
-      payload?.['locationId'],
-      payload?.['toLocationId'],
-      payload?.['fromLocationId'],
-    ].filter((value): value is string => typeof value === 'string');
+      getStringField(event, 'locationId'),
+      getStringField(event, 'toLocationId'),
+      getStringField(event, 'fromLocationId'),
+      getStringField(payload, 'locationId'),
+      getStringField(payload, 'toLocationId'),
+      getStringField(payload, 'fromLocationId'),
+    ].filter((value): value is string => value !== undefined);
 
     const uniqueLocationIds = Array.from(new Set(locationCandidates));
     const hasLocation = uniqueLocationIds.length > 0;
@@ -50,8 +49,7 @@ export class PerceptionLayer {
 
     // Actor-specific events
     const targetActorId =
-      (rawEvent['targetActorId'] as string | undefined) ??
-      (payload?.['targetActorId'] as string | undefined);
+      getStringField(event, 'targetActorId') ?? getStringField(payload, 'targetActorId');
     if (targetActorId && targetActorId !== state.id) {
       return false;
     }
@@ -69,9 +67,8 @@ export class PerceptionLayer {
     const nearbyActors = new Set<string>();
     for (const event of relevantEvents) {
       if (event.type === 'MOVED') {
-        const rawEvent = event as Record<string, unknown>;
-        const actorId = rawEvent['actorId'] as string | undefined;
-        const toLocationId = rawEvent['toLocationId'] as string | undefined;
+        const actorId = getStringField(event, 'actorId');
+        const toLocationId = getStringField(event, 'toLocationId');
 
         if (actorId && toLocationId === state.locationId) {
           nearbyActors.add(actorId);

@@ -1,11 +1,7 @@
 import { type Processor, type Job } from 'bullmq';
 import { Effect } from 'effect';
-import { WorldBus } from '@arcagentic/bus';
-import {
-  TieredCognitionRouter,
-  type LlmCognitionTask,
-  type LLMMessage,
-} from '@arcagentic/llm';
+import type { WorldBus } from '@arcagentic/bus';
+import type { TieredCognitionRouter, LlmCognitionTask, LLMMessage } from '@arcagentic/llm';
 import type { WorldEvent } from '@arcagentic/schemas';
 import type { JobData, CognitionTask, JobResult } from '../types.js';
 

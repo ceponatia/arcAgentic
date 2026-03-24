@@ -2,6 +2,7 @@ import { and, eq, lt } from 'drizzle-orm';
 import { drizzle as db } from '../connection/index.js';
 import { studioSessions } from '../schema/index.js';
 import type { OwnerEmail } from '../types.js';
+import { pool } from '../utils/client.js';
 
 export interface StudioSession {
   id: string;
@@ -25,32 +26,25 @@ function studioSessionScope(id: string, ownerEmail?: OwnerEmail) {
 }
 
 /**
- * Initialize the studio_sessions table.
- * Note: Table is defined in schema/index.ts and should be managed by migrations.
- * This function is kept for API compatibility with the task but uses raw SQL for IF NOT EXISTS.
+ * Compatibility guard for the legacy server bootstrap.
+ *
+ * The studio_sessions table must now come from migrations. This method remains
+ * exported so downstream startup code does not have to change immediately.
  */
 export async function initStudioSessionsTable(): Promise<void> {
-  try {
-    const { pool } = await import('../utils/client.js');
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS studio_sessions (
-        id TEXT PRIMARY KEY,
-        owner_email TEXT NOT NULL DEFAULT 'local',
-        profile_snapshot JSONB NOT NULL,
-        conversation JSONB NOT NULL DEFAULT '[]',
-        summary TEXT,
-        inferred_traits JSONB NOT NULL DEFAULT '[]',
-        explored_topics JSONB NOT NULL DEFAULT '[]',
-        created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-        last_active_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-        expires_at TIMESTAMPTZ NOT NULL
-      )
-    `);
-    await pool.query(`
-      CREATE INDEX IF NOT EXISTS idx_studio_sessions_expires_at ON studio_sessions(expires_at)
-    `);
-  } catch (err) {
-    console.warn('Failed to manually init studio_sessions table', err);
+  const result = await pool.query<{ exists: boolean }>(
+    `SELECT EXISTS (
+       SELECT 1
+       FROM information_schema.tables
+       WHERE table_schema = $1 AND table_name = $2
+     ) AS exists`,
+    ['public', 'studio_sessions']
+  );
+
+  if (!result.rows[0]?.exists) {
+    console.warn(
+      '[db] studio_sessions table is missing. Run `CI=true pnpm --dir packages/db run db:migrate` before using studio session APIs.'
+    );
   }
 }
 

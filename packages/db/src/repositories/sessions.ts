@@ -1,17 +1,8 @@
 import { eq, and, or, lt, gt, isNull, isNotNull } from 'drizzle-orm';
 import { drizzle as db } from '../connection/index.js';
 import { sessions, sessionProjections } from '../schema/index.js';
-import { DEFAULT_START_TIME, GameTimeSchema } from '@arcagentic/schemas';
+import { DEFAULT_START_TIME, GameTimeSchema, isRecord } from '@arcagentic/schemas';
 import type { UUID } from '../types.js';
-
-type SessionProjectionRecord = Record<string, unknown>;
-
-/**
- * Check if a value is a plain record.
- */
-function isRecord(value: unknown): value is SessionProjectionRecord {
-  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
-}
 
 /**
  * Normalize unknown input to a finite number if possible.

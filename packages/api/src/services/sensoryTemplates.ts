@@ -1,11 +1,14 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createLogger } from '@arcagentic/logger';
 import {
   SensoryTemplateSchema,
   type SensoryTemplate,
   getSensoryTemplates,
 } from '@arcagentic/schemas';
+
+const log = createLogger('api', 'sensory');
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(currentDir, '..', '..', '..', '..');
@@ -40,12 +43,12 @@ function readTemplatesFromDisk(): SensoryTemplate[] {
       const parsed: unknown = JSON.parse(raw);
       const result = SensoryTemplateSchema.safeParse(parsed);
       if (!result.success) {
-        console.warn('[sensory] invalid template JSON', filePath, result.error);
+        log.warn({ filePath, error: result.error }, 'invalid sensory template json');
         continue;
       }
       templates.push(result.data);
     } catch (error) {
-      console.warn('[sensory] failed to load template JSON', filePath, error);
+      log.warn({ err: error, filePath }, 'failed to load sensory template json');
     }
   }
 
@@ -61,7 +64,7 @@ function refreshCacheIfNeeded(): void {
     const templates = readTemplatesFromDisk();
     cachedTemplates = templates.length > 0 ? templates : cachedTemplates;
   } catch (error) {
-    console.warn('[sensory] failed to scan template JSON', error);
+    log.warn({ err: error }, 'failed to scan sensory templates');
   }
 }
 

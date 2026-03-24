@@ -1,10 +1,14 @@
-import type { ActionValidationResult, GameTime, WorldEvent } from '@arcagentic/schemas';
+import type { ActionValidationResult, ActorState, GameTime, WorldEvent } from '@arcagentic/schemas';
+import { createLogger } from '@arcagentic/logger';
+import { ActorStateSchema, NpcLocationStateSchema, isRecord } from '@arcagentic/schemas';
 import {
   getLocationConnections,
   getActorState,
   getInventoryItem,
   LocationDataValidationError,
 } from '@arcagentic/db';
+
+const log = createLogger('services', 'rules');
 
 /**
  * Validation result for an action.
@@ -27,24 +31,13 @@ export interface ValidationContext {
   gameTime?: GameTime;
 }
 
-/**
- * Validation rule function type.
- */
-type ValidationRule = (
-  event: WorldEvent,
-  context: ValidationContext
-) => ValidationResult | Promise<ValidationResult>;
+type MoveIntentEvent = Extract<WorldEvent, { type: 'MOVE_INTENT' }>;
+type SpeakIntentEvent = Extract<WorldEvent, { type: 'SPEAK_INTENT' }>;
+type UseItemIntentEvent = Extract<WorldEvent, { type: 'USE_ITEM_INTENT' }>;
+type AttackIntentEvent = Extract<WorldEvent, { type: 'ATTACK_INTENT' }>;
+type TakeItemIntentEvent = Extract<WorldEvent, { type: 'TAKE_ITEM_INTENT' }>;
 
-/**
- * Registry of validation rules per event type.
- */
-const VALIDATION_RULES: Record<string, ValidationRule> = {
-  MOVE_INTENT: validateMoveIntent,
-  SPEAK_INTENT: validateSpeakIntent,
-  USE_ITEM_INTENT: validateUseItemIntent,
-  ATTACK_INTENT: validateAttackIntent,
-  TAKE_ITEM_INTENT: validateTakeItemIntent,
-};
+const InterruptibleLocationStateSchema = NpcLocationStateSchema.pick({ interruptible: true });
 
 /**
  * Validators Service
@@ -61,42 +54,61 @@ export class Validators {
     action: WorldEvent,
     context: ValidationContext
   ): Promise<ValidationResult> {
-    const rule = VALIDATION_RULES[action.type];
-
-    if (!rule) {
-      // No validator for this event type - allow by default
-      return { valid: true, reason: '' };
+    switch (action.type) {
+      case 'MOVE_INTENT':
+        return validateMoveIntent(action, context);
+      case 'SPEAK_INTENT':
+        return validateSpeakIntent(action, context);
+      case 'USE_ITEM_INTENT':
+        return validateUseItemIntent(action, context);
+      case 'ATTACK_INTENT':
+        return validateAttackIntent(action, context);
+      case 'TAKE_ITEM_INTENT':
+        return validateTakeItemIntent(action, context);
+      default:
+        // No validator for this event type - allow by default
+        return { valid: true, reason: '' };
     }
-
-    return rule(action, context);
   }
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
+function getInterruptibleFlagFromActorState(state: ActorState): boolean | null {
+  const locationState = 'locationState' in state ? state.locationState : undefined;
+  if (typeof locationState?.interruptible === 'boolean') {
+    return locationState.interruptible;
+  }
+
+  const simulationState = 'simulation' in state ? state.simulation?.currentState : undefined;
+  if (typeof simulationState?.interruptible === 'boolean') {
+    return simulationState.interruptible;
+  }
+
+  return null;
 }
 
 function getInterruptibleFlag(state: unknown): boolean | null {
+  const parsedActorState = ActorStateSchema.safeParse(state);
+  if (parsedActorState.success) {
+    return getInterruptibleFlagFromActorState(parsedActorState.data);
+  }
+
   if (!isRecord(state)) return null;
 
-  const locationState = state['locationState'];
-  if (isRecord(locationState) && typeof locationState['interruptible'] === 'boolean') {
-    return locationState['interruptible'];
+  const locationState = InterruptibleLocationStateSchema.safeParse(state['locationState']);
+  if (locationState.success) {
+    return locationState.data.interruptible;
   }
 
   const simulation = state['simulation'];
   if (isRecord(simulation)) {
-    const currentState = simulation['currentState'];
-    if (isRecord(currentState) && typeof currentState['interruptible'] === 'boolean') {
-      return currentState['interruptible'];
+    const currentState = InterruptibleLocationStateSchema.safeParse(simulation['currentState']);
+    if (currentState.success) {
+      return currentState.data.interruptible;
     }
   }
 
-  if (typeof state['interruptible'] === 'boolean') {
-    return state['interruptible'];
-  }
-
-  return null;
+  const interruptible = state['interruptible'];
+  return typeof interruptible === 'boolean' ? interruptible : null;
 }
 
 // =============================================================================
@@ -107,22 +119,24 @@ function getInterruptibleFlag(state: unknown): boolean | null {
  * Validate MOVE_INTENT - check if destination is reachable.
  */
 async function validateMoveIntent(
-  event: WorldEvent,
+  event: MoveIntentEvent,
   context: ValidationContext
 ): Promise<ValidationResult> {
-  const moveEvent = event as { destinationId?: string };
-
-  if (!moveEvent.destinationId) {
-    return { valid: false, reason: 'No destination specified' };
-  }
-
   let connections: Awaited<ReturnType<typeof getLocationConnections>>;
 
   try {
     connections = await getLocationConnections(context.sessionId, context.currentLocationId);
   } catch (error) {
     if (error instanceof LocationDataValidationError) {
-      console.error('[Validators] Invalid location map data detected', error.details);
+      log.error(
+        {
+          err: error,
+          sessionId: context.sessionId,
+          currentLocationId: context.currentLocationId,
+          details: error.details,
+        },
+        'invalid location map data detected'
+      );
       return {
         valid: false,
         reason: 'Location map data is invalid. Please delete or repair the map.',
@@ -131,7 +145,7 @@ async function validateMoveIntent(
     throw error;
   }
   const isConnected = connections.some(
-    (connection) => connection.targetLocationId === moveEvent.destinationId
+    (connection) => connection.targetLocationId === event.destinationId
   );
 
   if (!isConnected) {
@@ -139,7 +153,7 @@ async function validateMoveIntent(
 
     const result: ValidationResult = {
       valid: false,
-      reason: `Cannot reach ${moveEvent.destinationId} from current location`,
+      reason: `Cannot reach ${event.destinationId} from current location`,
     };
 
     if (exits.length > 0) {
@@ -156,32 +170,30 @@ async function validateMoveIntent(
  * Validate SPEAK_INTENT - check if target is present.
  */
 async function validateSpeakIntent(
-  event: WorldEvent,
+  event: SpeakIntentEvent,
   context: ValidationContext
 ): Promise<ValidationResult> {
-  const speakEvent = event as { targetActorId?: string; content?: string };
-
-  if (!speakEvent.content?.trim()) {
+  if (!event.content.trim()) {
     return { valid: false, reason: 'Cannot speak without content' };
   }
 
-  if (speakEvent.targetActorId) {
-    const isPresent = context.actorsAtLocation.includes(speakEvent.targetActorId);
+  if (event.targetActorId) {
+    const isPresent = context.actorsAtLocation.includes(event.targetActorId);
 
     if (!isPresent) {
       return {
         valid: false,
-        reason: `${speakEvent.targetActorId} is not at your current location`,
+        reason: `${event.targetActorId} is not at your current location`,
       };
     }
 
-    const targetState = await getActorState(context.sessionId, speakEvent.targetActorId);
+    const targetState = await getActorState(context.sessionId, event.targetActorId);
     if (targetState) {
       const interruptible = getInterruptibleFlag(targetState.state);
       if (interruptible === false) {
         return {
           valid: false,
-          reason: `${speakEvent.targetActorId} is too busy to talk right now`,
+          reason: `${event.targetActorId} is too busy to talk right now`,
           suggestion: 'Try again later or wait for them to finish',
         };
       }
@@ -195,27 +207,21 @@ async function validateSpeakIntent(
  * Validate USE_ITEM_INTENT - check if actor has item.
  */
 async function validateUseItemIntent(
-  event: WorldEvent,
+  event: UseItemIntentEvent,
   context: ValidationContext
 ): Promise<ValidationResult> {
-  const useEvent = event as { itemId?: string; targetId?: string; action?: string };
-
-  if (!useEvent.itemId) {
-    return { valid: false, reason: 'No item specified' };
-  }
-
-  const hasItem = context.inventoryItemIds.includes(useEvent.itemId);
+  const hasItem = context.inventoryItemIds.includes(event.itemId);
 
   if (!hasItem) {
     const item = await getInventoryItem(
       context.sessionId,
       context.actorId,
-      useEvent.itemId
+      event.itemId
     );
     if (!item) {
       return {
         valid: false,
-        reason: `You don't have "${useEvent.itemId}"`,
+        reason: `You don't have "${event.itemId}"`,
       };
     }
   }
@@ -227,19 +233,13 @@ async function validateUseItemIntent(
  * Validate ATTACK_INTENT - check combat rules.
  */
 function validateAttackIntent(
-  event: WorldEvent,
+  event: AttackIntentEvent,
   context: ValidationContext
 ): ValidationResult {
-  const attackEvent = event as { targetActorId?: string };
-
-  if (!attackEvent.targetActorId) {
-    return { valid: false, reason: 'No target specified' };
-  }
-
-  if (!context.actorsAtLocation.includes(attackEvent.targetActorId)) {
+  if (!context.actorsAtLocation.includes(event.targetActorId)) {
     return {
       valid: false,
-      reason: `${attackEvent.targetActorId} is not here`,
+      reason: `${event.targetActorId} is not here`,
     };
   }
 
@@ -250,15 +250,11 @@ function validateAttackIntent(
  * Validate TAKE_ITEM_INTENT - check if item is available.
  */
 function validateTakeItemIntent(
-  event: WorldEvent,
+  event: TakeItemIntentEvent,
   _context: ValidationContext
 ): ValidationResult {
   void _context;
-  const takeEvent = event as { itemId?: string };
-
-  if (!takeEvent.itemId) {
-    return { valid: false, reason: 'No item specified' };
-  }
+  void event;
 
   return { valid: true, reason: '' };
 }

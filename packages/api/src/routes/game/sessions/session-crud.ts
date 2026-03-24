@@ -1,4 +1,5 @@
 import type { Context } from 'hono';
+import { createLogger } from '@arcagentic/logger';
 import {
   createSession,
   getSession,
@@ -20,6 +21,8 @@ import { primeSessionSequence } from '../../../services/event-persistence.js';
 import { mapSpokeEventsToMessages } from './message-mapping.js';
 import { createMessageMappingDeps } from './message-mapping-deps.js';
 import { validateBody, validateParamId } from '../../../utils/request-validation.js';
+
+const log = createLogger('api', 'sessions');
 
 type DbEvent = Awaited<ReturnType<typeof getEventsForSession>>[number];
 type SpokeEventRecord = DbEvent & { actorId: string; type: 'SPOKE' };
@@ -52,10 +55,10 @@ export async function handleCreateSession(
   getLoaded: LoadedDataGetter
 ): Promise<Response> {
   const ownerEmail = getOwnerEmail(c);
-  console.info('[API] POST /sessions request received');
+  log.info({ ownerEmail }, 'session create request received');
   const loaded = getLoaded();
   if (!loaded) {
-    console.error('[API] Data not loaded');
+    log.error('data not loaded for session creation');
     return serverError(c, 'data not loaded');
   }
 
@@ -67,13 +70,13 @@ export async function handleCreateSession(
   const setting = await findSetting(loaded, settingId);
 
   if (!character || !setting) {
-    console.error('[API] Character or setting not found:', { characterId, settingId });
+    log.error({ characterId, settingId }, 'character or setting not found for session creation');
     return badRequest(c, 'characterId or settingId not found');
   }
 
   const sessionId = toSessionId(generateId());
 
-  console.info('[API] Creating session:', sessionId);
+  log.info({ sessionId, ownerEmail }, 'creating session');
   const sessionRecord = await createSession({
     id: sessionId,
     ownerEmail,
@@ -97,7 +100,7 @@ export async function handleCreateSession(
     });
 
     if (tagIds && Array.isArray(tagIds) && tagIds.length > 0) {
-      console.info('[API] Creating tag bindings:', tagIds.length);
+      log.info({ sessionId: sessionRecord.id, tagCount: tagIds.length }, 'creating session tag bindings');
       for (const tid of tagIds) {
         if (typeof tid === 'string') {
           const t = await getPromptTag(tid);
@@ -112,7 +115,7 @@ export async function handleCreateSession(
       }
     }
   } catch (err) {
-    console.error('[API] Failed to prepare session state, rolling back session', err);
+    log.error({ err, sessionId: sessionRecord.id }, 'failed to prepare session state; rolling back');
     await deleteSession(sessionRecord.id, ownerEmail).catch(() => undefined);
     return serverError(c, 'failed to create session instances');
   }
@@ -124,7 +127,7 @@ export async function handleCreateSession(
     createdAt: sessionRecord.createdAt.toISOString(),
   };
 
-  console.info('[API] Session created successfully');
+  log.info({ sessionId: sessionRecord.id }, 'session created successfully');
   return c.json(response, 201);
 }
 

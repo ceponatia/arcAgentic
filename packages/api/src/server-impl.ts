@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { serve } from '@hono/node-server';
+import { createLogger } from '@arcagentic/logger';
 
 import { loadData } from './loaders/loader.js';
 import type { ApiError } from './types.js';
@@ -33,18 +34,27 @@ import {
 import { persistWorldEvent } from './services/event-persistence.js';
 import { rulesEngine, Scheduler, tickEmitter } from '@arcagentic/services';
 import { initRateLimiterRedis } from './middleware/rate-limiter.js';
+import { requestLogger } from './middleware/request-logger.js';
 
 const app = new Hono();
+const log = createLogger('api', 'server');
 
 function initializeWorldBus(): void {
   worldBus.use(telemetryMiddleware);
   worldBus.use(persistenceMiddleware);
   registerPersistenceHandler(persistWorldEvent);
-  console.info('[bus] persistence initialized');
+  log.info('world bus persistence initialized');
 }
 
 app.onError((err, c) => {
-  console.error('[server] Unhandled error:', err);
+  log.error(
+    {
+      err,
+      method: c.req.method,
+      path: c.req.path,
+    },
+    'unhandled server error'
+  );
   const message =
     err && typeof err === 'object' && 'message' in err
       ? ((err as { message?: string }).message ?? 'Server error')
@@ -70,30 +80,37 @@ export async function startServer(): Promise<void> {
 
     // Load character + setting JSON from data/
     loaded = await loadData();
-    console.info(
-      `Startup: loaded ${loaded.characters.length} characters and ${loaded.settings.length} settings`
+    log.info(
+      {
+        characterCount: loaded.characters.length,
+        settingCount: loaded.settings.length,
+      },
+      'startup data loaded'
     );
 
     // Local/dev bootstrap: if LOCAL_ADMIN_PASSWORD is provided, ensure an admin user exists.
     const localAdminPassword = getEnvValue('LOCAL_ADMIN_PASSWORD');
     if (localAdminPassword && localAdminPassword.trim().length > 0) {
       await ensureLocalAdminUser({ password: localAdminPassword });
-      console.info('[auth] ensured local admin user (identifier=admin)');
+      log.info({ identifier: 'admin' }, 'ensured local admin user');
     }
   } catch (err) {
-    console.error('Failed to load data', (err as Error).message);
+    log.error({ err }, 'failed to load startup data');
     process.exit(1);
   }
 
   const cfg = getConfig();
-  console.info('Runtime config', {
-    port: cfg.port,
-    contextWindow: cfg.contextWindow,
-    temperature: cfg.temperature,
-    topP: cfg.topP,
-    openrouterModel: cfg.openrouterModel,
-    openrouterApiKeySet: Boolean(cfg.openrouterApiKey),
-  });
+  log.info(
+    {
+      port: cfg.port,
+      contextWindow: cfg.contextWindow,
+      temperature: cfg.temperature,
+      topP: cfg.topP,
+      openrouterModel: cfg.openrouterModel,
+      openrouterApiKeySet: Boolean(cfg.openrouterApiKey),
+    },
+    'runtime config'
+  );
 
   // Enable CORS for browser-based clients (Vite dev, etc.)
   const corsOrigins = getEnvCsv('CORS_ORIGINS');
@@ -106,6 +123,8 @@ export async function startServer(): Promise<void> {
       allowHeaders: ['Content-Type', 'Authorization'],
     })
   );
+
+  app.use('*', requestLogger);
 
   // Attach auth user (if any) from Authorization header
   app.use('*', attachAuthUser);
@@ -125,15 +144,15 @@ export async function startServer(): Promise<void> {
 
   const port = cfg.port;
   const server = serve({ fetch: app.fetch, port, hostname: '0.0.0.0' });
-  console.info(`API server listening on http://0.0.0.0:${port}`);
+  log.info({ host: '0.0.0.0', port }, 'api server listening');
 
   const shutdown = async (): Promise<void> => {
-    console.info('[server] Shutting down gracefully...');
+    log.info('shutting down gracefully');
     tickEmitter.stop();
 
     await new Promise<void>((resolve) => {
       const timeout = setTimeout(() => {
-        console.warn('[server] Shutdown timeout - forcing exit');
+        log.warn('shutdown timeout reached; forcing exit');
         resolve();
       }, 10_000);
 
@@ -143,7 +162,7 @@ export async function startServer(): Promise<void> {
       });
     });
 
-    console.info('[server] Shutdown complete');
+    log.info('shutdown complete');
     process.exit(0);
   };
 

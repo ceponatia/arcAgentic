@@ -3,6 +3,7 @@ import type { LLMMessage, LLMProvider } from '@arcagentic/llm';
 import type { CharacterProfile, WorldEvent } from '@arcagentic/schemas';
 import type { CognitionContext, ActionResult } from './types.js';
 import { NPC_DECISION_SYSTEM_PROMPT, buildNpcCognitionPrompt } from './prompts.js';
+import { getStringField } from './event-access.js';
 import { performance } from 'node:perf_hooks';
 
 const NPC_DECISION_TIMEOUT_MS = 2000;
@@ -47,8 +48,8 @@ export class CognitionLayer {
     // Simple rule: If someone spoke, respond with a SPEAK_INTENT
     const speakEvents = perception.relevantEvents.filter((e) => e.type === 'SPOKE');
     if (speakEvents.length > 0) {
-      const lastSpeak = speakEvents[speakEvents.length - 1] as Record<string, unknown>;
-      const speakerActorId = lastSpeak['actorId'] as string | undefined;
+      const lastSpeak = speakEvents[speakEvents.length - 1];
+      const speakerActorId = lastSpeak ? getStringField(lastSpeak, 'actorId') : undefined;
 
       if (speakerActorId && speakerActorId !== state.id) {
         const intent: WorldEvent = {

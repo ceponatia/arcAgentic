@@ -5,9 +5,12 @@ import {
   type WorkerOptions,
   type Job,
 } from 'bullmq';
+import { createLogger, type Logger } from '@arcagentic/logger';
 import type { JobResult, OpenAiWorkerConfig } from './types.js';
 
 const REDIS_URL = process.env['REDIS_URL'] ?? 'redis://localhost:6379';
+const createWorkersLogger = createLogger as (pkg: string, subsystem?: string) => Logger;
+const log = createWorkersLogger('workers', 'worker');
 
 const getBullMqConnectionOptions = (redisUrl: string): ConnectionOptions => {
   const url = new URL(redisUrl);
@@ -48,7 +51,8 @@ export function getOpenAiWorkerConfig(): OpenAiWorkerConfig {
     throw new Error('Missing OPENAI_API_KEY for workers LLM router');
   }
 
-  const model = process.env['OPENAI_MODEL'] ?? 'gpt-4o-mini';
+  const modelEnv = process.env['OPENAI_MODEL'];
+  const model = modelEnv && modelEnv.trim().length > 0 ? modelEnv : 'gpt-4o-mini';
   const baseUrl = process.env['OPENAI_BASE_URL'];
 
   return {
@@ -71,14 +75,17 @@ export function createWorker<T, R extends JobResult = JobResult>(
     async (job: Job<T, R>) => {
       const start = Date.now();
       try {
-        console.debug(`[Worker:${queueName}] Processing job ${job.id}`);
+        log.debug({ queueName, jobId: job.id }, 'processing job');
         const result = await processor(job);
         const duration = Date.now() - start;
 
         if (result.success) {
-          console.debug(`[Worker:${queueName}] Job ${job.id} completed in ${duration}ms`);
+          log.debug({ queueName, jobId: job.id, durationMs: duration }, 'job completed');
         } else {
-          console.error(`[Worker:${queueName}] Job ${job.id} failed: ${result.error}`);
+          log.error(
+            { queueName, jobId: job.id, durationMs: duration, error: result.error },
+            'job failed'
+          );
         }
 
         return {
@@ -90,7 +97,7 @@ export function createWorker<T, R extends JobResult = JobResult>(
         } as R;
       } catch (error) {
         const duration = Date.now() - start;
-        console.error(`[Worker:${queueName}] Job ${job.id} crashed after ${duration}ms:`, error);
+        log.error({ queueName, jobId: job.id, durationMs: duration, err: error }, 'job crashed');
         return {
           success: false,
           error: error instanceof Error ? error.message : String(error),
@@ -107,11 +114,11 @@ export function createWorker<T, R extends JobResult = JobResult>(
   );
 
   worker.on('failed', (job, err) => {
-    console.error(`[Worker:${queueName}] Job ${job?.id} failed with error:`, err);
+    log.error({ queueName, jobId: job?.id, err }, 'worker job failed event');
   });
 
   worker.on('error', (err) => {
-    console.error(`[Worker:${queueName}] Worker error:`, err);
+    log.error({ queueName, err }, 'worker error');
   });
 
   return worker;

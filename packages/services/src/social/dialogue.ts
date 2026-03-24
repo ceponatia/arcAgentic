@@ -1,10 +1,13 @@
 import { Effect } from 'effect';
 import { getCharacterProfile, getOrCreateDialogueState } from '@arcagentic/db';
+import { createLogger } from '@arcagentic/logger';
 import type { LLMProvider } from '@arcagentic/llm';
 import type { CharacterProfile } from '@arcagentic/schemas';
 import type { DialogueContext } from './dialogue-types.js';
 import type { DialogueConditionContext } from './dialogue-tree-types.js';
 import { DialogueTreeResolver } from './dialogue-tree-resolver.js';
+
+const log = createLogger('services', 'dialogue');
 
 /**
  * Response from dialogue resolution.
@@ -218,7 +221,7 @@ export class DialogueService {
         options: [],
       };
     } catch (error) {
-      console.warn('[DialogueService] LLM dialogue failed', error);
+      log.warn({ err: error, actorId, sessionId: context.sessionId }, 'llm dialogue failed');
       return { content: '...', options: [] };
     }
   }

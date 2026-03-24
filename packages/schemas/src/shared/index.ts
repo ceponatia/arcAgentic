@@ -2,6 +2,8 @@
  * Shared schemas - common types used across character and persona schemas
  */
 
+export { isRecord } from './is-record.js';
+
 // Type-safe record access helpers
 export {
   getRecord,

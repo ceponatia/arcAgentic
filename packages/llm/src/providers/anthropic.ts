@@ -116,7 +116,7 @@ export class AnthropicProvider implements LLMProvider {
   }
 }
 
-function splitSystem(messages: LLMMessage[]): { system: string | null; nonSystem: LLMMessage[] } {
+export function splitSystem(messages: LLMMessage[]): { system: string | null; nonSystem: LLMMessage[] } {
   let system: string | null = null;
   const nonSystem: LLMMessage[] = [];
   for (const message of messages) {
@@ -129,7 +129,7 @@ function splitSystem(messages: LLMMessage[]): { system: string | null; nonSystem
   return { system, nonSystem };
 }
 
-function extractFirstText(content: { type: string; text?: string }[]): string | null {
+export function extractFirstText(content: { type: string; text?: string }[]): string | null {
   const first = content.find((block) => block.type === 'text');
   return first?.text ?? null;
 }

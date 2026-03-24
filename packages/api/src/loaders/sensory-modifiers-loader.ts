@@ -7,6 +7,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
+import { createLogger } from '@arcagentic/logger';
 import {
   SensoryModifiersDataSchema,
   getSensoryModifierByLevel,
@@ -18,6 +19,7 @@ import {
 import { resolveDataDir } from './loader.js';
 
 const SENSORY_MODIFIERS_FILE = 'sensory-modifiers.json';
+const log = createLogger('api', 'data');
 
 function safeGetModifier(
   data: SensoryModifiersData,
@@ -45,7 +47,7 @@ export async function loadSensoryModifiers(dataDir?: string): Promise<LoadedSens
   try {
     raw = await fs.promises.readFile(filePath, 'utf-8');
   } catch (err) {
-    console.error(`Failed to read sensory modifiers file at ${filePath}:`, err);
+    log.error({ err, filePath }, 'failed to read sensory modifiers file');
     throw new Error(`Sensory modifiers file not found: ${filePath}`);
   }
 
@@ -53,13 +55,13 @@ export async function loadSensoryModifiers(dataDir?: string): Promise<LoadedSens
   try {
     parsed = JSON.parse(raw);
   } catch (err) {
-    console.error(`Failed to parse sensory modifiers JSON:`, err);
+    log.error({ err, filePath }, 'failed to parse sensory modifiers json');
     throw new Error(`Invalid JSON in sensory modifiers file: ${filePath}`);
   }
 
   const result = SensoryModifiersDataSchema.safeParse(parsed);
   if (!result.success) {
-    console.error('Sensory modifiers validation failed:', result.error.flatten());
+    log.error({ error: result.error.flatten(), filePath }, 'sensory modifiers validation failed');
     throw new Error(`Invalid sensory modifiers data: ${result.error.message}`);
   }
 
@@ -84,7 +86,7 @@ export function loadSensoryModifiersSync(dataDir?: string): LoadedSensoryModifie
   try {
     raw = fs.readFileSync(filePath, 'utf-8');
   } catch (err) {
-    console.error(`Failed to read sensory modifiers file at ${filePath}:`, err);
+    log.error({ err, filePath }, 'failed to read sensory modifiers file');
     throw new Error(`Sensory modifiers file not found: ${filePath}`);
   }
 
@@ -92,13 +94,13 @@ export function loadSensoryModifiersSync(dataDir?: string): LoadedSensoryModifie
   try {
     parsed = JSON.parse(raw);
   } catch (err) {
-    console.error(`Failed to parse sensory modifiers JSON:`, err);
+    log.error({ err, filePath }, 'failed to parse sensory modifiers json');
     throw new Error(`Invalid JSON in sensory modifiers file: ${filePath}`);
   }
 
   const result = SensoryModifiersDataSchema.safeParse(parsed);
   if (!result.success) {
-    console.error('Sensory modifiers validation failed:', result.error.flatten());
+    log.error({ error: result.error.flatten(), filePath }, 'sensory modifiers validation failed');
     throw new Error(`Invalid sensory modifiers data: ${result.error.message}`);
   }
 

@@ -1,9 +1,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { createLogger } from '@arcagentic/logger';
 import { CharacterProfileSchema, SettingProfileSchema } from '@arcagentic/schemas';
 import type { CharacterProfile, SettingProfile } from '@arcagentic/schemas';
 import type { LoadedData } from './types.js';
 import { getEnvValue } from '../utils/env.js';
+
+const log = createLogger('api', 'data');
 
 // Returns the closest ancestor folder that contains a `data` directory
 function findNearestDataDir(startDir: string): string | null {
@@ -62,7 +65,7 @@ export async function deleteCharacterFile(id: string, dataDir?: string): Promise
       }
     }
   } catch (err) {
-    console.error(`Failed to delete character file for id ${id}: ${(err as Error).message}`);
+    log.error({ err, characterId: id }, 'failed to delete character file');
   }
   return false;
 }
@@ -91,12 +94,12 @@ export async function loadData(dataDir?: string): Promise<LoadedData> {
         try {
           parsed = JSON.parse(raw);
         } catch (err) {
-          console.error(`Invalid JSON in ${p}: ${(err as Error).message}`);
+          log.error({ err, filePath: p }, 'invalid json in data file');
           process.exit(1);
         }
         const res = schema.safeParse(parsed);
         if (!res.success) {
-          console.error(`Validation failed for ${p}:`, res.error.format());
+          log.error({ filePath: p, error: res.error.format() }, 'data file validation failed');
           process.exit(1);
         }
         results.push(res.data);
@@ -106,7 +109,7 @@ export async function loadData(dataDir?: string): Promise<LoadedData> {
       if ((err as NodeJS.ErrnoException).code === 'ENOENT') {
         return results;
       }
-      console.error(`Failed to read folder ${folder}: ${(err as Error).message}`);
+      log.error({ err, folder }, 'failed to read data folder');
       process.exit(1);
     }
     return results;
@@ -115,8 +118,13 @@ export async function loadData(dataDir?: string): Promise<LoadedData> {
   const characters = await loadFiles<CharacterProfile>(charactersDir, CharacterProfileSchema);
   const settings = await loadFiles<SettingProfile>(settingsDir, SettingProfileSchema);
 
-  console.info(
-    `Loaded ${characters.length} characters and ${settings.length} settings from ${base}`
+  log.info(
+    {
+      characterCount: characters.length,
+      settingCount: settings.length,
+      dataDir: base,
+    },
+    'loaded data files'
   );
   const loaded: LoadedData = { characters, settings };
   return loaded;

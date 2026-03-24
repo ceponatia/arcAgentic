@@ -130,6 +130,10 @@ export function setPartialRecord<K extends string, V>(
  * @returns Element at index, or undefined if out of bounds
  */
 export function getArraySafe<T>(array: readonly T[], index: number): T | undefined {
+  if (index < 0) {
+    return undefined;
+  }
+
   return array.at(index);
 }
 

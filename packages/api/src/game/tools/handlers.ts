@@ -16,6 +16,7 @@ import type {
   NavigatePlayerArgs,
   UseItemArgs,
 } from './types.js';
+import { isRecord } from '@arcagentic/schemas';
 import {
   handleExamineObject,
   handleNavigatePlayer,
@@ -44,10 +45,6 @@ interface ActorStatePayload {
   profile?: Record<string, unknown>;
   name?: string;
   status?: 'active' | 'inactive';
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return Boolean(value) && typeof value === 'object';
 }
 
 function toActorStatePayload(value: unknown): ActorStatePayload {

@@ -1,7 +1,11 @@
+import { createLogger, type Logger } from '@arcagentic/logger';
 import { WireWorldEventSchema, type WorldEvent } from '@arcagentic/schemas';
 import { pubRedis, subRedis } from '../core/redis-client.js';
 
 export type EventHandler = (event: WorldEvent) => void | Promise<void>;
+
+const createBusLogger = createLogger as (pkg: string, subsystem?: string) => Logger;
+const log = createBusLogger('bus', 'redis-pubsub');
 
 export class RedisPubSubAdapter {
   private readonly channel = 'world-events';
@@ -24,11 +28,11 @@ export class RedisPubSubAdapter {
             for (const h of this.handlers) {
               const result = h(event);
               if (result instanceof Promise) {
-                result.catch((err: Error) => console.error('Error in event handler', err));
+                result.catch((err: Error) => log.error({ err }, 'event handler failed'));
               }
             }
           } catch (err) {
-            console.error('Failed to parse Redis event message', err);
+            log.error({ err, channel }, 'failed to parse redis event message');
           }
         }
       });

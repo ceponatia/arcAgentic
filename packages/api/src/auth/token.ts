@@ -1,8 +1,10 @@
 import crypto from 'node:crypto';
+import { createLogger } from '@arcagentic/logger';
 import type { AuthTokenPayload } from './types.js';
 import { getEnvValue } from '../utils/env.js';
 
 let localTokenDeprecationWarned = false;
+const log = createLogger('api', 'auth');
 
 function base64UrlEncode(input: Uint8Array): string {
   return Buffer.from(input)
@@ -100,7 +102,7 @@ export function verifyAuthToken(
 
   if (!localTokenDeprecationWarned) {
     localTokenDeprecationWarned = true;
-    console.warn('[auth] Local token auth is deprecated. Migrate to Supabase JWT authentication.');
+    log.warn('local token auth is deprecated; migrate to supabase jwt authentication');
   }
 
   return {

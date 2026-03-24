@@ -1,4 +1,5 @@
 import { OpenAIProvider, type LLMMessage, type LLMProvider } from '@arcagentic/llm';
+import { createLogger } from '@arcagentic/logger';
 import type { CharacterProfile } from '@arcagentic/schemas';
 import {
   createStudioNpcActor,
@@ -31,6 +32,7 @@ import { studioRateLimiter } from '../middleware/rate-limiter.js';
 
 // In-memory actor cache (actors are expensive to create)
 const actorCache = new Map<string, StudioNpcActor>();
+const log = createLogger('api', 'studio');
 
 const cfg = getConfig();
 
@@ -245,7 +247,7 @@ export function registerStudioRoutes(app: Hono, options?: RegisterStudioRoutesOp
 
       return c.json({ ok: true, content: result.content ?? '' });
     } catch (error) {
-      console.error('Studio generate error:', getMessage(error));
+      log.error({ err: error }, 'studio generate request failed');
       const mapped = toStudioError(error);
       return c.json(mapped.body, mapped.status);
     }
@@ -294,7 +296,7 @@ export function registerStudioRoutes(app: Hono, options?: RegisterStudioRoutesOp
           });
         }
       } catch (error) {
-        console.error('Generate stream error:', getMessage(error));
+        log.error({ err: error }, 'studio generate stream failed');
         await stream.writeSSE({
           event: 'error',
           data: JSON.stringify({ error: 'stream_failed', message: getMessage(error) }),
@@ -356,11 +358,11 @@ export function registerStudioRoutes(app: Hono, options?: RegisterStudioRoutesOp
           // But treat rate limits/timeouts as typed retryable errors.
           const mapped = toStudioError(error);
           if (mapped.status === 429 || mapped.status === 504) {
-            console.error('Infer traits LLM error:', getMessage(error));
+            log.error({ err: error }, 'infer traits llm request failed');
             return c.json(mapped.body, mapped.status);
           }
 
-          console.error('Infer traits LLM error:', getMessage(error));
+          log.error({ err: error }, 'infer traits llm request failed');
           return c.json({ traits: [] }, 200);
         }
       }
@@ -411,7 +413,7 @@ export function registerStudioRoutes(app: Hono, options?: RegisterStudioRoutesOp
 
       return c.json({ ok: true, inferredTraits });
     } catch (error) {
-      console.error('Studio infer-traits error:', getMessage(error));
+      log.error({ err: error }, 'studio infer-traits request failed');
       return c.json({ ok: false, error: 'Inference failed', inferredTraits: [] }, 500);
     }
   });
@@ -505,7 +507,7 @@ export function registerStudioRoutes(app: Hono, options?: RegisterStudioRoutesOp
 
       return c.json({ ok: true, summarized: false, summary: session.summary });
     } catch (error) {
-      console.error('Studio summarize error:', getMessage(error));
+      log.error({ err: error }, 'studio summarize request failed');
       return c.json({ ok: false, error: 'Summarization failed' }, 500);
     }
   });
@@ -616,7 +618,16 @@ export function registerStudioRoutes(app: Hono, options?: RegisterStudioRoutesOp
       const persistMs = performance.now() - persistStart;
 
       const totalMs = performance.now() - requestStart;
-      console.info(`[StudioTiming] sessionId=${sessionId} total=${totalMs.toFixed(0)}ms session=${sessionMs.toFixed(0)}ms respond=${respondMs.toFixed(0)}ms persist=${persistMs.toFixed(0)}ms`);
+      log.info(
+        {
+          sessionId,
+          totalMs: Math.round(totalMs),
+          sessionLookupMs: Math.round(sessionMs),
+          respondMs: Math.round(respondMs),
+          persistMs: Math.round(persistMs),
+        },
+        'studio conversation timing'
+      );
 
       return c.json({
         ok: true,
@@ -628,7 +639,7 @@ export function registerStudioRoutes(app: Hono, options?: RegisterStudioRoutesOp
         meta: response.meta,
       });
     } catch (error) {
-      console.error('Studio conversation error:', error);
+      log.error({ err: error }, 'studio conversation request failed');
       return c.json({ ok: false, error: 'Conversation failed' }, 500);
     }
   });
@@ -791,7 +802,7 @@ export function registerStudioRoutes(app: Hono, options?: RegisterStudioRoutesOp
           }),
         });
       } catch (err) {
-        console.error('Stream conversation error:', getMessage(err));
+        log.error({ err }, 'studio stream conversation failed');
         await stream.writeSSE({
           event: 'error',
           data: JSON.stringify({ error: 'stream_failed', message: getMessage(err) }),
@@ -841,7 +852,7 @@ export function registerStudioRoutes(app: Hono, options?: RegisterStudioRoutesOp
         unexploredTopics: guide.getUnexploredTopics(),
       });
     } catch (error) {
-      console.error('Suggest prompt error:', error);
+      log.error({ err: error }, 'studio suggest prompt request failed');
       return c.json({ ok: false, error: 'Failed to generate prompts' }, 500);
     }
   });
@@ -876,7 +887,7 @@ export function registerStudioRoutes(app: Hono, options?: RegisterStudioRoutesOp
         conflictingValues: dilemma.conflictingValues,
       });
     } catch (error) {
-      console.error('Dilemma scenario generation error:', error);
+      log.error({ err: error }, 'studio dilemma scenario generation failed');
       return c.json({ ok: false, error: 'Failed to generate dilemma scenario' }, 500);
     }
   });
@@ -899,10 +910,14 @@ export function registerStudioRoutes(app: Hono, options?: RegisterStudioRoutesOp
       const { sessionId, profile } = parsed.data;
       const ownerEmail = getOwnerEmail(c);
 
-      console.debug('[DilemmaAPI] Request received:', {
-        sessionId,
-        profileName: profile['name'],
-      });
+      log.debug(
+        {
+          sessionId,
+          profileName: profile['name'],
+          ownerEmail,
+        },
+        'studio dilemma request received'
+      );
 
       const session = await getStudioSession(sessionId, ownerEmail);
       if (!session) {
@@ -940,10 +955,16 @@ export function registerStudioRoutes(app: Hono, options?: RegisterStudioRoutesOp
       // Extract the dilemma scenario from conversation (it was added before the response)
       const state = actor.exportState();
 
-      console.debug('[DilemmaAPI] Conversation messages:', state.conversation.map(m => ({
-        role: m.role,
-        contentPreview: m.content.slice(0, 80),
-      })));
+      log.debug(
+        {
+          sessionId,
+          conversationMessages: state.conversation.map((message) => ({
+            role: message.role,
+            contentPreview: message.content.slice(0, 80),
+          })),
+        },
+        'studio dilemma conversation snapshot'
+      );
 
       // Find the dilemma message - look for [DILEMMA] prefix (with or without colon)
       const dilemmaMessage = state.conversation.find(
@@ -959,13 +980,17 @@ export function registerStudioRoutes(app: Hono, options?: RegisterStudioRoutesOp
         dilemmaScenario = match?.[1]?.trim() ?? null;
       }
 
-      console.debug('[DilemmaAPI] Response generated:', {
-        foundDilemmaMessage: !!dilemmaMessage,
-        dilemmaScenario: dilemmaScenario?.slice(0, 100),
-        responseLength: response.response?.length ?? 0,
-        responsePreview: response.response?.slice(0, 200),
-        hasInferredTraits: response.inferredTraits?.length ?? 0,
-      });
+      log.debug(
+        {
+          sessionId,
+          foundDilemmaMessage: Boolean(dilemmaMessage),
+          dilemmaScenarioPreview: dilemmaScenario?.slice(0, 100),
+          responseLength: response.response?.length ?? 0,
+          responsePreview: response.response?.slice(0, 200),
+          inferredTraitCount: response.inferredTraits?.length ?? 0,
+        },
+        'studio dilemma response generated'
+      );
 
       // Persist
       await updateStudioSession(sessionId, {
@@ -986,7 +1011,7 @@ export function registerStudioRoutes(app: Hono, options?: RegisterStudioRoutesOp
         meta: response.meta,
       });
     } catch (error) {
-      console.error('Dilemma generation error:', error);
+      log.error({ err: error }, 'studio dilemma request failed');
       return c.json({ ok: false, error: 'Failed to generate dilemma' }, 500);
     }
   });
@@ -1018,7 +1043,7 @@ export function registerStudioRoutes(app: Hono, options?: RegisterStudioRoutesOp
 
       return c.json({ ok: true });
     } catch (error) {
-      console.error('Delete session error:', error);
+      log.error({ err: error }, 'studio session delete failed');
       return c.json({ ok: false, error: 'Failed to delete session' }, 500);
     }
   });
@@ -1047,7 +1072,7 @@ export function registerStudioRoutes(app: Hono, options?: RegisterStudioRoutesOp
         },
       });
     } catch (error) {
-      console.error('Get session error:', error);
+      log.error({ err: error }, 'studio session fetch failed');
       return c.json({ ok: false, error: 'Failed to get session' }, 500);
     }
   });

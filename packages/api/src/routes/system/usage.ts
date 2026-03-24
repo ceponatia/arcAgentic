@@ -1,4 +1,5 @@
 import type { Hono } from 'hono';
+import { createLogger } from '@arcagentic/logger';
 import {
   drizzle as db,
   sessions as sessionsTable,
@@ -11,6 +12,8 @@ import type { EntityUsageSummary, SessionUsageInfo } from '@arcagentic/schemas';
 import type { ApiError } from '../../types.js';
 import { getOwnerEmail } from '../../auth/ownerEmail.js';
 import { toId } from '../../utils/uuid.js';
+
+const log = createLogger('api', 'system');
 
 /**
  * Register entity usage routes.
@@ -61,7 +64,7 @@ export function registerEntityUsageRoutes(app: Hono): void {
 
       return c.json(result, 200);
     } catch (error) {
-      console.error('Error fetching character usage:', error);
+      log.error({ err: error, characterId, ownerEmail }, 'failed to fetch character usage');
       return c.json(
         { ok: false, error: 'Failed to fetch character usage' } satisfies ApiError,
         500
@@ -105,7 +108,7 @@ export function registerEntityUsageRoutes(app: Hono): void {
 
       return c.json(result, 200);
     } catch (error) {
-      console.error('Error fetching setting usage:', error);
+      log.error({ err: error, settingId, ownerEmail }, 'failed to fetch setting usage');
       return c.json({ ok: false, error: 'Failed to fetch setting usage' } satisfies ApiError, 500);
     }
   });
@@ -155,7 +158,7 @@ export function registerEntityUsageRoutes(app: Hono): void {
 
       return c.json(result, 200);
     } catch (error) {
-      console.error('Error fetching persona usage:', error);
+      log.error({ err: error, personaId, ownerEmail }, 'failed to fetch persona usage');
       return c.json({ ok: false, error: 'Failed to fetch persona usage' } satisfies ApiError, 500);
     }
   });

@@ -4,6 +4,7 @@
  * Provides CRUD endpoints for persisting in-progress Session Builder state.
  */
 import type { Hono } from 'hono';
+import { createLogger } from '@arcagentic/logger';
 import { z } from 'zod';
 import {
   createWorkspaceDraft,
@@ -18,6 +19,8 @@ import { getAuthUser } from '../../auth/middleware.js';
 import { getPrincipalIdentifier } from '../../auth/ownerEmail.js';
 import { toId } from '../../utils/uuid.js';
 import { validateBody, validateParamId } from '../../utils/request-validation.js';
+
+const log = createLogger('api', 'users');
 
 /**
  * Validation schema for workspace state.
@@ -67,7 +70,7 @@ export function registerWorkspaceDraftRoutes(app: Hono): void {
       const drafts = await listWorkspaceDrafts(userId, { limit });
       return c.json({ ok: true, drafts, total: drafts.length }, 200);
     } catch (err) {
-      console.error('[API] Failed to list workspace drafts:', err);
+      log.error({ err, userId, limit }, 'failed to list workspace drafts');
       return c.json({ ok: false, error: 'failed to list drafts' } satisfies ApiError, 500);
     }
   });
@@ -102,7 +105,7 @@ export function registerWorkspaceDraftRoutes(app: Hono): void {
       }
       return c.json({ ok: true, draft }, 200);
     } catch (err) {
-      console.error('[API] Failed to get workspace draft:', err);
+      log.error({ err, draftId: id, userId }, 'failed to get workspace draft');
       return c.json({ ok: false, error: 'failed to get draft' } satisfies ApiError, 500);
     }
   });
@@ -139,7 +142,7 @@ export function registerWorkspaceDraftRoutes(app: Hono): void {
 
       return c.json({ ok: true, draft }, 201);
     } catch (err) {
-      console.error('[API] Failed to create workspace draft:', err);
+      log.error({ err, userId }, 'failed to create workspace draft');
       return c.json({ ok: false, error: 'failed to create draft' } satisfies ApiError, 500);
     }
   });
@@ -188,7 +191,7 @@ export function registerWorkspaceDraftRoutes(app: Hono): void {
 
       return c.json({ ok: true, draft }, 200);
     } catch (err) {
-      console.error('[API] Failed to update workspace draft:', err);
+      log.error({ err, draftId: id, userId }, 'failed to update workspace draft');
       return c.json({ ok: false, error: 'failed to update draft' } satisfies ApiError, 500);
     }
   });
@@ -220,7 +223,7 @@ export function registerWorkspaceDraftRoutes(app: Hono): void {
       }
       return c.json({ ok: true }, 200);
     } catch (err) {
-      console.error('[API] Failed to delete workspace draft:', err);
+      log.error({ err, draftId: id, userId }, 'failed to delete workspace draft');
       return c.json({ ok: false, error: 'failed to delete draft' } satisfies ApiError, 500);
     }
   });
@@ -242,7 +245,7 @@ export function registerWorkspaceDraftRoutes(app: Hono): void {
       const count = await pruneOldWorkspaceDrafts(olderThanDays);
       return c.json({ ok: true, deleted: count }, 200);
     } catch (err) {
-      console.error('[API] Failed to prune workspace drafts:', err);
+      log.error({ err, olderThanDays }, 'failed to prune workspace drafts');
       return c.json({ ok: false, error: 'failed to prune drafts' } satisfies ApiError, 500);
     }
   });

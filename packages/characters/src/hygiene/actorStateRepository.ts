@@ -1,5 +1,5 @@
 import type { BodyPartHygieneState, NpcHygieneState } from '@arcagentic/schemas';
-import { getRecordOptional, setRecord } from '@arcagentic/schemas';
+import { getRecordOptional, isRecord, setRecord } from '@arcagentic/schemas';
 import type { HygieneRepository } from './types.js';
 import type { CharacterId, SessionId } from '../types.js';
 
@@ -26,10 +26,6 @@ interface ActorStateStore {
 interface HygieneActorState {
   hygiene?: Record<string, BodyPartHygieneState>;
   [key: string]: unknown;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 function getHygieneFromState(state: unknown): Record<string, BodyPartHygieneState> {

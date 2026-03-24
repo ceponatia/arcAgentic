@@ -6,6 +6,7 @@
  * This replaces the fragile multi-request session creation flow.
  */
 import type { Context } from 'hono';
+import { createLogger } from '@arcagentic/logger';
 import {
   CreateFullSessionRequestSchema,
   DEFAULT_TIME_CONFIG,
@@ -31,6 +32,8 @@ import { toSessionId, toId, toIds } from '../../../utils/uuid.js';
 import type { CharacterProfile } from '@arcagentic/schemas';
 import { validateBody } from '../../../utils/request-validation.js';
 
+const log = createLogger('api', 'sessions');
+
 export type { CreateFullSessionRequest, CreateFullSessionResponse } from '@arcagentic/schemas';
 
 /**
@@ -41,7 +44,7 @@ export async function handleCreateFullSession(
   c: Context,
   getLoaded: LoadedDataGetter
 ): Promise<Response> {
-  console.info('[API] POST /sessions/create-full request received');
+  log.info('full session create request received');
 
   const user = getAuthUser(c);
   const ownerEmail = user?.email ?? user?.identifier;
@@ -60,16 +63,13 @@ export async function handleCreateFullSession(
       role: user?.role === 'admin' ? 'admin' : 'user',
     });
   } catch (err) {
-    console.error('[API] Failed to ensure user account for owner email', {
-      ownerEmail,
-      error: err instanceof Error ? err.message : String(err),
-    });
+    log.error({ err, ownerEmail }, 'failed to ensure user account for owner email');
     return serverError(c, 'failed to ensure user account');
   }
 
   const loaded = getLoaded();
   if (!loaded) {
-    console.error('[API] Data not loaded');
+    log.error('data not loaded for full session creation');
     return serverError(c, 'data not loaded');
   }
 
@@ -212,7 +212,7 @@ export async function handleCreateFullSession(
   try {
     const responseData = await drizzle.transaction(async (tx) => {
       // 1. Create session
-      console.info('[API] Creating session:', sessionId);
+      log.info({ sessionId, ownerEmail }, 'creating full session');
       await tx.insert(sessions).values({
         id: toId(sessionId),
         ownerEmail,
@@ -244,7 +244,7 @@ export async function handleCreateFullSession(
 
       // 3. Create NPC actor states
       for (const npc of npcInstances) {
-        console.info('[API] Creating character instance:', npc.id);
+        log.info({ sessionId, npcInstanceId: npc.id, characterId: npc.characterId }, 'creating npc actor state');
 
         interface AffinityState {
           relationshipType: string;
@@ -300,7 +300,7 @@ export async function handleCreateFullSession(
 
       // 4. Attach persona to session if provided
       if (request.personaId && personaProfile) {
-        console.info('[API] Attaching persona:', request.personaId);
+        log.info({ sessionId, personaId: request.personaId }, 'attaching persona to session');
         await tx.insert(actorStates).values({
           id: toId(generateId()),
           sessionId: toSessionId(sessionId),
@@ -397,7 +397,7 @@ export async function handleCreateFullSession(
       };
     });
 
-    console.info('[API] Session created successfully:', sessionId);
+    log.info({ sessionId }, 'full session created successfully');
 
     // Build response
     const response: CreateFullSessionResponse = {
@@ -422,7 +422,7 @@ export async function handleCreateFullSession(
 
     return c.json(response, 201);
   } catch (err) {
-    console.error('[API] Failed to create full session:', err);
+    log.error({ err, sessionId }, 'failed to create full session');
     return serverError(c, `failed to create session: ${(err as Error).message}`);
   }
 }

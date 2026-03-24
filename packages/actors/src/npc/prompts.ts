@@ -1,5 +1,6 @@
 import type { CharacterProfile } from '@arcagentic/schemas';
 import type { PerceptionContext, NpcRuntimeState } from './types.js';
+import { getStringField } from './event-access.js';
 
 export const NPC_DECISION_SYSTEM_PROMPT = [
   'You decide how an NPC should act based on recent events and their personality.',
@@ -34,8 +35,7 @@ export function buildNpcCognitionPrompt(
     lines.push('- None');
   } else {
     perception.relevantEvents.slice(-5).forEach((event) => {
-      const actorIdValue = (event as Record<string, unknown>)['actorId'];
-      const actorId = typeof actorIdValue === 'string' ? actorIdValue : 'unknown';
+      const actorId = getStringField(event, 'actorId') ?? 'unknown';
       lines.push(`- ${event.type} from ${actorId}`);
     });
   }

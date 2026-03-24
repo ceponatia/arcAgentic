@@ -4,6 +4,7 @@
  * DELETE /sessions/:id/messages/:idx - delete a message
  */
 import type { Context } from 'hono';
+import { createLogger } from '@arcagentic/logger';
 import {
   getSession,
   drizzle,
@@ -21,6 +22,8 @@ import { createMessageMappingDeps } from './message-mapping-deps.js';
 import type { SpokePayload } from './types.js';
 import { validateBody, validateParam, validateParamId } from '../../../utils/request-validation.js';
 import { z } from 'zod';
+
+const log = createLogger('api', 'sessions');
 
 type DbEvent = Awaited<ReturnType<typeof getEventsForSession>>[number];
 type SpokeEventRecord = DbEvent & { actorId: string; type: 'SPOKE' };
@@ -109,7 +112,7 @@ export async function handleDeleteMessage(c: Context): Promise<Response> {
   if (!idxResult.success) return idxResult.errorResponse;
   const idx = idxResult.data;
 
-  console.info(`[API] Request to delete message: session=${id}, idx=${idx}`);
+  log.info({ sessionId: id, idx }, 'message delete request received');
 
   const session = await getSession(toSessionId(id), ownerEmail);
   if (!session) return notFound(c, 'session not found');

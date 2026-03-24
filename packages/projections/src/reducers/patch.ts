@@ -1,5 +1,6 @@
 import * as jsonpatch from 'fast-json-patch';
 import type { Operation } from 'fast-json-patch';
+import { isRecord } from '@arcagentic/schemas';
 
 // Handling CJS/ESM interop for fast-json-patch
 const applyPatch = (jsonpatch.default?.applyPatch || jsonpatch.applyPatch).bind(jsonpatch);
@@ -15,10 +16,6 @@ interface PatchEvent {
   path?: string;
   value?: unknown;
   patches?: readonly Operation[];
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
 }
 
 function hasOwn<K extends PropertyKey>(

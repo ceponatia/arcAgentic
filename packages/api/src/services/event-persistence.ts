@@ -1,6 +1,9 @@
 import { getEventsForSession, saveEvent } from '@arcagentic/db/node';
-import type { WorldEvent } from '@arcagentic/schemas';
+import { createLogger } from '@arcagentic/logger';
+import { isRecord, type WorldEvent } from '@arcagentic/schemas';
 import { toSessionId } from '../utils/uuid.js';
+
+const log = createLogger('api', 'events');
 
 /**
  * Persist a world event to the database using a session-scoped sequence number.
@@ -16,8 +19,8 @@ export async function persistWorldEvent(event: WorldEvent): Promise<void> {
 
   const sequence = nextSequence(sessionId);
   const payload = extractPayload(event);
-  const actorId = extractString((event as Record<string, unknown>)['actorId']);
-  const causedByEventId = extractString((event as Record<string, unknown>)['causedByEventId']);
+  const actorId = 'actorId' in event ? extractString(event.actorId) : null;
+  const causedByEventId = 'causedByEventId' in event ? extractString(event.causedByEventId) : null;
 
   try {
     await saveEvent({
@@ -29,7 +32,7 @@ export async function persistWorldEvent(event: WorldEvent): Promise<void> {
       causedByEventId,
     });
   } catch (error) {
-    console.error('[bus] failed to persist event', error);
+    log.error({ err: error, sessionId, eventType: event.type, sequence: sequence.toString() }, 'failed to persist world event');
   }
 }
 
@@ -50,7 +53,7 @@ export async function recoverSessionSequence(sessionId: string): Promise<void> {
     const events = await getEventsForSession(toSessionId(sessionId));
     primeSessionSequence(sessionId, events);
   } catch (error) {
-    console.error('[bus] failed to recover session sequence', error);
+    log.error({ err: error, sessionId }, 'failed to recover session sequence');
   }
 }
 
@@ -61,15 +64,14 @@ interface SequenceBearing {
 }
 
 function extractSessionId(event: WorldEvent): string | undefined {
-  const rawEvent = event as Record<string, unknown>;
-  const eventSessionId = rawEvent['sessionId'];
+  const eventSessionId = 'sessionId' in event ? event.sessionId : undefined;
   if (typeof eventSessionId === 'string' && eventSessionId.length > 0) {
     return eventSessionId;
   }
 
-  const payload = rawEvent['payload'];
-  if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
-    const payloadSessionId = (payload as Record<string, unknown>)['sessionId'];
+  const payload = 'payload' in event ? event.payload : undefined;
+  if (isRecord(payload)) {
+    const payloadSessionId = payload['sessionId'];
     if (typeof payloadSessionId === 'string' && payloadSessionId.length > 0) {
       return payloadSessionId;
     }
@@ -79,11 +81,11 @@ function extractSessionId(event: WorldEvent): string | undefined {
 }
 
 function extractPayload(event: WorldEvent): Record<string, unknown> | unknown[] {
-  const rawPayload = (event as Record<string, unknown>)['payload'];
-  if (rawPayload && typeof rawPayload === 'object') {
-    return rawPayload as Record<string, unknown> | unknown[];
+  const rawPayload = 'payload' in event ? event.payload : undefined;
+  if (isRecord(rawPayload) || Array.isArray(rawPayload)) {
+    return rawPayload;
   }
-  return event as Record<string, unknown>;
+  return { ...event };
 }
 
 function extractString(value: unknown): string | null {

@@ -1,3 +1,4 @@
+import { createLogger, type Logger } from '@arcagentic/logger';
 import { type WorldEvent } from '@arcagentic/schemas';
 import { type BusMiddleware } from './telemetry.js';
 // We'll need a way to access the DB. Since /bus shouldn't
@@ -10,6 +11,9 @@ import { type BusMiddleware } from './telemetry.js';
 
 export type PersistenceHandler = (event: WorldEvent) => Promise<void>;
 
+const createBusLogger = createLogger as (pkg: string, subsystem?: string) => Logger;
+const log = createBusLogger('bus', 'persistence');
+
 let persistenceHandler: PersistenceHandler | null = null;
 
 export function registerPersistenceHandler(handler: PersistenceHandler) {
@@ -21,7 +25,7 @@ export const persistenceMiddleware: BusMiddleware = async (event, next) => {
     try {
       await persistenceHandler(event);
     } catch (err) {
-      console.error('Failed to persist event', err);
+      log.error({ err }, 'failed to persist event');
       // We continue anyway to not block the bus?
       // Or should we fail? Usually, for event sourcing, persistence is critical.
     }

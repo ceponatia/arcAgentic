@@ -5,6 +5,7 @@
  * Hygiene state is used by the sensory system to generate context-aware descriptions.
  */
 import type { Hono } from 'hono';
+import { createLogger } from '@arcagentic/logger';
 import { z } from 'zod';
 import {
   HygieneUpdateInputSchema,
@@ -28,6 +29,8 @@ import type { ApiError } from '../../types.js';
 import { loadSensoryModifiers } from '../../loaders/sensory-modifiers-loader.js';
 import { toSessionId, toId } from '../../utils/uuid.js';
 import { validateBody, validateParam, validateParamId } from '../../utils/request-validation.js';
+
+const log = createLogger('api', 'hygiene');
 
 interface HygieneActorState {
   hygiene?: Record<string, BodyPartHygieneState>;
@@ -279,7 +282,7 @@ export function registerHygieneRoutes(app: Hono): void {
       const state = await getNpcHygieneState(sessionId, npcId);
       return c.json(state, 200);
     } catch (error) {
-      console.error('Error fetching hygiene state:', error);
+      log.error({ err: error, sessionId, npcId }, 'failed to fetch hygiene state');
       return c.json({ ok: false, error: 'Failed to fetch hygiene state' } satisfies ApiError, 500);
     }
   });
@@ -298,7 +301,7 @@ export function registerHygieneRoutes(app: Hono): void {
       const state = await initializeHygieneState(sessionId, npcId);
       return c.json(state, 201);
     } catch (error) {
-      console.error('Error initializing hygiene state:', error);
+      log.error({ err: error, sessionId, npcId }, 'failed to initialize hygiene state');
       return c.json(
         { ok: false, error: 'Failed to initialize hygiene state' } satisfies ApiError,
         500
@@ -328,7 +331,7 @@ export function registerHygieneRoutes(app: Hono): void {
       const state = await updateHygieneState(sessionId, parsed.data);
       return c.json(state, 200);
     } catch (error) {
-      console.error('Error updating hygiene state:', error);
+      log.error({ err: error, sessionId, npcId }, 'failed to update hygiene state');
       return c.json({ ok: false, error: 'Failed to update hygiene state' } satisfies ApiError, 500);
     }
   });
@@ -369,7 +372,7 @@ export function registerHygieneRoutes(app: Hono): void {
       await saveNpcHygieneState(sessionId, npcId, state.bodyParts);
       return c.json(state, 200);
     } catch (error) {
-      console.error('Error cleaning body parts:', error);
+      log.error({ err: error, sessionId, npcId, bodyParts }, 'failed to clean body parts');
       return c.json({ ok: false, error: 'Failed to clean body parts' } satisfies ApiError, 500);
     }
   });
@@ -401,7 +404,7 @@ export function registerHygieneRoutes(app: Hono): void {
       const state = await applyHygieneEventToNpc(sessionId, npcId, event);
       return c.json(state, 200);
     } catch (error) {
-      console.error('Error applying hygiene event:', error);
+      log.error({ err: error, sessionId, npcId, event }, 'failed to apply hygiene event');
       return c.json({ ok: false, error: 'Failed to apply hygiene event' } satisfies ApiError, 500);
     }
   });
@@ -450,7 +453,10 @@ export function registerHygieneRoutes(app: Hono): void {
         200
       );
     } catch (error) {
-      console.error('Error fetching sensory modifier:', error);
+      log.error(
+        { err: error, sessionId, npcId, bodyPart, senseType },
+        'failed to fetch sensory modifier'
+      );
       return c.json(
         { ok: false, error: 'Failed to fetch sensory modifier' } satisfies ApiError,
         500

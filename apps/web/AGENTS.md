@@ -6,10 +6,12 @@ Vite-based React frontend for Minimal RPG. The player-facing web client that com
 
 ## Scope
 
-- Web frontend pages, routes, and feature components
-- Client-side state management (Zustand) and API integration
-- Frontend configuration, assets, and Vite build tooling
-- Composition of shared UI components
+- Web frontend pages, route modules, and feature components
+- TanStack Router route definitions under `src/routes/` and the generated code-based route tree
+- Client-side state management with Zustand stores, including shared session/runtime stores and feature-specific stores
+- Route-level data loading and mutations through domain-specific API client modules under `src/shared/api/`
+- Frontend shell composition through `RootLayout` and its navigation components
+- Frontend configuration, assets, and Vite 7 build tooling
 
 ## Package Connections
 
@@ -27,13 +29,12 @@ Vite-based React frontend for Minimal RPG. The player-facing web client that com
 - Use utils from `@arcagentic/utils` instead of duplicating logic.
 - Prefer to add utils to `@arcagentic/utils` instead of scope-specific helpers when possible.
 
-## Data Freshness (Views)
+## Architecture Notes
 
-This app uses hash routing and a long-lived controller (`useAppController`) which means list-fetch hooks can stay mounted across navigation.
-
-To keep all views consistent (data is fresh when you enter a view), prefer the shared hook `useRefreshOnViewEnter` in the controller instead of adding per-view inline `useEffect` refresh logic.
-
-- Hook: `apps/web/src/shared/hooks/useRefreshOnViewEnter.ts`
-- Usage: `apps/web/src/layouts/hooks/useAppController.ts`
+- Routing uses TanStack Router (`@tanstack/react-router`) with route modules under `src/routes/` and a generated route tree.
+- The app shell is `RootLayout`, which composes shared navigation pieces such as `Sidebar`, `ShellHeader`, `NavItems`, and `MobileDrawer`.
+- Data fetching is owned by route modules and feature code instead of a long-lived app controller.
+- Shared client state lives in Zustand stores such as the session store, runtime store, and feature-local stores.
+- Backend communication is organized through domain-specific API client modules in `src/shared/api/`.
 
 This package is the frontend entry point. All backend communication goes through the API package.

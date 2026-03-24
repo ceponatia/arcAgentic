@@ -6,8 +6,11 @@ import {
   getActorState,
   updateActorState,
 } from '@arcagentic/db';
+import { createLogger } from '@arcagentic/logger';
 import type { NpcLocationState } from '@arcagentic/schemas';
 import { resolveNpcSchedulesBatch } from './schedule-service.js';
+
+const log = createLogger('services', 'scheduler');
 
 type ActorStateRecord = Record<string, unknown>;
 
@@ -42,7 +45,7 @@ export class Scheduler {
    */
   static async processSchedules(sessionId: string): Promise<void> {
     if (this.processing.has(sessionId)) {
-      console.debug(`[Scheduler] Skipping ${sessionId} - already processing`);
+      log.debug({ sessionId }, 'skipping schedule processing because session is already processing');
       return;
     }
 
@@ -51,7 +54,7 @@ export class Scheduler {
     try {
       const gameTime = await getSessionGameTime(sessionId);
       if (!gameTime) {
-        console.warn(`[Scheduler] No game time for session ${sessionId}`);
+        log.warn({ sessionId }, 'no game time for session');
         return;
       }
 
@@ -63,7 +66,7 @@ export class Scheduler {
       });
 
       if (unresolved.length > 0) {
-        console.debug(`[Scheduler] Unresolved NPCs: ${unresolved.join(', ')}`);
+        log.debug({ sessionId, unresolvedNpcIds: unresolved }, 'unresolved npc schedules');
       }
 
       for (const [npcId, newState] of locationStates) {
@@ -141,7 +144,7 @@ export class Scheduler {
       }
     });
     this.started = true;
-    console.info('[Scheduler] Started - listening for TICK events');
+    log.info('started listening for TICK events');
   }
 
   private static getCurrentLocationId(state: ActorStateRecord): string | null {

@@ -1,3 +1,6 @@
+import { sql } from 'drizzle-orm';
+import { drizzle as db } from '../connection/index.js';
+import { promptTags } from '../schema/index.js';
 import type { PgPoolLike } from '../types.js';
 import type { BuiltInTag, BuiltInTagSeedMode, SeedBuiltInTagsOptions } from './types.js';
 
@@ -113,51 +116,37 @@ const ALL_BUILT_IN_TAGS: BuiltInTag[] = [
  * definitions to refresh existing built-in tags.
  */
 export async function seedBuiltInTags(
-  pool: PgPoolLike,
+  _pool: PgPoolLike,
   options: SeedBuiltInTagsOptions = {}
 ): Promise<void> {
+  void _pool;
   console.info('[seed] Seeding built-in tags...');
 
   const mode: BuiltInTagSeedMode = options.mode ?? 'insert';
+  const tagValues = ALL_BUILT_IN_TAGS.map((tag) => ({
+    name: tag.name,
+    description: tag.shortDescription,
+    category: tag.category,
+    promptText: tag.promptText,
+    isActive: true,
+  }));
 
-  for (const tag of ALL_BUILT_IN_TAGS) {
-    if (mode === 'upsert') {
-      await pool.query(
-        `
-        INSERT INTO prompt_tags (
-          id, owner, visibility, name, short_description, category,
-          prompt_text, activation_mode, target_type, triggers,
-          priority, composition_mode, version, is_built_in, created_at, updated_at
-        ) VALUES (
-          gen_random_uuid(), 'system', 'public', $1, $2, $3,
-          $4, 'always', 'session', '[]'::jsonb,
-          'normal', 'append', '1.0.0', true, NOW(), NOW()
-        )
-        ON CONFLICT (owner, name) DO UPDATE SET
-          short_description = EXCLUDED.short_description,
-          category = EXCLUDED.category,
-          prompt_text = EXCLUDED.prompt_text,
-          updated_at = NOW()
-        `,
-        [tag.name, tag.shortDescription, tag.category, tag.promptText]
-      );
-    } else {
-      await pool.query(
-        `
-        INSERT INTO prompt_tags (
-          id, owner, visibility, name, short_description, category,
-          prompt_text, activation_mode, target_type, triggers,
-          priority, composition_mode, version, is_built_in, created_at, updated_at
-        ) VALUES (
-          gen_random_uuid(), 'system', 'public', $1, $2, $3,
-          $4, 'always', 'session', '[]'::jsonb,
-          'normal', 'append', '1.0.0', true, NOW(), NOW()
-        )
-        ON CONFLICT (owner, name) DO NOTHING
-        `,
-        [tag.name, tag.shortDescription, tag.category, tag.promptText]
-      );
-    }
+  if (mode === 'upsert') {
+    await db
+      .insert(promptTags)
+      .values(tagValues)
+      .onConflictDoUpdate({
+        target: promptTags.name,
+        set: {
+          description: sql`excluded.description`,
+          category: sql`excluded.category`,
+          promptText: sql`excluded.prompt_text`,
+          isActive: true,
+          updatedAt: new Date(),
+        },
+      });
+  } else {
+    await db.insert(promptTags).values(tagValues).onConflictDoNothing({ target: promptTags.name });
   }
 
   console.info(`[seed] Seeded ${ALL_BUILT_IN_TAGS.length} built-in tags.`);

@@ -8,6 +8,7 @@ import {
   DialogueTreeSchema,
   DialogueTriggerSchema,
 } from '@arcagentic/schemas';
+import { createLogger } from '@arcagentic/logger';
 import type {
   DialogueCondition,
   DialogueEffect,
@@ -26,6 +27,8 @@ import {
 import { FactionService } from './faction.js';
 import type { DialogueContext } from './dialogue-types.js';
 import type { DialogueConditionContext } from './dialogue-tree-types.js';
+
+const log = createLogger('services', 'dialogue');
 
 /**
  * Resolved dialogue option for presentation.
@@ -331,7 +334,15 @@ export class DialogueTreeResolver {
       }
       case 'quest': {
         if (!context.effectHandlers?.quest) {
-          console.warn('[DialogueTreeResolver] Missing quest effect handler');
+          log.warn(
+            {
+              actorId: context.actorId,
+              sessionId: context.sessionId,
+              questId: parsed.questId,
+              action: parsed.action,
+            },
+            'missing quest effect handler'
+          );
           return;
         }
         await context.effectHandlers.quest({
@@ -344,7 +355,15 @@ export class DialogueTreeResolver {
       }
       case 'item': {
         if (!context.effectHandlers?.item) {
-          console.warn('[DialogueTreeResolver] Missing item effect handler');
+          log.warn(
+            {
+              actorId: context.actorId,
+              sessionId: context.sessionId,
+              itemId: parsed.itemId,
+              action: parsed.action,
+            },
+            'missing item effect handler'
+          );
           return;
         }
         await context.effectHandlers.item({
@@ -358,7 +377,15 @@ export class DialogueTreeResolver {
       }
       case 'flag': {
         if (!context.effectHandlers?.flag) {
-          console.warn('[DialogueTreeResolver] Missing flag effect handler');
+          log.warn(
+            {
+              actorId: context.actorId,
+              sessionId: context.sessionId,
+              flagId: parsed.flagId,
+              value: parsed.value,
+            },
+            'missing flag effect handler'
+          );
           return;
         }
         await context.effectHandlers.flag({
@@ -371,7 +398,14 @@ export class DialogueTreeResolver {
       }
       case 'custom': {
         if (!context.effectHandlers?.custom) {
-          console.warn('[DialogueTreeResolver] Missing custom effect handler');
+          log.warn(
+            {
+              actorId: context.actorId,
+              sessionId: context.sessionId,
+              handler: parsed.handler,
+            },
+            'missing custom effect handler'
+          );
           return;
         }
         await context.effectHandlers.custom({

@@ -1,4 +1,4 @@
-import type { WorldEvent } from '@arcagentic/schemas';
+import { WorldEventSchema, type WorldEvent } from '@arcagentic/schemas';
 import { worldBus } from '@arcagentic/bus';
 import type { Actor } from './types.js';
 
@@ -19,7 +19,13 @@ export class BaseActorLifecycle {
     if (this.started) return;
 
     this.handler = (event: WorldEvent) => {
-      this.actor.send(event);
+      const parsedEvent = WorldEventSchema.safeParse(event);
+      if (!parsedEvent.success) {
+        console.warn('[BaseActorLifecycle] Dropping invalid world event', parsedEvent.error.flatten());
+        return;
+      }
+
+      this.actor.send(parsedEvent.data);
     };
 
     await worldBus.subscribe(this.handler);
