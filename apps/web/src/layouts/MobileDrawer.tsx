@@ -1,12 +1,11 @@
 import React from "react";
+import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { NavItems } from "./NavItems.js";
 import { NavButton, DocumentIcon } from "./ShellComponents.js";
-import type { NavController } from "../routes/LegacyNavAdapter.js";
 
 interface MobileDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  controller: NavController;
 }
 
 /**
@@ -15,8 +14,10 @@ interface MobileDrawerProps {
 export const MobileDrawer: React.FC<MobileDrawerProps> = ({
   isOpen,
   onClose,
-  controller,
 }) => {
+  const navigate = useNavigate();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+
   if (!isOpen) return null;
 
   return (
@@ -53,16 +54,16 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
         </div>
 
         <div className="space-y-1">
-          <NavItems controller={controller} onItemClick={onClose} />
+          <NavItems onItemClick={onClose} />
         </div>
 
         <div className="mt-auto pt-4 border-t border-slate-800">
           <NavButton
             icon={<DocumentIcon className="w-5 h-5" />}
             label="Documentation"
-            active={controller.viewMode === "docs"}
+            active={pathname === "/docs"}
             onClick={() => {
-              controller.navigateToDocs();
+              void navigate({ to: "/docs" });
               onClose();
             }}
           />

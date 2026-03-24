@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   NavButton,
   HomeIcon,
@@ -9,40 +10,26 @@ import {
   BoxIcon,
   ChatIcon,
 } from "./ShellComponents.js";
-import type { NavController } from "../routes/LegacyNavAdapter.js";
 
 interface NavItemsProps {
-  controller: NavController;
   onItemClick?: () => void;
 }
 
 /**
  * Shared navigation items used in both mobile and desktop menus.
  */
-export const NavItems: React.FC<NavItemsProps> = ({
-  controller,
-  onItemClick,
-}) => {
-  const {
-    viewMode,
-    navigateToHome,
-    navigateToCharacterLibrary,
-    navigateToPersonaLibrary,
-    navigateToSettingLibrary,
-    navigateToLocationLibrary,
-    navigateToTagLibrary,
-    navigateToItemLibrary,
-    navigateToSessionLibrary,
-  } = controller;
+export const NavItems: React.FC<NavItemsProps> = ({ onItemClick }) => {
+  const navigate = useNavigate();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   return (
     <>
       <NavButton
         icon={<HomeIcon className="w-5 h-5" />}
         label="Home"
-        active={viewMode === "home"}
+        active={pathname === "/"}
         onClick={() => {
-          navigateToHome();
+          void navigate({ to: "/" });
           onItemClick?.();
         }}
       />
@@ -50,70 +37,64 @@ export const NavItems: React.FC<NavItemsProps> = ({
         icon={<UsersIcon className="w-5 h-5" />}
         label="Characters"
         active={
-          viewMode === "character-library" || viewMode === "character-studio"
+          pathname === "/characters" || pathname.startsWith("/characters/")
         }
         onClick={() => {
-          navigateToCharacterLibrary();
+          void navigate({ to: "/characters" });
           onItemClick?.();
         }}
       />
       <NavButton
         icon={<UsersIcon className="w-5 h-5" />}
         label="Personas"
-        active={
-          viewMode === "persona-library" || viewMode === "persona-builder"
-        }
+        active={pathname === "/personas" || pathname.startsWith("/personas/")}
         onClick={() => {
-          navigateToPersonaLibrary();
+          void navigate({ to: "/personas" });
           onItemClick?.();
         }}
       />
       <NavButton
         icon={<GlobeIcon className="w-5 h-5" />}
         label="Settings"
-        active={
-          viewMode === "setting-library" || viewMode === "setting-builder"
-        }
+        active={pathname === "/settings" || pathname.startsWith("/settings/")}
         onClick={() => {
-          navigateToSettingLibrary();
+          void navigate({ to: "/settings" });
           onItemClick?.();
         }}
       />
       <NavButton
         icon={<MapPinIcon className="w-5 h-5" />}
         label="Locations"
-        active={
-          viewMode === "location-library" || viewMode === "location-builder"
-        }
+        active={pathname === "/locations" || pathname.startsWith("/locations/")}
         onClick={() => {
-          navigateToLocationLibrary();
+          void navigate({ to: "/locations" });
           onItemClick?.();
         }}
       />
       <NavButton
         icon={<TagIcon className="w-5 h-5" />}
         label="Tags"
-        active={viewMode === "tag-library" || viewMode === "tag-builder"}
+        active={pathname === "/tags" || pathname.startsWith("/tags/")}
         onClick={() => {
-          navigateToTagLibrary();
+          void navigate({ to: "/tags" });
           onItemClick?.();
         }}
       />
       <NavButton
         icon={<BoxIcon className="w-5 h-5" />}
         label="Items"
-        active={viewMode === "item-library" || viewMode === "item-builder"}
+        active={pathname === "/items" || pathname.startsWith("/items/")}
         onClick={() => {
-          navigateToItemLibrary();
+          void navigate({ to: "/items" });
           onItemClick?.();
         }}
       />
       <NavButton
         icon={<ChatIcon className="w-5 h-5" />}
         label="Sessions"
-        active={viewMode === "session-library" || viewMode === "chat"}
+        active={pathname === "/sessions" || pathname.startsWith("/sessions/")}
         onClick={() => {
-          navigateToSessionLibrary();
+          void navigate({ to: "/sessions" });
           onItemClick?.();
         }}
       />

@@ -28,7 +28,7 @@ export function useAuth(): UseAuthState {
     setError(null);
 
     // Bypass auth if configured (dev only)
-    if (import.meta.env.VITE_BYPASS_AUTH === 'true') {
+    if (import.meta.env.DEV && import.meta.env.VITE_BYPASS_AUTH === 'true') {
       setUser({
         identifier: 'dev-admin',
         role: 'admin',

@@ -1,19 +1,21 @@
-import React from 'react';
+import React from "react";
+import { useNavigate } from "@tanstack/react-router";
 
 interface ShellHeaderProps {
   onMenuClick: () => void;
-  onLogoClick: () => void;
 }
 
 /**
  * Universal header component for the application.
  * Responsively hides/shows menu toggles based on viewport.
  */
-export const ShellHeader: React.FC<ShellHeaderProps> = ({ onMenuClick, onLogoClick }) => {
+export const ShellHeader: React.FC<ShellHeaderProps> = ({ onMenuClick }) => {
+  const navigate = useNavigate();
+
   return (
     <header className="shrink-0 flex items-center justify-between px-4 py-3 border-b border-slate-800 bg-slate-900">
       <button
-        onClick={onLogoClick}
+        onClick={() => void navigate({ to: "/" })}
         className="text-lg font-semibold text-slate-100 hover:text-violet-400 transition-colors"
       >
         ArcAgentic
@@ -40,7 +42,9 @@ export const ShellHeader: React.FC<ShellHeaderProps> = ({ onMenuClick, onLogoCli
       </button>
 
       {/* Desktop could have additional items here in the future */}
-      <div className="hidden md:block">{/* Placeholder for desktop-specific header items */}</div>
+      <div className="hidden md:block">
+        {/* Placeholder for desktop-specific header items */}
+      </div>
     </header>
   );
 };

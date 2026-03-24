@@ -1,8 +1,6 @@
-import type { Dispatch, SetStateAction } from 'react';
 import type {
   Build,
   CharacterSummary,
-  PersonaSummary,
   SettingSummary,
   TagTargetType,
   UserAssistantMessageRole,
@@ -10,7 +8,6 @@ import type {
   ApiError,
   JsonPatchOperation,
 } from '@arcagentic/schemas';
-import type { CreateFullSessionRequest } from './shared/api/types.js';
 import type { UseFetchOnceResult } from './shared/hooks/useFetchOnce.js';
 
 export type { Speaker };
@@ -190,93 +187,6 @@ export interface SessionSummary {
   createdAt: string | Date;
   updatedAt: string | Date;
 }
-
-export type ViewMode =
-  | 'home'
-  | 'chat'
-  | 'character-library'
-  | 'character-studio'
-  | 'setting-library'
-  | 'tag-library'
-  | 'item-library'
-  | 'session-library'
-  | 'persona-library'
-  | 'location-library'
-  | 'session-builder'
-  | 'setting-builder'
-  | 'tag-builder'
-  | 'item-builder'
-  | 'persona-builder'
-  | 'location-builder'
-  | 'docs';
-
-export interface AppControllerStateSlice {
-  selectedCharacterId: string | null;
-  selectedSettingId: string | null;
-  selectedTagIds: string[];
-  currentSessionId: string | null;
-  builderId: string | null;
-  locationMapId: string | null;
-  locationSettingId: string | null;
-  viewMode: ViewMode;
-  creating: boolean;
-  createError: string | null;
-  sessionsLoading: boolean;
-  sessionsError: string | null;
-  sessionsData: SessionSummary[] | null;
-  charactersLoading: boolean;
-  charactersError: string | null;
-  charactersData: CharacterSummary[] | null;
-  settingsLoading: boolean;
-  settingsError: string | null;
-  settingsData: SettingSummary[] | null;
-  personasLoading: boolean;
-  personasError: string | null;
-  personasData: PersonaSummary[] | null;
-}
-
-export interface AppControllerComputedState {
-  sessions: SessionSummary[];
-  canStart: boolean;
-  activeCharacterId: string | null;
-  activeSettingId: string | null;
-}
-
-export interface AppControllerActions {
-  setSelectedCharacterId: Dispatch<SetStateAction<string | null>>;
-  setSelectedSettingId: Dispatch<SetStateAction<string | null>>;
-  setSelectedTagIds: Dispatch<SetStateAction<string[]>>;
-  setCurrentSessionId: Dispatch<SetStateAction<string | null>>;
-  refreshSessions: () => void;
-  refreshCharacters: () => void;
-  refreshSettings: () => void;
-  refreshPersonas: () => void;
-  onStartSession: (characterId?: string, settingId?: string, tagIds?: string[]) => Promise<void>;
-  onCreateSessionFull: (config: CreateFullSessionRequest) => Promise<string>;
-  onSessionCreated: (sessionId: string) => void;
-  handleDeleteSession: (sessionId: string) => Promise<void>;
-  navigateToCharacterStudio: (id: string | null) => void;
-  navigateToSettingBuilder: (id: string | null) => void;
-  navigateToTagBuilder: (id?: string | null) => void;
-  navigateToItemBuilder: (id?: string | null) => void;
-  navigateToPersonaBuilder: (id?: string | null) => void;
-  navigateToLocationLibrary: () => void;
-  navigateToLocationBuilder: (params?: { mapId?: string; settingId?: string } | null) => void;
-  navigateToCharacterLibrary: () => void;
-  navigateToSettingLibrary: () => void;
-  navigateToTagLibrary: () => void;
-  navigateToItemLibrary: () => void;
-  navigateToPersonaLibrary: () => void;
-  navigateToSessionLibrary: () => void;
-  navigateToSessionBuilder: () => void;
-  navigateToHome: () => void;
-  navigateToDocs: () => void;
-  selectSession: (id: string) => void;
-}
-
-export type AppControllerValue = AppControllerStateSlice &
-  AppControllerComputedState &
-  AppControllerActions;
 
 export interface CharactersState {
   loading: boolean;
