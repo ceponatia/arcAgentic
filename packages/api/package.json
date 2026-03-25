@@ -26,6 +26,7 @@
     "@arcagentic/logger": "workspace:*",
     "@arcagentic/llm": "workspace:*",
     "@arcagentic/projections": "workspace:*",
+    "@arcagentic/retrieval": "workspace:*",
     "@arcagentic/schemas": "workspace:*",
     "@arcagentic/services": "workspace:*",
     "@arcagentic/utils": "workspace:*",

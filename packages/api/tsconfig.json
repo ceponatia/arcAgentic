@@ -26,6 +26,9 @@
       "path": "../projections"
     },
     {
+      "path": "../retrieval"
+    },
+    {
       "path": "../schemas"
     },
     {

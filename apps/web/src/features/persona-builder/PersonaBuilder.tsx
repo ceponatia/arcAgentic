@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import {
   GENDERS,
   PersonaProfileSchema,
+  validatePersonaBeforeSave,
   type PersonaProfile,
 } from "@arcagentic/schemas";
 import { mapZodErrorsToFields } from "@arcagentic/utils";
@@ -103,6 +104,14 @@ export function PersonaBuilder(props: PersonaBuilderProps) {
     setSaveStatus("saving");
     setErrorMessage("");
     setErrors({});
+
+    const preErrors = validatePersonaBeforeSave(formState);
+    if (Object.keys(preErrors).length > 0) {
+      setErrors(preErrors);
+      setSaveStatus("error");
+      setErrorMessage("Please fix the highlighted fields.");
+      return;
+    }
 
     try {
       const profile = buildProfileFromForm(formState);

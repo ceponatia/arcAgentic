@@ -20,6 +20,13 @@ import { OpenAIProvider, createOpenRouterProviderFromEnv } from '@arcagentic/llm
 import { toSessionId } from '../../utils/uuid.js';
 import { validateBody, validateParamId } from '../../utils/request-validation.js';
 import { getEnvValue } from '../../utils/env.js';
+import {
+  clearRetrievalPromptContext,
+  createRetrievalAwareLlmProvider,
+  fetchRetrievalContext,
+  setRetrievalPromptContext,
+  summarizeRetrievalContext,
+} from '../../services/retrieval-context.js';
 import { z } from 'zod';
 
 const log = createLogger('api', 'turns');
@@ -110,6 +117,14 @@ async function resolveNpcProfileAndName(
   };
 }
 
+function resolveTurnLlmProvider(actorId: string, sessionId: string) {
+  if (!defaultTurnLlmProvider) {
+    return null;
+  }
+
+  return createRetrievalAwareLlmProvider(defaultTurnLlmProvider, { actorId, sessionId });
+}
+
 export function registerTurnRoutes(app: Hono): void {
   /**
    * POST /sessions/:id/turns
@@ -168,6 +183,8 @@ export function registerTurnRoutes(app: Hono): void {
 
       if (actorRegistry.has(actorId)) continue;
 
+      const llmProvider = resolveTurnLlmProvider(actorId, sessionKey);
+
       actorRegistry.spawn({
         id: actorId,
         type: 'npc',
@@ -175,7 +192,7 @@ export function registerTurnRoutes(app: Hono): void {
         sessionId: sessionKey,
         locationId,
         ...(profile ? { profile } : {}),
-        ...(defaultTurnLlmProvider ? { llmProvider: defaultTurnLlmProvider } : {}),
+        ...(llmProvider ? { llmProvider } : {}),
       });
     }
 
@@ -200,11 +217,27 @@ export function registerTurnRoutes(app: Hono): void {
         timestamp: new Date(),
       };
 
+      const retrievalResult = await fetchRetrievalContext(
+        sessionKey,
+        input,
+        targetNpcId ? { actorId: targetNpcId } : undefined
+      );
+
+      if (retrievalResult && retrievalResult.nodes.length > 0) {
+        setRetrievalPromptContext(
+          sessionKey,
+          summarizeRetrievalContext(retrievalResult),
+          targetNpcId ?? undefined
+        );
+      }
+
       await worldBus.emit(playerSpoke);
 
       // Wait briefly for NPC responses to propagate
       await new Promise((resolve) => setTimeout(resolve, RESPONSE_TIMEOUT_MS));
     } finally {
+      clearRetrievalPromptContext(sessionKey, targetNpcId ?? undefined);
+
       try {
         worldBus.unsubscribe(handler);
       } catch (error) {

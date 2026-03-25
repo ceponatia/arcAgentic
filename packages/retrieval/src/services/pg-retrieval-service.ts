@@ -14,7 +14,6 @@ import {
   applyNarrativeDecay,
   boostNarrativeImportance,
   computeScore,
-  DEFAULT_SCORING_WEIGHTS,
 } from '../scoring/scoring.js';
 import type {
   EmbeddingService,
@@ -29,8 +28,6 @@ import type {
   ScoringWeights,
 } from '../types.js';
 import { DEFAULT_RETRIEVAL_CONFIG } from './retrieval-service.js';
-
-const SYSTEM_OWNER_EMAIL = 'system';
 
 /**
  * Database-backed retrieval service using pgvector similarity search.
@@ -94,6 +91,29 @@ export class PgRetrievalService implements RetrievalService {
     let created = 0;
     const ingestionErrors = [...errors];
 
+    if (!input.sessionId) {
+      ingestionErrors.push({
+        path: 'sessionId',
+        message: 'PgRetrievalService ingest requires a sessionId.',
+      });
+    }
+
+    if (!input.ownerEmail) {
+      ingestionErrors.push({
+        path: 'ownerEmail',
+        message: 'PgRetrievalService ingest requires an ownerEmail.',
+      });
+    }
+
+    if (!input.sessionId || !input.ownerEmail) {
+      return {
+        created,
+        updated: 0,
+        unchanged: 0,
+        errors: ingestionErrors,
+      };
+    }
+
     for (const extractedNode of extractedNodes) {
       try {
         const [embedding] = await this.embeddingService.embed([extractedNode.content]);
@@ -102,16 +122,36 @@ export class PgRetrievalService implements RetrievalService {
           throw new Error('Embedding service returned no embedding.');
         }
 
-        await insertKnowledgeNode({
-          ownerEmail: SYSTEM_OWNER_EMAIL,
-          actorId: input.characterInstanceId,
+        const insertInput: {
+          sessionId: string;
+          ownerEmail: string;
+          actorId?: string;
+          nodeType: string;
+          content: string;
+          importance: number;
+          sourceType: string;
+          sourceEntityId?: string;
+          embedding: number[];
+        } = {
+          sessionId: input.sessionId,
+          ownerEmail: input.ownerEmail,
           nodeType: extractedNode.path,
           content: extractedNode.content,
           importance: extractedNode.baseImportance,
           sourceType: isCharacter ? 'character-profile' : 'setting-profile',
-          sourceEntityId: input.characterInstanceId ?? input.settingInstanceId,
           embedding,
-        });
+        };
+
+        if (input.characterInstanceId) {
+          insertInput.actorId = input.characterInstanceId;
+        }
+
+        const sourceEntityId = input.characterInstanceId ?? input.settingInstanceId;
+        if (sourceEntityId) {
+          insertInput.sourceEntityId = sourceEntityId;
+        }
+
+        await insertKnowledgeNode(insertInput);
         created++;
       } catch (error) {
         ingestionErrors.push({

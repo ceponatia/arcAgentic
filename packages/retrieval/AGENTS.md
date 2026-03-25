@@ -4,34 +4,23 @@
 
 Knowledge retrieval and semantic search. Converts profile JSON into knowledge nodes, scores them against queries, and returns ranked context for turns.
 
-## Status: Dormant
-
-**Disposition (PL06 PH01, 2026-03-25): Marked dormant pending PH05.**
-
-This package is not currently consumed by any other package in the monorepo. No other package declares this as a dependency or imports from it. The embedding worker (`@arcagentic/workers`) is still a mock implementation.
-
-**Rationale:** The design (knowledge nodes, scoring, extraction, sensory modifiers) is sound and represents the intended retrieval architecture. PL06 PH05 (Embedding Pipeline & Retrieval Integration) is the planned integration path that will wire this package into active code paths.
-
-**Reactivation conditions:**
-
-- PL06 PH05 implementation begins — this package becomes the primary retrieval service.
-- Any feature requiring semantic search, knowledge node scoring, or context assembly for turns should consume this package.
-
-**Maintenance policy:** No active development. Keep compiling and linting. Do not add new features until PH05 work begins.
-
 ## Scope
 
 - Knowledge node extraction from character/setting profiles
-- Embedding-aware scoring, salience boosts, and narrative decay
-- Retrieval services for querying and ranking nodes
-- Node diffing and ingestion workflows
+- Embedding-aware scoring, salience boosts, and narrative decay for retrieved context
+- Retrieval services for querying and ranking nodes, including the database-backed `PgRetrievalService`
+- Node diffing and ingestion workflows for in-memory and persistent retrieval pipelines
 - Sensory modifier loader for hygiene-dependent scent/touch/taste text
+- Persistence-backed similarity search over pgvector embeddings via `@arcagentic/db`
+- Embedding generation through an injected `EmbeddingService` when ingesting database-backed nodes
 
 ## Package Connections
 
-- **db**: Planned persistence layer for knowledge nodes and embeddings
+- **db**: Active persistence layer for knowledge nodes and pgvector similarity search used by `PgRetrievalService`
 - **schemas**: Uses shared node/profile types and sensory modifier schemas
 - **characters**: Provides profiles that are converted to nodes
+- **api**: Consumes retrieval services to assemble turn context for NPC cognition
+- **llm**: Provides the embedding implementation injected into persistence-backed retrieval flows
 
 ## Imports and Exports
 
@@ -84,6 +73,12 @@ File: [packages/retrieval/src/services/retrieval-service.ts](packages/retrieval/
 - Class: `InMemoryRetrievalService`
 - Constant: `DEFAULT_RETRIEVAL_CONFIG`
 
+File: [packages/retrieval/src/services/pg-retrieval-service.ts](packages/retrieval/src/services/pg-retrieval-service.ts)
+
+- Class: `PgRetrievalService`
+- Uses `@arcagentic/db` for knowledge node persistence and pgvector similarity search
+- Requires an injected `EmbeddingService` when ingesting nodes that need embeddings generated
+
 ### Loaders
 
 File: [packages/retrieval/src/loaders/sensory-modifiers.ts](packages/retrieval/src/loaders/sensory-modifiers.ts)
@@ -94,5 +89,6 @@ File: [packages/retrieval/src/loaders/sensory-modifiers.ts](packages/retrieval/s
 ## Usage Notes
 
 - `InMemoryRetrievalService` is the default implementation for tests and local usage.
+- `PgRetrievalService` is the active persistence-backed implementation used by runtime integration.
 - Embedding-aware retrieval depends on an injected `EmbeddingService`.
 - Sensory modifiers are loaded from `sensory-modifiers.json` and validated by schemas.

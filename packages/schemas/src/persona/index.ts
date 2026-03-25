@@ -6,3 +6,5 @@ export * from './appearance.js';
 
 // Main persona profile schema
 export * from './personaProfile.js';
+export * from './form-types.js';
+export * from './validation.js';

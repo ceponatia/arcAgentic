@@ -143,6 +143,12 @@ export interface RetrievalConfig {
  * Input for ingesting/updating knowledge nodes from a profile.
  */
 export interface NodeIngestionInput {
+  /** Session ID for session-scoped persistence in DB-backed implementations */
+  sessionId?: string;
+
+  /** Owner scope for DB-backed implementations */
+  ownerEmail?: string;
+
   /** Character instance ID (if ingesting character nodes) */
   characterInstanceId?: string;
 
