@@ -96,6 +96,6 @@ World Spec schemas define "what the game world is." Boundary Spec schemas define
 
 This package has no internal workspace dependencies. It is imported by nearly every other package:
 
-- **agents**, **api**, **characters**, **generator**, **governor**, **retrieval**, **state-manager**, **ui**, **utils**, **web**
+- **actors**, **api**, **characters**, **generator**, **llm**, **projections**, **retrieval**, **services**, **ui**, **utils**, **web**, **workers**
 
 All packages depend on schemas for type safety and runtime validation.

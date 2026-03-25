@@ -12,7 +12,7 @@ Event-stream backbone for the simulation ("World Bus"). Provides a typed event A
 - Middleware for cross-cutting concerns (telemetry, persistence)
 - Shared infrastructure helpers needed by the bus (e.g. Redis client)
 
-This package should stay transport- and infrastructure-focused. Domain-specific mechanics belong in `/services` (system services) and higher-level orchestration belongs in `/governor` / `/api`.
+This package should stay transport- and infrastructure-focused. Domain-specific mechanics belong in `/services` (system services) and higher-level orchestration belongs in `/api`.
 
 ## Package Connections
 

@@ -20,7 +20,7 @@ This package should remain focused on mechanics and service orchestration. Avoid
 - **bus**: Primary dependency; services subscribe/emit via WorldBus
 - **schemas**: Shared Zod schemas and domain types for inputs/outputs
 - **db**: Persistence for event logs, snapshots, and state when required
-- **governor** / **agents**: Producers/consumers of intents and effects
+- **actors**: Producers/consumers of intents and effects
 
 ## Time Subsystem
 

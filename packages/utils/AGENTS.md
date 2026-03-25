@@ -14,7 +14,7 @@ Cross-package utility functions. Provides domain-agnostic helpers for parsing, f
 ## Package Connections
 
 - **schemas**: Uses shared types for utility function signatures
-- **api**, **characters**, **governor**, **web**: Import utils for shared helper functions
+- **api**, **characters**, **web**: Import utils for shared helper functions
 
 This package should remain domain-agnostic. Domain-specific logic belongs in the appropriate domain package.
 

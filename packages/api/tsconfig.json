@@ -20,16 +20,10 @@
       "path": "../bus"
     },
     {
-      "path": "../characters"
-    },
-    {
       "path": "../db"
     },
     {
       "path": "../projections"
-    },
-    {
-      "path": "../retrieval"
     },
     {
       "path": "../schemas"

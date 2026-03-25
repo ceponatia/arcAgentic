@@ -4,11 +4,20 @@
 
 Knowledge retrieval and semantic search. Converts profile JSON into knowledge nodes, scores them against queries, and returns ranked context for turns.
 
-## Status: Experimental
+## Status: Dormant
 
-This package is not currently consumed by any other package in the monorepo. The embedding worker (`@arcagentic/workers`) is still a mock implementation. The design (knowledge nodes, scoring, extraction, sensory modifiers) is sound but not yet integrated into active code paths.
+**Disposition (PL06 PH01, 2026-03-25): Marked dormant pending PH05.**
 
-Listed as a dependency in `@arcagentic/api` and `@arcagentic/characters` but neither imports from it — these are phantom dependencies.
+This package is not currently consumed by any other package in the monorepo. No other package declares this as a dependency or imports from it. The embedding worker (`@arcagentic/workers`) is still a mock implementation.
+
+**Rationale:** The design (knowledge nodes, scoring, extraction, sensory modifiers) is sound and represents the intended retrieval architecture. PL06 PH05 (Embedding Pipeline & Retrieval Integration) is the planned integration path that will wire this package into active code paths.
+
+**Reactivation conditions:**
+
+- PL06 PH05 implementation begins — this package becomes the primary retrieval service.
+- Any feature requiring semantic search, knowledge node scoring, or context assembly for turns should consume this package.
+
+**Maintenance policy:** No active development. Keep compiling and linting. Do not add new features until PH05 work begins.
 
 ## Scope
 
@@ -22,7 +31,6 @@ Listed as a dependency in `@arcagentic/api` and `@arcagentic/characters` but nei
 
 - **db**: Planned persistence layer for knowledge nodes and embeddings
 - **schemas**: Uses shared node/profile types and sensory modifier schemas
-- **governor**: Invokes retrieval to build turn context
 - **characters**: Provides profiles that are converted to nodes
 
 ## Imports and Exports
