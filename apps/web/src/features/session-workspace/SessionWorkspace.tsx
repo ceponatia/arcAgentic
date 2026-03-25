@@ -247,11 +247,6 @@ export const SessionWorkspace: React.FC<SessionWorkspaceProps> = ({
     });
   }, [settingState.settingId]);
 
-  // Auto-save draft effect
-  useEffect(() => {
-    // TODO: Implement auto-save to server
-  }, [settingState, npcs, playerState, selectedTags]);
-
   const handleStepClick = useCallback(
     (step: WorkspaceStep) => {
       setStep(step);

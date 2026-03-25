@@ -76,7 +76,14 @@ export function useEntityUsage(
           result = await getPersonaUsage(entityId);
           break;
         case 'location':
-          throw new Error('Usage tracking not implemented for location');
+          // Location usage tracking is not available yet; return an empty summary.
+          result = {
+            entityId,
+            entityType,
+            sessions: [],
+            totalCount: 0,
+          };
+          break;
         default:
           throw new Error('Unknown entity type');
       }

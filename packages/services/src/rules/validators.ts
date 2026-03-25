@@ -16,8 +16,10 @@ const log = createLogger('services', 'rules');
 type ValidationResult = ActionValidationResult;
 
 /**
- * Game state context for validation.
- * TODO: Define proper GameState type in schemas when state structure is finalized.
+ * Context describing the current game state relevant to action validation.
+ *
+ * This type is scoped to the rules validation domain. Shared domain types
+ * (GameTime, WorldEvent, etc.) are imported from `@arcagentic/schemas`.
  */
 export interface ValidationContext {
   sessionId: string;

@@ -23,9 +23,16 @@ export const mapSettingSummary: MapSettingSummary = (s: SettingProfile, source) 
   source,
 });
 
-export const mapPersonaSummary = (p: PersonaProfile): PersonaSummary => ({
+export const mapPersonaSummary = (
+  p: PersonaProfile,
+  createdAt: Date,
+  updatedAt: Date,
+): PersonaSummary => ({
   id: p.id,
   name: p.name,
   summary: p.summary,
-  source: 'db',
+  age: p.age,
+  gender: p.gender,
+  createdAt: createdAt.toISOString(),
+  updatedAt: updatedAt.toISOString(),
 });

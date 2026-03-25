@@ -22,8 +22,10 @@ export interface PersonaSummary {
   id: string;
   name: string;
   summary: string;
-  bio?: string | undefined;
-  source?: 'db' | undefined;
+  age?: number | undefined;
+  gender?: string | undefined;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface ItemSummary {

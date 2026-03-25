@@ -1,8 +1,8 @@
 /**
  * User Account Database Functions
  *
- * Minimal implementation for storing user preferences.
- * Full authentication not implemented yet.
+ * Manages user account records, roles, and preferences storage.
+ * Authentication is handled by JWT middleware in `@arcagentic/api`.
  */
 import crypto from 'node:crypto';
 import { eq, sql } from 'drizzle-orm';

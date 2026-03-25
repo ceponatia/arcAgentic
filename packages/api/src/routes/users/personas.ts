@@ -1,5 +1,9 @@
 import type { Hono } from 'hono';
-import { PersonaProfileSchema, type PersonaProfile } from '@arcagentic/schemas';
+import {
+  PersonaProfileSchema,
+  type PersonaProfile,
+  type PersonaSummary,
+} from '@arcagentic/schemas';
 import {
   listEntityProfiles,
   getEntityProfile,
@@ -12,6 +16,7 @@ import {
 } from '@arcagentic/db/node';
 import { getSession } from '../../db/sessionsClient.js';
 import type { ApiError } from '../../types.js';
+import type { EntityProfileRow } from '../../types/db-rows.js';
 import { getOwnerEmail } from '../../auth/ownerEmail.js';
 import { generateId, isUuid, toId, toSessionId } from '../../utils/uuid.js';
 import { validateBody, validateParamId } from '../../utils/request-validation.js';
@@ -21,50 +26,24 @@ const AttachPersonaSchema = z.object({
   personaId: z.string().uuid(),
 });
 
-interface EntityProfileRow {
-  id: string;
-  ownerEmail?: string | null;
-  entityType?: string | null;
-  name?: string | null;
-  profileJson?: unknown;
-  createdAt: Date | string | null | undefined;
-  updatedAt: Date | string | null | undefined;
-}
-
-interface SessionRecord {
-  id: string;
-}
-
 interface PersonaActorState {
   profile?: PersonaProfile | Record<string, unknown>;
   status?: 'active' | 'inactive';
 }
 
-interface PersonaSummary {
-  id: string;
-  name: string;
-  summary: string;
-  age: number | undefined;
-  gender: string | undefined;
-  createdAt: string;
-  updatedAt: string;
-}
-
 function mapPersonaSummary(
   profile: PersonaProfile,
-  createdAt: Date | string | null | undefined,
-  updatedAt: Date | string | null | undefined
+  createdAt: Date,
+  updatedAt: Date,
 ): PersonaSummary {
-  const created = createdAt instanceof Date ? createdAt : new Date(createdAt ?? 0);
-  const updated = updatedAt instanceof Date ? updatedAt : new Date(updatedAt ?? 0);
   return {
     id: profile.id,
     name: profile.name,
     summary: profile.summary,
     age: profile.age,
     gender: profile.gender,
-    createdAt: created.toISOString(),
-    updatedAt: updated.toISOString(),
+    createdAt: createdAt.toISOString(),
+    updatedAt: updatedAt.toISOString(),
   };
 }
 
@@ -231,7 +210,7 @@ export function registerPersonaRoutes(app: Hono): void {
     const body = bodyResult.data;
 
     // Check if session exists
-    const session = (await getSession(toSessionId(sessionId), ownerEmail)) as SessionRecord | null;
+    const session = (await getSession(toSessionId(sessionId), ownerEmail)) as { id: string } | null;
     if (!session) {
       return c.json({ ok: false, error: 'session not found' } satisfies ApiError, 404);
     }
@@ -274,7 +253,7 @@ export function registerPersonaRoutes(app: Hono): void {
     const sessionId = sessionIdResult.data;
     const ownerEmail = getOwnerEmail(c);
 
-    const session = (await getSession(toSessionId(sessionId), ownerEmail)) as SessionRecord | null;
+    const session = (await getSession(toSessionId(sessionId), ownerEmail)) as { id: string } | null;
     if (!session) {
       return c.json({ ok: false, error: 'session not found' } satisfies ApiError, 404);
     }
@@ -309,7 +288,7 @@ export function registerPersonaRoutes(app: Hono): void {
     const sessionId = sessionIdResult.data;
     const ownerEmail = getOwnerEmail(c);
 
-    const session = (await getSession(toSessionId(sessionId), ownerEmail)) as SessionRecord | null;
+    const session = (await getSession(toSessionId(sessionId), ownerEmail)) as { id: string } | null;
     if (!session) {
       return c.json({ ok: false, error: 'session not found' } satisfies ApiError, 404);
     }

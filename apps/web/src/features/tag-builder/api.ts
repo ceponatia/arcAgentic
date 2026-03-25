@@ -36,7 +36,7 @@ export async function loadTags(
   options?: TagQueryOptions,
   signal?: AbortSignal
 ): Promise<TagListResponse> {
-  // TODO: Pass options to API when backend supports query params
+  // Server-side filtering is not supported; client-side filtering is applied below.
   const tags = await apiGetTags(signal);
 
   // Client-side filtering until backend supports it

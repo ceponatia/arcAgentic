@@ -175,7 +175,9 @@ export class TurnOrchestrator {
 
     await tickEmitter.emitTick();
 
-    // TODO: Replace with a session-aware time service when available.
+    // Session-scoped time advancement is not yet supported.
+    // The tick emitter operates globally; per-session time tracking
+    // requires a dedicated time projection or service (future work).
     void sessionId;
   }
 
@@ -187,7 +189,9 @@ export class TurnOrchestrator {
       return [];
     }
 
-    // TODO: Wire to AmbientCollector (TASK-014).
+    // Ambient narration is not yet wired. A future implementation would
+    // collect background NPC activity and environmental events from the
+    // session projection and bus stream during this turn window.
     void sessionId;
     return [];
   }

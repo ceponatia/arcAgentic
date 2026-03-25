@@ -100,12 +100,7 @@ export function buildProfileFromForm(formState: PersonaFormState): PersonaProfil
     profile.appearance = appearanceTrimmed;
   }
 
-  // Body sensory data - not implemented for personas yet
-  // Note: parseBodyEntries expects different format
-  // const bodySensoryValid = formState.bodySensory.filter(e => e.raw.trim());
-  // if (bodySensoryValid.length > 0) {
-  //   profile.body = parseBodyEntries(bodySensoryValid) as BodyMap;
-  // }
+  // Body sensory data is not applicable to personas; it applies only to full characters.
 
   return profile;
 }
