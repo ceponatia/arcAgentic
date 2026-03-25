@@ -13,13 +13,9 @@ import {
 import { getSession } from '../../db/sessionsClient.js';
 import type { ApiError } from '../../types.js';
 import { getOwnerEmail } from '../../auth/ownerEmail.js';
-import { toId, toSessionId } from '../../utils/uuid.js';
+import { generateId, isUuid, toId, toSessionId } from '../../utils/uuid.js';
 import { validateBody, validateParamId } from '../../utils/request-validation.js';
 import { z } from 'zod';
-
-const PersonaProfileDbSchema = PersonaProfileSchema.extend({
-  id: z.string().uuid(),
-});
 
 const AttachPersonaSchema = z.object({
   personaId: z.string().uuid(),
@@ -121,21 +117,23 @@ export function registerPersonaRoutes(app: Hono): void {
   // POST /personas - create or update persona (upsert)
   app.post('/personas', async (c) => {
     const ownerEmail = getOwnerEmail(c);
-    const parsed = await validateBody(c, PersonaProfileDbSchema);
+    const parsed = await validateBody(c, PersonaProfileSchema);
     if (!parsed.success) return parsed.errorResponse;
     const profile = parsed.data;
+    const normalizedId = isUuid(profile.id) ? profile.id : generateId();
+    const normalizedProfile = { ...profile, id: normalizedId };
 
     // Check if persona with this ID already exists
-    const existing = (await getEntityProfile(toId(profile.id))) as EntityProfileRow | null;
+    const existing = (await getEntityProfile(toId(normalizedProfile.id))) as EntityProfileRow | null;
 
     if (existing) {
       if (existing.ownerEmail !== ownerEmail && existing.ownerEmail !== 'public') {
         return c.json({ ok: false, error: 'not authorized' } satisfies ApiError, 403);
       }
       // Update existing persona
-      const updated = (await updateEntityProfile(toId(profile.id), {
-        name: profile.name,
-        profileJson: profile,
+      const updated = (await updateEntityProfile(toId(normalizedProfile.id), {
+        name: normalizedProfile.name,
+        profileJson: normalizedProfile,
       })) as EntityProfileRow | null;
       if (!updated) {
         return c.json(
@@ -143,19 +141,19 @@ export function registerPersonaRoutes(app: Hono): void {
           404
         );
       }
-      const summary = mapPersonaSummary(profile, updated.createdAt, updated.updatedAt);
+      const summary = mapPersonaSummary(normalizedProfile, updated.createdAt, updated.updatedAt);
       return c.json({ ok: true, persona: summary }, 200);
     }
 
     const created = (await createEntityProfile({
-      id: toId(profile.id),
+      id: toId(normalizedProfile.id),
       ownerEmail,
       entityType: 'persona',
-      name: profile.name,
-      profileJson: profile,
+      name: normalizedProfile.name,
+      profileJson: normalizedProfile,
     })) as EntityProfileRow;
 
-    const summary = mapPersonaSummary(profile, created.createdAt, created.updatedAt);
+    const summary = mapPersonaSummary(normalizedProfile, created.createdAt, created.updatedAt);
     return c.json({ ok: true, persona: summary }, 201);
   });
 
@@ -166,12 +164,14 @@ export function registerPersonaRoutes(app: Hono): void {
     const id = idResult.data;
     const ownerEmail = getOwnerEmail(c);
 
-    const parsed = await validateBody(c, PersonaProfileDbSchema);
+    const parsed = await validateBody(c, PersonaProfileSchema);
     if (!parsed.success) return parsed.errorResponse;
     const profile = parsed.data;
+    const normalizedBodyId = isUuid(profile.id) ? profile.id : id;
+    const normalizedProfile = { ...profile, id: normalizedBodyId };
 
     // Ensure ID in URL matches ID in body
-    if (profile.id !== id) {
+    if (normalizedProfile.id !== id) {
       return c.json({ ok: false, error: 'id mismatch' } satisfies ApiError, 400);
     }
 
@@ -186,15 +186,15 @@ export function registerPersonaRoutes(app: Hono): void {
     }
 
     const updated = (await updateEntityProfile(toId(id), {
-      name: profile.name,
-      profileJson: profile,
+      name: normalizedProfile.name,
+      profileJson: normalizedProfile,
     })) as EntityProfileRow | null;
 
     if (!updated) {
       return c.json({ ok: false, error: 'update failed' } satisfies ApiError, 500);
     }
 
-    const summary = mapPersonaSummary(profile, updated.createdAt, updated.updatedAt);
+    const summary = mapPersonaSummary(normalizedProfile, updated.createdAt, updated.updatedAt);
     return c.json({ ok: true, persona: summary }, 200);
   });
 

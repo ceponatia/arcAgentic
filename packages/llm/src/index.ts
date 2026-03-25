@@ -1,5 +1,6 @@
 export * from './types.js';
 export * from './providers/openai.js';
+export * from './providers/openai-embeddings.js';
 export * from './providers/anthropic.js';
 export * from './providers/ollama.js';
 export * from './tools/index.js';

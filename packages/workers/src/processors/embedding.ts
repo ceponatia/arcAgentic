@@ -1,14 +1,21 @@
 import { type Processor } from 'bullmq';
 import { createLogger, type Logger } from '@arcagentic/logger';
+import { updateNodeEmbedding } from '@arcagentic/db/node';
 import { type JobData, type EmbeddingTask, type JobResult } from '../types.js';
 
 const createWorkersLogger = createLogger as (pkg: string, subsystem?: string) => Logger;
 const log = createWorkersLogger('workers', 'embedding');
 
+interface EmbeddingProvider {
+  embed(texts: string[]): Promise<number[][]>;
+}
+
 /**
  * Creates a processor for embedding generation.
  */
-export const createEmbeddingProcessor = (): Processor<JobData<EmbeddingTask>, JobResult> => {
+export const createEmbeddingProcessor = (
+  embeddingProvider: EmbeddingProvider
+): Processor<JobData<EmbeddingTask>, JobResult> => {
   return async (job) => {
     try {
       const payload = job.data?.payload;
@@ -22,11 +29,26 @@ export const createEmbeddingProcessor = (): Processor<JobData<EmbeddingTask>, Jo
       const { nodeId, text } = payload;
 
       log.info({ nodeId, textLength: text.length }, 'generating embedding');
-      // In a real implementation, this would call an embedding service (e.g. OpenAI)
-      // and update the knowledge_nodes table in Postgres.
+      const embeddings = await embeddingProvider.embed([text]);
+      const embedding = embeddings[0];
 
-      // Mock duration
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      if (!embedding) {
+        return {
+          success: false,
+          error: 'Embedding provider returned no embedding',
+        };
+      }
+
+      const updatedNode = await updateNodeEmbedding(nodeId, embedding);
+
+      if (!updatedNode) {
+        return {
+          success: false,
+          error: `Knowledge node not found for embedding update: ${nodeId}`,
+        };
+      }
+
+      log.info({ nodeId, dimensions: embedding.length }, 'persisted embedding');
 
       return {
         success: true,

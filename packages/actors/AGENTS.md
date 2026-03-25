@@ -23,7 +23,7 @@ Implements the package-level actor surfaces for arcAgentic. Today that includes 
 
 - Package root re-exports `base`, `npc`, `player`, `registry`, and `studio-npc`
 - `src/base/` exports shared actor types plus `BaseActorLifecycle`
-- `src/npc/` exports `PerceptionLayer`, `CognitionLayer`, `createNpcMachine`, `NpcActor`, and NPC runtime types
+- `src/npc/` exports `PerceptionLayer`, `CognitionLayer`, `createNpcMachine`, `NpcActor`, `EventPromoter`, `DEFAULT_PERCEPTION_CONFIG`, `DEFAULT_PROMOTION_RULES`, and NPC runtime/perception config types
 - `src/player/` exports `PlayerActor`, `PlayerRuntimeState`, and `PlayerDialogueEntry`
 - `src/registry/` exports `ActorRegistry` and the global `actorRegistry`
 - `src/studio-npc/` exports `StudioNpcActor`, `createStudioNpcActor`, `createStudioMachine`, conversation utilities, prompt builders, advanced generators/analyzers, and validation helpers
@@ -32,7 +32,7 @@ Implements the package-level actor surfaces for arcAgentic. Today that includes 
 
 - NPC runtime is event-driven and wired directly to `worldBus` for subscription and intent emission
 - NPC machine handles a narrow loop: `idle -> perceiving -> thinking -> acting -> waiting`
-- Meaningful NPC triggering is currently narrow; the machine only promotes selected world events into the cognition loop
+- NPC event promotion is configurable via `PerceptionConfig` and `EventPromotionRule`; the default config promotes `SPOKE`, `DAMAGED`, and `DIED` at high priority, `MOVED`, `ITEM_ACQUIRED`, `ITEM_DROPPED`, and `NPC_ACTIVITY_CHANGED` at medium priority, and `TICK`, `ACTOR_SPAWN`, and `ACTOR_DESPAWN` at low priority with cooldowns
 - `CognitionLayer` supports both simple rule-based decisions and optional LLM-backed decisions when `profile` and `llmProvider` are provided
 - `PlayerActor` is event-driven: it handles `MOVED`, `SPOKE`, `ITEM_ACQUIRED`, `ITEM_DROPPED`, `TICK`, `ACTOR_SPAWN`, and `ACTOR_DESPAWN` events, maintains location, inventory, dialogue history, and game-time awareness, and integrates with the actor lifecycle via `BaseActorLifecycle`
 - The registry is the main lifecycle entrypoint for runtime actors and emits `ACTOR_SPAWN` / `ACTOR_DESPAWN` events

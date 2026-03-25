@@ -1,11 +1,13 @@
 import { createMachine, assign, fromPromise } from 'xstate';
-import type { WorldEvent, Intent } from '@arcagentic/schemas';
+import type { Intent, WorldEvent } from '@arcagentic/schemas';
 import type { NpcMachineContext, NpcMachineEvent } from './types.js';
-import { PerceptionLayer } from './perception.js';
+import {
+  DEFAULT_PERCEPTION_CONFIG,
+  EventPromoter,
+  PerceptionLayer,
+} from './perception.js';
 import { CognitionLayer } from './cognition.js';
 import { worldBus } from '@arcagentic/bus';
-
-const MEANINGFUL_EVENT_TYPES = new Set<WorldEvent['type']>(['SPOKE']);
 
 /**
  * NPC state machine definition.
@@ -17,7 +19,14 @@ const MEANINGFUL_EVENT_TYPES = new Set<WorldEvent['type']>(['SPOKE']);
  * - acting: Emitting intents
  * - waiting: Cooldown period
  */
-export const createNpcMachine = (initialContext: NpcMachineContext) => {
+export const createNpcMachine = (
+  initialContext: NpcMachineContext
+) => {
+  const promoter = new EventPromoter(
+    initialContext.perceptionConfig ?? DEFAULT_PERCEPTION_CONFIG,
+    () => undefined
+  );
+
   return createMachine(
     {
       id: 'npc',
@@ -128,8 +137,11 @@ export const createNpcMachine = (initialContext: NpcMachineContext) => {
       },
       guards: {
         isMeaningfulEvent: ({ event }) => {
-          if (event.type !== 'WORLD_EVENT') return false;
-          return MEANINGFUL_EVENT_TYPES.has(event.event.type);
+          if (event.type !== 'WORLD_EVENT') {
+            return false;
+          }
+
+          return promoter.evaluate(event.event) !== 'drop';
         },
       },
       actors: {

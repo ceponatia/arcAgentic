@@ -5,6 +5,7 @@ import {
   type AppearanceRegion,
   type FormSensoryType,
 } from '@arcagentic/schemas';
+import { generateId } from '@arcagentic/utils';
 
 /**
  * Form entry for body sensory data.
@@ -66,7 +67,7 @@ export const createAppearanceEntry = (): PersonaAppearanceEntry => ({
 });
 
 export const createInitialState = (): PersonaFormState => ({
-  id: '',
+  id: generateId(),
   name: '',
   age: 21,
   gender: '',

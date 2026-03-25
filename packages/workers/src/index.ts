@@ -1,6 +1,6 @@
 import { worldBus } from '@arcagentic/bus';
 import { createLogger, type Logger } from '@arcagentic/logger';
-import { TieredCognitionRouter, OpenAIProvider } from '@arcagentic/llm';
+import { TieredCognitionRouter, OpenAIEmbeddingService, OpenAIProvider } from '@arcagentic/llm';
 import { createWorker, getOpenAiWorkerConfig } from './config.js';
 import { createCognitionProcessor } from './processors/cognition.js';
 import { createTickProcessor } from './processors/tick.js';
@@ -60,6 +60,11 @@ async function main(): Promise<{ scheduler: Scheduler; heartbeatMonitor: Heartbe
     ...(baseUrl ? { baseURL: baseUrl } : {}),
   });
 
+  const embeddingService = new OpenAIEmbeddingService({
+    apiKey,
+    ...(baseUrl ? { baseURL: baseUrl } : {}),
+  });
+
   const llmRouter = new TieredCognitionRouter({
     fast: provider,
     deep: provider,
@@ -73,7 +78,9 @@ async function main(): Promise<{ scheduler: Scheduler; heartbeatMonitor: Heartbe
 
   const tickWorker = createWorker('tick', createTickProcessor(worldBus), { concurrency: 1 });
 
-  const embeddingWorker = createWorker('embedding', createEmbeddingProcessor(), { concurrency: 2 });
+  const embeddingWorker = createWorker('embedding', createEmbeddingProcessor(embeddingService), {
+    concurrency: 2,
+  });
 
   // 3. Initialize Scheduler
   const scheduler = new Scheduler(tickQueue);

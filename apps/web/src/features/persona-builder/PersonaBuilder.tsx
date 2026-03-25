@@ -1,11 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { PersonaProfileSchema, type PersonaProfile } from '@arcagentic/schemas';
-import { mapZodErrorsToFields } from '@arcagentic/utils';
-import { EntityUsagePanel } from '@arcagentic/ui';
-import { useEntityUsage } from '../../shared/hooks/useEntityUsage.js';
-import { persistPersona, removePersona, loadPersona } from './api.js';
-import { usePersonaBuilderForm, buildProfileFromForm } from './hooks/usePersonaBuilderForm.js';
-import type { PersonaFormKey, PersonaFormFieldErrors } from './types.js';
+import React, { useState, useEffect } from "react";
+import {
+  GENDERS,
+  PersonaProfileSchema,
+  type PersonaProfile,
+} from "@arcagentic/schemas";
+import { mapZodErrorsToFields } from "@arcagentic/utils";
+import { EntityUsagePanel } from "@arcagentic/ui";
+import { useEntityUsage } from "../../shared/hooks/useEntityUsage.js";
+import { persistPersona, removePersona, loadPersona } from "./api.js";
+import {
+  usePersonaBuilderForm,
+  buildProfileFromForm,
+} from "./hooks/usePersonaBuilderForm.js";
+import type { PersonaFormKey, PersonaFormFieldErrors } from "./types.js";
 
 interface PersonaBuilderProps {
   /** Persona ID to edit (undefined/null for new) */
@@ -19,9 +26,14 @@ interface PersonaBuilderProps {
 /**
  * Section wrapper component for consistent styling
  */
-const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
+const Section: React.FC<{ title: string; children: React.ReactNode }> = ({
+  title,
+  children,
+}) => (
   <div className="bg-slate-800/50 rounded-lg p-4 space-y-4">
-    <h3 className="text-lg font-medium text-slate-200 border-b border-slate-700 pb-2">{title}</h3>
+    <h3 className="text-lg font-medium text-slate-200 border-b border-slate-700 pb-2">
+      {title}
+    </h3>
     {children}
   </div>
 );
@@ -53,7 +65,9 @@ const Field: React.FC<{
  */
 export function PersonaBuilder(props: PersonaBuilderProps) {
   const { id, onSave, onCancel } = props;
-  const [existingPersona, setExistingPersona] = useState<PersonaProfile | undefined>(undefined);
+  const [existingPersona, setExistingPersona] = useState<
+    PersonaProfile | undefined
+  >(undefined);
   const [loadingPersona, setLoadingPersona] = useState(false);
 
   // Load existing persona when id changes
@@ -71,20 +85,23 @@ export function PersonaBuilder(props: PersonaBuilderProps) {
         }
       })
       .catch((err) => {
-        console.error('Failed to load persona:', err);
+        console.error("Failed to load persona:", err);
       })
       .finally(() => {
         setLoadingPersona(false);
       });
   }, [id]);
 
-  const { formState, errors, setErrors, updateField } = usePersonaBuilderForm(existingPersona);
-  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
-  const [errorMessage, setErrorMessage] = useState<string>('');
+  const { formState, errors, setErrors, updateField } =
+    usePersonaBuilderForm(existingPersona);
+  const [saveStatus, setSaveStatus] = useState<
+    "idle" | "saving" | "saved" | "error"
+  >("idle");
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   const handleSave = async () => {
-    setSaveStatus('saving');
-    setErrorMessage('');
+    setSaveStatus("saving");
+    setErrorMessage("");
     setErrors({});
 
     try {
@@ -96,33 +113,35 @@ export function PersonaBuilder(props: PersonaBuilderProps) {
           pathToField: (path: (string | number)[]) => {
             const p = path.map(String);
             const top: Record<string, PersonaFormKey> = {
-              id: 'id',
-              name: 'name',
-              age: 'age',
-              gender: 'gender',
-              summary: 'summary',
-              appearance: 'appearance',
+              id: "id",
+              name: "name",
+              age: "age",
+              gender: "gender",
+              summary: "summary",
+              appearance: "appearance",
             };
             const key = p[0];
             if (!key) return undefined;
             const entry = Object.getOwnPropertyDescriptor(top, key);
-            return typeof entry?.value === 'string' ? (entry.value as PersonaFormKey) : undefined;
+            return typeof entry?.value === "string"
+              ? (entry.value as PersonaFormKey)
+              : undefined;
           },
         });
         setErrors(fieldMap as PersonaFormFieldErrors);
-        setSaveStatus('error');
-        setErrorMessage('Validation failed. Please check all fields.');
+        setSaveStatus("error");
+        setErrorMessage("Validation failed. Please check all fields.");
         return;
       }
 
       await persistPersona(result.data);
-      setSaveStatus('saved');
+      setSaveStatus("saved");
       if (onSave) {
         onSave();
       }
     } catch (err) {
-      setSaveStatus('error');
-      setErrorMessage(err instanceof Error ? err.message : 'Save failed');
+      setSaveStatus("error");
+      setErrorMessage(err instanceof Error ? err.message : "Save failed");
     }
   };
 
@@ -139,7 +158,7 @@ export function PersonaBuilder(props: PersonaBuilderProps) {
         onCancel(); // Go back to library
       }
     } catch (err) {
-      setErrorMessage(err instanceof Error ? err.message : 'Delete failed');
+      setErrorMessage(err instanceof Error ? err.message : "Delete failed");
     }
   };
 
@@ -152,14 +171,14 @@ export function PersonaBuilder(props: PersonaBuilderProps) {
   }
 
   const inputClasses =
-    'w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-md text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed';
+    "w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-md text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed";
   const textareaClasses =
-    'w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-md text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none';
+    "w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-md text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none";
 
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-semibold text-slate-200">
-        {existingPersona ? 'Edit Persona' : 'Create Persona'}
+        {existingPersona ? "Edit Persona" : "Create Persona"}
       </h2>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -168,25 +187,12 @@ export function PersonaBuilder(props: PersonaBuilderProps) {
           {/* Basic Info Section */}
           <Section title="Basic Information">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Field label="ID" required error={errors.id}>
-                <input
-                  type="text"
-                  value={formState.id}
-                  onChange={(e) => {
-                    updateField('id', e.target.value);
-                  }}
-                  disabled={!!existingPersona}
-                  placeholder="unique-persona-id"
-                  className={inputClasses}
-                />
-              </Field>
-
               <Field label="Name" required error={errors.name}>
                 <input
                   type="text"
                   value={formState.name}
                   onChange={(e) => {
-                    updateField('name', e.target.value);
+                    updateField("name", e.target.value);
                   }}
                   placeholder="Character name"
                   className={inputClasses}
@@ -198,7 +204,7 @@ export function PersonaBuilder(props: PersonaBuilderProps) {
                   type="number"
                   value={formState.age}
                   onChange={(e) => {
-                    updateField('age', parseInt(e.target.value, 10));
+                    updateField("age", parseInt(e.target.value, 10));
                   }}
                   placeholder="25"
                   min={0}
@@ -208,15 +214,20 @@ export function PersonaBuilder(props: PersonaBuilderProps) {
               </Field>
 
               <Field label="Gender" error={errors.gender}>
-                <input
-                  type="text"
+                <select
                   value={formState.gender}
                   onChange={(e) => {
-                    updateField('gender', e.target.value);
+                    updateField("gender", e.target.value);
                   }}
-                  placeholder="e.g., female, male, non-binary"
                   className={inputClasses}
-                />
+                >
+                  <option value="">Select gender...</option>
+                  {GENDERS.map((g) => (
+                    <option key={g} value={g}>
+                      {g.charAt(0).toUpperCase() + g.slice(1)}
+                    </option>
+                  ))}
+                </select>
               </Field>
             </div>
           </Section>
@@ -232,7 +243,7 @@ export function PersonaBuilder(props: PersonaBuilderProps) {
               <textarea
                 value={formState.summary}
                 onChange={(e) => {
-                  updateField('summary', e.target.value);
+                  updateField("summary", e.target.value);
                 }}
                 maxLength={500}
                 rows={4}
@@ -248,7 +259,7 @@ export function PersonaBuilder(props: PersonaBuilderProps) {
               <textarea
                 value={formState.appearance}
                 onChange={(e) => {
-                  updateField('appearance', e.target.value);
+                  updateField("appearance", e.target.value);
                 }}
                 rows={6}
                 placeholder="Describe your character's physical appearance, including height, build, hair, eyes, distinguishing features..."
@@ -266,9 +277,11 @@ export function PersonaBuilder(props: PersonaBuilderProps) {
             </h3>
 
             {/* Status messages */}
-            {saveStatus === 'saved' && (
+            {saveStatus === "saved" && (
               <div className="p-3 bg-emerald-900/50 border border-emerald-700 rounded-md">
-                <p className="text-sm text-emerald-300">Persona saved successfully!</p>
+                <p className="text-sm text-emerald-300">
+                  Persona saved successfully!
+                </p>
               </div>
             )}
             {errorMessage && (
@@ -284,10 +297,10 @@ export function PersonaBuilder(props: PersonaBuilderProps) {
                 onClick={() => {
                   void handleSave();
                 }}
-                disabled={saveStatus === 'saving'}
+                disabled={saveStatus === "saving"}
                 className="w-full px-4 py-2 bg-violet-600 hover:bg-violet-500 disabled:bg-violet-600/50 disabled:cursor-not-allowed text-white font-medium rounded-md transition-colors"
               >
-                {saveStatus === 'saving' ? 'Saving...' : 'Save Persona'}
+                {saveStatus === "saving" ? "Saving..." : "Save Persona"}
               </button>
 
               {existingPersona && (
@@ -316,7 +329,9 @@ export function PersonaBuilder(props: PersonaBuilderProps) {
             {/* Preview */}
             {formState.name && (
               <div className="pt-4 border-t border-slate-700">
-                <h4 className="text-sm font-medium text-slate-400 mb-2">Preview</h4>
+                <h4 className="text-sm font-medium text-slate-400 mb-2">
+                  Preview
+                </h4>
                 <div className="text-sm text-slate-300 space-y-1">
                   <p className="font-medium text-slate-200">{formState.name}</p>
                   {Number(formState.age) > 0 && formState.gender && (
@@ -331,7 +346,9 @@ export function PersonaBuilder(props: PersonaBuilderProps) {
                     <p className="text-slate-400">{formState.gender}</p>
                   )}
                   {formState.summary && (
-                    <p className="text-slate-500 text-xs mt-2 line-clamp-3">{formState.summary}</p>
+                    <p className="text-slate-500 text-xs mt-2 line-clamp-3">
+                      {formState.summary}
+                    </p>
                   )}
                 </div>
               </div>
@@ -351,7 +368,7 @@ export function PersonaBuilder(props: PersonaBuilderProps) {
 }
 
 function UsageTracker({ entityId }: { entityId: string }) {
-  const { usage, loading, error } = useEntityUsage(entityId, 'persona');
+  const { usage, loading, error } = useEntityUsage(entityId, "persona");
 
   return (
     <EntityUsagePanel

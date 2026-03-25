@@ -18,6 +18,31 @@ export interface NpcRuntimeState extends BaseActorState {
   mood?: string;
 }
 
+/** Priority level for event promotion. */
+export type EventPriority = 'high' | 'medium' | 'low';
+
+/** Configurable rule for promoting world events into the NPC cognition loop. */
+export interface EventPromotionRule {
+  /** Event type to match */
+  eventType: WorldEvent['type'];
+  /** Priority level: high events promote immediately, medium/low may be batched */
+  priority: EventPriority;
+  /** Whether the NPC must be in the same location as the event source */
+  requiresProximity: boolean;
+  /** Optional cooldown in milliseconds to prevent repeated promotions of the same event type */
+  cooldownMs?: number;
+}
+
+/** Configuration for the NPC perception layer. */
+export interface PerceptionConfig {
+  /** Rules controlling which events are promoted into the cognition loop */
+  promotionRules: EventPromotionRule[];
+  /** Maximum number of medium/low events to batch before forcing a cognition cycle */
+  batchSize: number;
+  /** Maximum time in ms to wait before flushing a batch of medium/low events */
+  batchTimeoutMs: number;
+}
+
 /**
  * Perception context - what the NPC is currently aware of.
  */
@@ -61,6 +86,7 @@ export interface NpcMachineContext {
   sessionId: string;
   locationId: string;
   recentEvents: WorldEvent[];
+  perceptionConfig?: PerceptionConfig;
   perception?: PerceptionContext;
   cognition?: CognitionContext;
   pendingIntent?: WorldEvent;
