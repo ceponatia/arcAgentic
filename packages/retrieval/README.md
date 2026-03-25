@@ -41,7 +41,7 @@ Where:
 - **Base importance**: Intrinsic weight (e.g., "cursed amulet" > "hair color")
 - **Narrative importance**: Dynamic boost from story events
 - **Decay**: Narrative importance decays each turn to let old facts fade
-- **Boost**: Governor/agents can boost nodes when events make them important
+- **Boost**: The orchestration layer can boost nodes when events make them important
 
 ## Usage
 
@@ -213,7 +213,7 @@ Interface for computing vector embeddings:
 
 ## Relationship to Other Packages
 
-- **Governor**: Invokes retrieval to build context for agents
+- **Turn Orchestrator**: Invokes retrieval to build context for agents
 - **State Manager**: Source of truth for profile data; retrieval derives nodes from it
 - **Agents**: Receive knowledge context in their input
 - **DB**: Retrieval queries the `profile_nodes` table (once created)

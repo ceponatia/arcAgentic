@@ -9,9 +9,9 @@
  * - Equipment slot mapping (what clothing covers what)
  * - Intent routing (resolving player queries about body parts)
  *
- * Note: Equipment slot mapping (body region → clothing slots) is handled
- * separately in the governor package's equipment-resolver.ts to keep
- * character schemas decoupled from item schemas.
+ * Note: Equipment slot mapping (body region → clothing slots) is a separate
+ * concern not handled by this module. It would be implemented in an
+ * item or equipment layer to keep character schemas decoupled.
  */
 
 import { getRecordOptional } from '../shared/record-helpers.js';

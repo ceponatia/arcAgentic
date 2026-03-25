@@ -4,5 +4,4 @@ export interface RuntimeConfigResponse {
   temperature: number;
   topP: number;
   openrouterModel: string;
-  governorDevMode?: boolean | undefined;
 }

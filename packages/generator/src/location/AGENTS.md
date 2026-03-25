@@ -1,8 +1,12 @@
 # Location Generator Domain
 
-This domain handles the generation of locations, maps, and environments.
+Roadmap stub for location, map, and environment generation. No implementation files exist.
 
-## Future Implementation
+## Status: Roadmap
+
+This directory contains only this AGENTS.md file. Implementation would follow the character generator pattern with domain-specific value pools and themes.
+
+## Planned Structure
 
 - `generate.ts`: Main generation logic
 - `pools/`: Value pools for location attributes

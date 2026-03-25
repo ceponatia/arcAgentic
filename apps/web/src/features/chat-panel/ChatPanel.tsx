@@ -6,52 +6,19 @@ import React, {
   useState,
 } from "react";
 import { getErrorMessage, isAbortError } from "@arcagentic/utils";
-import type {
-  Message,
-  Session,
-  TurnMetadata,
-  StreamEvent,
-} from "../../types.js";
+import type { Message, Session, StreamEvent } from "../../types.js";
 import {
   getSession,
   getSessionNpcs,
   sendMessage,
   updateMessage,
   deleteMessage,
-  getRuntimeConfig,
   getSessionMessages,
 } from "../../shared/api/client.js";
-import { ChatView, type ChatViewMessage } from "@arcagentic/ui";
-import { DebugSidebar } from "./components/DebugSidebar.js";
-import { WorldMap } from "./components/WorldMap.js";
-import { EventLog } from "./components/EventLog.js";
+import { ChatView } from "@arcagentic/ui";
 import { useWorldBus } from "../../hooks/useWorldBus.js";
 import { useSessionHeartbeat } from "../../hooks/useSessionHeartbeat.js";
-import { GOVERNOR_DEV_MODE } from "../../config.js";
 import type { NpcInstanceSummary } from "../../types.js";
-
-// Types for turn events from the API
-interface TurnEvent {
-  type: string;
-  timestamp: string;
-  payload: Record<string, unknown>;
-}
-
-interface StateChanges {
-  patchCount: number;
-  modifiedPaths: string[];
-  patches?: {
-    op: string;
-    path: string;
-    value?: unknown;
-  }[];
-}
-
-interface TurnDebugData {
-  metadata: TurnMetadata | null;
-  events: TurnEvent[];
-  stateChanges: StateChanges | null;
-}
 
 export interface ChatPanelProps {
   sessionId?: string | null;
@@ -65,17 +32,10 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ sessionId }) => {
   const [sending, setSending] = useState(false);
   const [editingIdx, setEditingIdx] = useState<number | null>(null);
   const [editDraft, setEditDraft] = useState("");
-  const [serverGovernorDevMode, setServerGovernorDevMode] = useState(false);
   const [npcs, setNpcs] = useState<NpcInstanceSummary[]>([]);
   const [selectedNpcId, setSelectedNpcId] = useState<string | null>(null);
   const [npcError, setNpcError] = useState<string | null>(null);
   const [npcsLoading, setNpcsLoading] = useState(false);
-  const [sidebarMode, setSidebarMode] = useState<"debug" | "game">("game");
-  const [lastTurnDebug, setLastTurnDebug] = useState<TurnDebugData>({
-    metadata: null,
-    events: [],
-    stateChanges: null,
-  });
   const ctrlRef = useRef<AbortController | null>(null);
   const messageCtrlRef = useRef<AbortController | null>(null);
   const refreshTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
@@ -218,39 +178,6 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ sessionId }) => {
     };
   }, [effectiveSessionId]);
 
-  useEffect(() => {
-    if (!GOVERNOR_DEV_MODE) return;
-    const ctrl = new AbortController();
-    let active = true;
-    const loadConfig = async () => {
-      try {
-        const cfg = await getRuntimeConfig(ctrl.signal);
-        if (!active) return;
-        setServerGovernorDevMode(Boolean(cfg.governorDevMode));
-      } catch (err) {
-        if (!active || isAbortError(err)) return;
-        console.warn("[ChatPanel] Failed to load runtime config", err);
-      }
-    };
-    void loadConfig();
-    return () => {
-      active = false;
-      ctrl.abort();
-    };
-  }, []);
-
-  const debugUiEnabled = GOVERNOR_DEV_MODE && serverGovernorDevMode;
-
-  // No longer render inline debug panels - we use the sidebar instead
-  const renderDebugAfterMessage = useCallback(
-    (_message: ChatViewMessage, _idx: number) => {
-      void _message;
-      void _idx;
-      return null;
-    },
-    [],
-  );
-
   const onSend = async () => {
     if (!effectiveSessionId) return;
     const text = draft.trim();
@@ -292,15 +219,6 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ sessionId }) => {
 
       if (!hasNpcSpoke || isPlaceholder) {
         scheduleMessageRefreshSequence([800, 2000, 3500]);
-      }
-
-      // Capture turn debug data for the sidebar
-      if (debugUiEnabled) {
-        setLastTurnDebug({
-          metadata: assistant.turnMetadata ?? null,
-          events: (res.events ?? []) as TurnEvent[],
-          stateChanges: (res.stateChanges as StateChanges | null) ?? null,
-        });
       }
     } catch (e) {
       setDraft(text);
@@ -464,15 +382,6 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ sessionId }) => {
       if (!hasNpcSpoke || isPlaceholder) {
         scheduleMessageRefreshSequence([800, 2000, 3500]);
       }
-
-      // Capture turn debug data for the sidebar
-      if (debugUiEnabled) {
-        setLastTurnDebug({
-          metadata: assistant.turnMetadata ?? null,
-          events: (res.events ?? []) as TurnEvent[],
-          stateChanges: (res.stateChanges as StateChanges | null) ?? null,
-        });
-      }
     } catch (e) {
       const msg = getErrorMessage(e, "Failed to regenerate response");
       setError(msg);
@@ -587,69 +496,9 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ sessionId }) => {
       onRedo={(idx: number) => {
         void onRedo(idx);
       }}
-      renderAfterMessage={renderDebugAfterMessage}
       inputAccessory={npcAccessory}
     />
   );
-
-  // When debug mode is enabled, show the debug sidebar on the right (sticky)
-  if (debugUiEnabled) {
-    return (
-      <div className="flex h-full">
-        {/* Chat takes remaining space and scrolls independently */}
-        <div className="flex-1 min-w-0 overflow-hidden">{chatView}</div>
-        {/* Sidebar area */}
-        <div className="w-80 flex-shrink-0 hidden lg:flex flex-col border-l border-slate-800 bg-slate-950 sticky top-0 h-screen overflow-hidden">
-          {/* Sidebar Toggle */}
-          <div className="flex border-b border-slate-800">
-            <button
-              onClick={() => {
-                setSidebarMode("game");
-              }}
-              className={`flex-1 py-2 text-[10px] uppercase tracking-wider font-semibold transition-colors ${
-                sidebarMode === "game"
-                  ? "bg-slate-900 text-violet-400"
-                  : "text-slate-500 hover:text-slate-300"
-              }`}
-            >
-              World
-            </button>
-            <button
-              onClick={() => {
-                setSidebarMode("debug");
-              }}
-              className={`flex-1 py-2 text-[10px] uppercase tracking-wider font-semibold transition-colors ${
-                sidebarMode === "debug"
-                  ? "bg-slate-900 text-amber-400"
-                  : "text-slate-500 hover:text-slate-300"
-              }`}
-            >
-              Debug
-            </button>
-          </div>
-
-          <div className="flex-1 overflow-hidden">
-            {sidebarMode === "game" ? (
-              <div className="h-full flex flex-col p-3 gap-3 overflow-y-auto custom-scrollbar">
-                <div className="h-2/3 min-h-[300px]">
-                  <WorldMap />
-                </div>
-                <div className="h-1/3 min-h-[150px]">
-                  <EventLog />
-                </div>
-              </div>
-            ) : (
-              <DebugSidebar
-                metadata={lastTurnDebug.metadata}
-                events={lastTurnDebug.events}
-                stateChanges={lastTurnDebug.stateChanges}
-              />
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return chatView;
 };

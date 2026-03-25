@@ -2,14 +2,24 @@
 
 ## Purpose
 
-Random content generation for game entities. Creates characters (and future entity types) using themed value pools with configurable biases.
+Random content generation for game entities. Currently implements character generation using themed value pools with configurable biases. Location, item, and persona generation domains are documented roadmap stubs.
 
 ## Scope
 
-- Random generation logic for characters and future domains
-- Theme definitions, value pools, and weighting/bias configurations
-- Generation utilities, filters, and composition helpers
+- Character generation logic: themed value pools, gender-aware filters, generation modes (`fill-empty`, `overwrite`)
+- Shared random utilities: weighted picks, pool sampling, random primitives
 - Generator-specific types and abstractions
+- Roadmap stubs for location, item, and persona generation (AGENTS.md only, no implementation)
+
+## Current State
+
+| Domain      | Status       | Files          | Notes                                     |
+| ----------- | ------------ | -------------- | ----------------------------------------- |
+| `character` | Implemented  | Full directory | Themes, pools, filters, generation logic  |
+| `location`  | Roadmap stub | AGENTS.md only | No implementation files                   |
+| `item`      | Roadmap stub | AGENTS.md only | No implementation files                   |
+| `persona`   | Roadmap stub | AGENTS.md only | No implementation files                   |
+| `shared`    | Implemented  | Full directory | Random utilities used by character domain |
 
 ## Package Connections
 

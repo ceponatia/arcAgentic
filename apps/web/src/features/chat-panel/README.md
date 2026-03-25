@@ -22,8 +22,6 @@ From `../../shared/api/client.js`:
 
 ## Local Dependencies
 
-- `TurnDebugPanel` from `../chat` — Debug overlay for governor metadata
-
 ## Tracing Notes
 
 The `ChatView` component is defined at [packages/ui/src/ChatView.tsx](../../../../../../ui/src/ChatView.tsx). Error utilities come from [packages/utils/src/error.ts](../../../../../../utils/src/error.ts). Message streaming connects to the API's `/sessions/:id/message` endpoint.
