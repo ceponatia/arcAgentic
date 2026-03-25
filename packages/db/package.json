@@ -22,6 +22,7 @@
     "db:seed:test-entities": "tsx src/seed.ts --test-entities --mode upsert",
     "lint": "eslint src --cache --cache-location node_modules/.cache/eslint",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage.enabled=true",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {

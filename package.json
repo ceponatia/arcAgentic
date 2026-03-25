@@ -10,6 +10,7 @@
     "infra:up": "node infra.mjs up",
     "lint": "pnpm --filter './packages/*' --filter './apps/*' -r --parallel --if-present run lint",
     "test": "turbo run test",
+    "test:coverage": "turbo run test:coverage",
     "typecheck": "turbo run typecheck"
   },
   "devDependencies": {

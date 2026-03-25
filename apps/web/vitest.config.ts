@@ -15,6 +15,9 @@ export default mergeConfig(baseConfig, defineConfig({
     environment: 'jsdom',
     setupFiles: ['test/setup.ts'],
     include: ['src/**/*.test.{ts,tsx}', 'test/**/*.test.{ts,tsx}'],
+    coverage: {
+      thresholds: { statements: 65, branches: 50, functions: 65, lines: 65 },
+    },
   },
   resolve: {
     alias: {

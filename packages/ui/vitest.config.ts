@@ -8,5 +8,8 @@ export default mergeConfig(baseConfig, defineConfig({
     environment: 'jsdom',
     include: ['test/**/*.test.{ts,tsx}'],
     setupFiles: ['./test/setup.ts'],
+    coverage: {
+      thresholds: { statements: 70, branches: 70, functions: 65, lines: 70 },
+    },
   },
 }));

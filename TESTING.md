@@ -136,13 +136,67 @@ npx vitest run --workspace
 
 ## Coverage
 
-Coverage uses `@vitest/coverage-v8` in reporting-only mode. Coverage is not enforced in CI yet. To generate a coverage report:
+### Running coverage
 
 ```bash
-pnpm --dir packages/<name> run test -- --coverage
+cd packages/bus
+npx vitest run --coverage.enabled=true
 ```
 
-Reports are generated in `<package>/coverage/` as text, JSON, and HTML.
+Or from the repo root:
+
+```bash
+pnpm --dir packages/bus run test:coverage
+```
+
+**All packages:**
+
+```bash
+pnpm run test:coverage
+```
+
+This runs `turbo run test:coverage` which executes each package's `test:coverage` script.
+
+### Coverage output
+
+Each package writes coverage reports to its own `coverage/` directory:
+
+- `coverage/index.html` - interactive HTML report (open in browser)
+- `coverage/coverage-summary.json` - machine-readable summary
+- Text summary printed to terminal
+
+All `coverage/` directories are gitignored.
+
+### Coverage thresholds
+
+Thresholds are configured per package in each `vitest.config.ts`. They are enforced only when coverage is enabled (`--coverage.enabled=true`). Running `pnpm run test` without coverage does not check thresholds.
+
+| Tier | Packages | Stmt | Branch | Func | Lines |
+| ---- | -------- | ---- | ------ | ---- | ----- |
+| 1 | schemas | 30 | 0 | 10 | 30 |
+| 1 | bus | 95 | 80 | 95 | 95 |
+| 1 | utils | 45 | 30 | 55 | 50 |
+| 2 | services | 85 | 70 | 90 | 85 |
+| 2 | projections | 90 | 80 | 95 | 95 |
+| 2 | generator | 90 | 70 | 90 | 90 |
+| 3 | actors | 75 | 65 | 75 | 75 |
+| 3 | db | 75 | 70 | 60 | 75 |
+| 3 | workers | 75 | 75 | 75 | 75 |
+| 4 | api | 50 | 30 | 50 | 50 |
+| 4 | llm | 70 | 50 | 70 | 70 |
+| 4 | ui | 70 | 70 | 65 | 70 |
+| 4 | web | 65 | 50 | 65 | 65 |
+
+Deferred packages (`characters`, `retrieval`) have `passWithNoTests: true` and no coverage thresholds.
+
+### Raising thresholds
+
+When adding tests that improve coverage, update the package's `vitest.config.ts` thresholds accordingly. Keep thresholds 5-10% below the current baseline to allow for normal variation.
+
+### `passWithNoTests` policy
+
+- Covered packages (all tiers): `passWithNoTests` is **not set** (defaults to `false`). If all test files are accidentally removed, the test run fails.
+- Deferred packages (`characters`, `retrieval`): `passWithNoTests: true` is set explicitly. Remove it when active test suites are added.
 
 ## Package Test Priority
 
