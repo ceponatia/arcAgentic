@@ -102,11 +102,11 @@ export class EventPromoter {
     }
 
     this.batchTimer ??= setTimeout((): void => {
-        const flushed = this.flushBatch();
-        if (flushed.length > 0) {
-          this.onFlush(flushed);
-        }
-      }, this.config.batchTimeoutMs);
+      const flushed = this.flushBatch();
+      if (flushed.length > 0) {
+        this.onFlush(flushed);
+      }
+    }, this.config.batchTimeoutMs);
 
     return null;
   }
