@@ -1,0 +1,1 @@
+export { TRANSIENT_NPC_THEME } from './transient.js';
