@@ -6,17 +6,14 @@
     "tsBuildInfoFile": "./node_modules/.cache/tsbuildinfo"
   },
   "include": [
-    "src/**/*"
+    "src"
   ],
   "references": [
     {
-      "path": "../bus"
+      "path": "../schemas"
     },
     {
       "path": "../llm"
-    },
-    {
-      "path": "../schemas"
     }
   ]
 }

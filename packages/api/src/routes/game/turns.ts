@@ -44,7 +44,7 @@ interface TurnResponseDto {
   success: boolean;
 }
 
-const RESPONSE_TIMEOUT_MS = 2500;
+const RESPONSE_TIMEOUT_MS = 10_000;
 
 const TurnRequestSchema = z.object({
   input: z.string().trim().min(1),

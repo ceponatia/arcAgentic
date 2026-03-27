@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Effect } from 'effect';
-import type { CharacterProfile, WorldEvent } from '@arcagentic/schemas';
+import type { CharacterProfile, SpeechStyle, WorldEvent } from '@arcagentic/schemas';
 
 import {
   buildMovedEffect,
@@ -8,7 +8,18 @@ import {
 } from '../../../../config/vitest/builders/world-event.js';
 import { mockLlmProvider } from '../../../../config/vitest/mocks/llm.js';
 import { CognitionLayer } from '../../src/npc/cognition.js';
+import { buildSystemPrompt } from '../../src/npc/prompts.js';
 import type { CognitionContext, NpcRuntimeState } from '../../src/npc/types.js';
+
+const DEFAULT_SPEECH_STYLE: SpeechStyle = {
+  vocabulary: 'average',
+  sentenceStructure: 'moderate',
+  formality: 'neutral',
+  humor: 'occasional',
+  expressiveness: 'moderate',
+  directness: 'direct',
+  pace: 'moderate',
+};
 
 function createNpcState(overrides: Partial<NpcRuntimeState> = {}): NpcRuntimeState {
   return {
@@ -45,7 +56,7 @@ function createProfile(overrides: Partial<CharacterProfile> = {}): CharacterProf
     personalityMap: {
       traits: ['guarded', 'loyal'],
       speech: {
-        directness: 'measured',
+        directness: 'tactful',
       },
     },
     ...overrides,
@@ -56,6 +67,7 @@ describe('CognitionLayer', () => {
   beforeEach(() => {
     vi.spyOn(console, 'error').mockImplementation(() => { });
     vi.spyOn(console, 'warn').mockImplementation(() => { });
+    vi.spyOn(console, 'debug').mockImplementation(() => { });
   });
 
   afterEach(() => {
@@ -177,6 +189,42 @@ describe('CognitionLayer', () => {
       });
     });
 
+    it('uses a speech-style-enriched system prompt when the profile has speech style', async () => {
+      const llmProvider = mockLlmProvider();
+      llmProvider.chat.mockReturnValue(
+        Effect.succeed({
+          id: 'llm-response-speech-style',
+          content: 'Keep close. Trouble comes fast.',
+          tool_calls: null,
+          usage: null,
+        })
+      );
+
+      const speech = {
+        ...DEFAULT_SPEECH_STYLE,
+        vocabulary: 'simple',
+        sentenceStructure: 'terse',
+      } satisfies SpeechStyle;
+
+      await CognitionLayer.decideLLM(
+        createContext([buildSpokeEffect({ actorId: 'actor-002', sessionId: 'session-001' })]),
+        createProfile({
+          personalityMap: {
+            traits: ['guarded', 'loyal'],
+            speech,
+          },
+        }),
+        llmProvider
+      );
+
+      expect(llmProvider.chat).toHaveBeenCalledTimes(1);
+      const [messages] = llmProvider.chat.mock.calls[0] ?? [];
+      expect(messages?.[0]).toEqual({
+        role: 'system',
+        content: buildSystemPrompt(speech),
+      });
+    });
+
     it('falls back to decideSync when the llm returns NO_ACTION', async () => {
       const llmProvider = mockLlmProvider();
       llmProvider.chat.mockReturnValue(
@@ -272,6 +320,44 @@ describe('CognitionLayer', () => {
       expect(result).toBeNull();
     });
 
+    it('logs debug warnings when speech validation fails', async () => {
+      const llmProvider = mockLlmProvider();
+      llmProvider.chat.mockReturnValue(
+        Effect.succeed({
+          id: 'llm-response-warning',
+          content: 'Extraordinary formulations demonstrate intellectual sophistication.',
+          tool_calls: null,
+          usage: null,
+        })
+      );
+
+      const debugSpy = vi.mocked(console.debug);
+
+      await CognitionLayer.decideLLM(
+        createContext([buildSpokeEffect({ actorId: 'actor-002', sessionId: 'session-001' })]),
+        createProfile({
+          personalityMap: {
+            traits: ['guarded'],
+            speech: {
+              ...DEFAULT_SPEECH_STYLE,
+              vocabulary: 'simple',
+            },
+          },
+        }),
+        llmProvider
+      );
+
+      expect(
+        debugSpy.mock.calls.some(
+          ([message]) =>
+            typeof message === 'string' &&
+            message.includes(
+              'Speech style warning for npc-001: Output may use overly complex vocabulary for simple speech style'
+            )
+        )
+      ).toBe(true);
+    });
+
     it('falls back to decideSync when the llm call times out', async () => {
       vi.useFakeTimers();
 
@@ -284,7 +370,7 @@ describe('CognitionLayer', () => {
         llmProvider
       );
 
-      await vi.advanceTimersByTimeAsync(2001);
+      await vi.advanceTimersByTimeAsync(8001);
 
       await expect(decisionPromise).resolves.toEqual({
         intent: expect.objectContaining({

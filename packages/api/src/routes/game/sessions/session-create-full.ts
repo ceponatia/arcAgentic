@@ -22,7 +22,7 @@ import {
   promptTags,
   inArray,
 } from '@arcagentic/db/node';
-import { ensureUserByEmail } from '@arcagentic/db/node';
+import { ensureUserByEmail, getEntityProfile } from '@arcagentic/db/node';
 import type { LoadedDataGetter } from '../../../loaders/types.js';
 import { badRequest, serverError, notFound } from '../../../utils/responses.js';
 import { generateId, generateInstanceId } from '@arcagentic/utils';
@@ -97,20 +97,13 @@ export async function handleCreateFullSession(
   // Validate persona exists if provided
   let personaProfile: CharacterProfile | Record<string, unknown> | null = null;
   if (request.personaId) {
-    const personaResult = await drizzle
-      .select()
-      .from(actorStates)
-      .where(inArray(actorStates.actorId, [request.personaId] as string[]))
-      .limit(1);
+    const persona = await getEntityProfile(toId(request.personaId));
 
-    if (personaResult.length === 0 || !personaResult[0]?.state) {
+    if (persona?.entityType !== 'persona') {
       return notFound(c, `persona not found: ${request.personaId}`);
     }
-    const personaState = personaResult[0].state as Record<string, unknown>;
-    const profileFromState =
-      (personaState['profile'] as CharacterProfile | Record<string, unknown> | undefined) ??
-      personaState;
-    personaProfile = profileFromState;
+
+    personaProfile = persona.profileJson as CharacterProfile | Record<string, unknown>;
   }
 
   // Validate tags exist if provided

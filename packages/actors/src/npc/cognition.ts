@@ -2,11 +2,13 @@ import { Effect } from 'effect';
 import type { LLMMessage, LLMProvider } from '@arcagentic/llm';
 import type { CharacterProfile, WorldEvent } from '@arcagentic/schemas';
 import type { CognitionContext, ActionResult } from './types.js';
-import { NPC_DECISION_SYSTEM_PROMPT, buildNpcCognitionPrompt } from './prompts.js';
+import { buildNpcCognitionPrompt, buildSystemPrompt } from './prompts.js';
+import { applyPersonalityModifiers } from './personality-modifiers.js';
 import { getStringField } from './event-access.js';
+import { validateSpeechStyle } from './speech-validation.js';
 import { performance } from 'node:perf_hooks';
 
-const NPC_DECISION_TIMEOUT_MS = 2000;
+const NPC_DECISION_TIMEOUT_MS = 8000;
 
 function withTimeout<T>(promise: Promise<T>, timeoutMs: number, label: string): Promise<T> {
   return new Promise<T>((resolve, reject) => {
@@ -34,6 +36,11 @@ function withTimeout<T>(promise: Promise<T>, timeoutMs: number, label: string): 
  * Phase 4 will integrate LLM providers for rich decision-making.
  */
 export class CognitionLayer {
+  private static consecutiveTimeouts = 0;
+  private static circuitOpenUntil = 0;
+  private static readonly MAX_CONSECUTIVE_TIMEOUTS = 3;
+  private static readonly CIRCUIT_COOLDOWN_MS = 60_000;
+
   /**
    * Decide on an action based on perception (synchronous for Phase 3).
    */
@@ -89,12 +96,23 @@ export class CognitionLayer {
   ): Promise<ActionResult | null> {
     if (context.perception.relevantEvents.length === 0) return null;
 
+    if (Date.now() < this.circuitOpenUntil) {
+      return this.decideSync(context);
+    }
+
     const start = performance.now();
 
     try {
-      const prompt = buildNpcCognitionPrompt(context.perception, context.state, profile);
+      const modifiers = applyPersonalityModifiers(profile.personalityMap, context.perception);
+      const prompt = buildNpcCognitionPrompt(
+        context.perception,
+        context.state,
+        profile,
+        modifiers
+      );
+      const speechStyle = profile.personalityMap?.speech;
       const messages: LLMMessage[] = [
-        { role: 'system', content: NPC_DECISION_SYSTEM_PROMPT },
+        { role: 'system', content: buildSystemPrompt(speechStyle) },
         { role: 'user', content: prompt },
       ];
 
@@ -104,14 +122,30 @@ export class CognitionLayer {
         '[NPC Cognition] LLM decision'
       );
 
+      this.consecutiveTimeouts = 0;
+      this.circuitOpenUntil = 0;
+
       const elapsed = performance.now() - start;
       if (elapsed > NPC_DECISION_TIMEOUT_MS) {
-        console.warn(`[NPC Cognition] Decision took ${elapsed.toFixed(0)}ms (>2s threshold)`);
+        console.warn(
+          `[NPC Cognition] Decision took ${elapsed.toFixed(0)}ms (>${NPC_DECISION_TIMEOUT_MS}ms threshold)`
+        );
       }
 
       const content = result.content?.trim();
       if (!content || content.toUpperCase().includes('NO_ACTION')) {
         return this.decideSync(context);
+      }
+
+      if (speechStyle) {
+        const validation = validateSpeechStyle(content, speechStyle);
+        if (!validation.passed) {
+          for (const warning of validation.warnings) {
+            console.debug(
+              `[NPC Cognition] Speech style warning for ${context.state.npcId}: ${warning}`
+            );
+          }
+        }
       }
 
       const intent: WorldEvent = {
@@ -125,7 +159,20 @@ export class CognitionLayer {
       return { intent, delayMs: 300 } satisfies ActionResult;
     } catch (error) {
       if (error instanceof Error && error.message.includes('timed out')) {
-        console.warn(`[NPC Cognition] Decision timed out (>${NPC_DECISION_TIMEOUT_MS}ms); falling back to rules`);
+        this.consecutiveTimeouts += 1;
+
+        if (this.consecutiveTimeouts >= this.MAX_CONSECUTIVE_TIMEOUTS) {
+          this.circuitOpenUntil = Date.now() + this.CIRCUIT_COOLDOWN_MS;
+          console.warn(
+            `[NPC Cognition] Circuit breaker open after ${this.MAX_CONSECUTIVE_TIMEOUTS} consecutive timeouts; skipping LLM for ${this.CIRCUIT_COOLDOWN_MS / 1000}s`
+          );
+        }
+
+        console.warn(
+          `[NPC Cognition] Decision timed out (>${NPC_DECISION_TIMEOUT_MS}ms); falling back to rules`
+        );
+      } else {
+        this.consecutiveTimeouts = 0;
       }
       console.error('[NPC Cognition] LLM failed, falling back to rules', error);
       return this.decideSync(context);

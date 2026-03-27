@@ -162,6 +162,12 @@ export class PerceptionLayer {
       return false;
     }
 
+    const eventActorId =
+      getStringField(event, 'actorId') ?? getStringField(payload, 'actorId');
+    if (event.type === 'SPOKE' && eventActorId === state.id) {
+      return false;
+    }
+
     // Location-based relevance
     const locationCandidates = [
       getStringField(event, 'locationId'),

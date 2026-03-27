@@ -11,6 +11,7 @@ export class RedisPubSubAdapter {
   private readonly channel = 'world-events';
   private handlers = new Set<EventHandler>();
   private isSubscribed = false;
+  private subscriptionPromise: Promise<void> | null = null;
 
   async publish(event: WorldEvent): Promise<void> {
     await pubRedis.publish(this.channel, JSON.stringify(event));
@@ -19,25 +20,29 @@ export class RedisPubSubAdapter {
   async subscribe(handler: EventHandler): Promise<void> {
     this.handlers.add(handler);
 
-    if (!this.isSubscribed) {
-      await subRedis.subscribe(this.channel);
-      subRedis.on('message', (channel, message) => {
-        if (channel === this.channel) {
-          try {
-            const event = WireWorldEventSchema.parse(JSON.parse(message));
-            for (const h of this.handlers) {
-              const result = h(event);
-              if (result instanceof Promise) {
-                result.catch((err: Error) => log.error({ err }, 'event handler failed'));
-              }
+    this.subscriptionPromise ??= this.initSubscription();
+
+    await this.subscriptionPromise;
+  }
+
+  private async initSubscription(): Promise<void> {
+    await subRedis.subscribe(this.channel);
+    subRedis.on('message', (channel, message) => {
+      if (channel === this.channel) {
+        try {
+          const event = WireWorldEventSchema.parse(JSON.parse(message));
+          for (const h of this.handlers) {
+            const result = h(event);
+            if (result instanceof Promise) {
+              result.catch((err: Error) => log.error({ err }, 'event handler failed'));
             }
-          } catch (err) {
-            log.error({ err, channel }, 'failed to parse redis event message');
           }
+        } catch (err) {
+          log.error({ err, channel }, 'failed to parse redis event message');
         }
-      });
-      this.isSubscribed = true;
-    }
+      }
+    });
+    this.isSubscribed = true;
   }
 
   unsubscribe(handler: EventHandler): void {

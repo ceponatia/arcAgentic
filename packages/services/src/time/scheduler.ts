@@ -10,9 +10,29 @@ import { createLogger } from '@arcagentic/logger';
 import type { NpcLocationState } from '@arcagentic/schemas';
 import { resolveNpcSchedulesBatch } from './schedule-service.js';
 
+const SCHEDULE_TIMEOUT_MS = 30_000;
+
 const log = createLogger('services', 'scheduler');
 
 type ActorStateRecord = Record<string, unknown>;
+
+function withTimeout<T>(promise: Promise<T>, timeoutMs: number, label: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      reject(new Error(`${label} timed out after ${timeoutMs}ms`));
+    }, timeoutMs);
+
+    promise
+      .then((value) => {
+        clearTimeout(timeout);
+        resolve(value);
+      })
+      .catch((err: unknown) => {
+        clearTimeout(timeout);
+        reject(err instanceof Error ? err : new Error(String(err)));
+      });
+  });
+}
 
 /**
  * NPC schedule processor that subscribes to TICK events on the WorldBus.
@@ -45,35 +65,49 @@ export class Scheduler {
    */
   static async processSchedules(sessionId: string): Promise<void> {
     if (this.processing.has(sessionId)) {
-      log.debug({ sessionId }, 'skipping schedule processing because session is already processing');
+      log.trace({ sessionId }, 'skipping schedule processing because session is already processing');
       return;
     }
 
     this.processing.add(sessionId);
 
     try {
-      const gameTime = await getSessionGameTime(sessionId);
-      if (!gameTime) {
-        log.warn({ sessionId }, 'no game time for session');
-        return;
-      }
-
-      const npcs = await getSessionNpcsWithSchedules(sessionId);
-      if (npcs.length === 0) return;
-
-      const { locationStates, unresolved } = resolveNpcSchedulesBatch(npcs, {
-        currentTime: gameTime,
-      });
-
-      if (unresolved.length > 0) {
-        log.debug({ sessionId, unresolvedNpcIds: unresolved }, 'unresolved npc schedules');
-      }
-
-      for (const [npcId, newState] of locationStates) {
-        await this.processNpcSchedule(sessionId, npcId, newState);
-      }
+      await withTimeout(
+        this.processSchedulesInner(sessionId),
+        SCHEDULE_TIMEOUT_MS,
+        'schedule processing'
+      );
+    } catch (error) {
+      log.error({ sessionId, err: error }, 'schedule processing failed or timed out');
     } finally {
       this.processing.delete(sessionId);
+    }
+  }
+
+  private static async processSchedulesInner(sessionId: string): Promise<void> {
+    const gameTime = await getSessionGameTime(sessionId);
+    if (!gameTime) {
+      log.warn({ sessionId }, 'no game time for session');
+      return;
+    }
+
+    const npcs = await getSessionNpcsWithSchedules(sessionId);
+    if (npcs.length === 0) return;
+
+    const { locationStates, unresolved } = resolveNpcSchedulesBatch(npcs, {
+      currentTime: gameTime,
+    });
+
+    if (unresolved.length > 0) {
+      log.debug({ sessionId, unresolvedNpcIds: unresolved }, 'unresolved npc schedules');
+    }
+
+    for (const [npcId, newState] of locationStates) {
+      try {
+        await this.processNpcSchedule(sessionId, npcId, newState);
+      } catch (error) {
+        log.error({ sessionId, npcId, err: error }, 'npc schedule processing failed');
+      }
     }
   }
 
@@ -97,16 +131,20 @@ export class Scheduler {
     const newLocationId = newState.locationId;
 
     if (currentLocationId && currentLocationId !== newLocationId) {
-      await worldBus.emit({
-        type: 'MOVE_INTENT',
-        actorId: npcId,
-        fromLocationId: currentLocationId,
-        toLocationId: newLocationId,
-        destinationId: newLocationId,
-        reason: 'schedule',
-        sessionId,
-        timestamp: new Date(),
-      });
+      try {
+        await worldBus.emit({
+          type: 'MOVE_INTENT',
+          actorId: npcId,
+          fromLocationId: currentLocationId,
+          toLocationId: newLocationId,
+          destinationId: newLocationId,
+          reason: 'schedule',
+          sessionId,
+          timestamp: new Date(),
+        });
+      } catch (error) {
+        log.error({ sessionId, npcId, err: error }, 'failed to emit schedule move intent');
+      }
     }
 
     const currentActivity = this.getCurrentActivityType(stateRecord);

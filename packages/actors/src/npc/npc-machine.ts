@@ -141,6 +141,10 @@ export const createNpcMachine = (
             return false;
           }
 
+          if (event.event.type === 'TICK') {
+            return false;
+          }
+
           return promoter.evaluate(event.event) !== 'drop';
         },
       },

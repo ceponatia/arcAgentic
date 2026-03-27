@@ -677,6 +677,7 @@ export function registerStudioRoutes(app: Hono, options?: RegisterStudioRoutesOp
     // Get or create session
     let session: StudioSession | null = null;
     let actor: StudioNpcActor | undefined;
+    let actorSource: 'cache' | 'new' = 'cache';
 
     if (sessionId) {
       session = await getStudioSession(sessionId, ownerEmail);
@@ -690,35 +691,56 @@ export function registerStudioRoutes(app: Hono, options?: RegisterStudioRoutesOp
       session = await createStudioSession(sessionId, profile, ownerEmail);
     }
 
-    if (!actor && sessionId) {
-      actor = createStudioNpcActor({
-        sessionId,
-        profile: profile as Partial<CharacterProfile>,
-        llmProvider,
-      });
-      actorCache.set(sessionId, actor);
-
-      if (session.conversation.length > 0) {
-        actor.restoreState({
-          conversation: session.conversation.map((m, idx) => ({
-            id: `msg-${idx}`,
-            content: m.content,
-            role: normalizeRole(m.role),
-            timestamp: new Date(m.timestamp),
-            thought: undefined,
-          })),
-          summary: session.summary,
-          inferredTraits: normalizeInferredTraits(session.inferredTraits),
-          exploredTopics: normalizeExploredTopics(session.exploredTopics),
+    try {
+      if (!actor && sessionId) {
+        actor = createStudioNpcActor({
+          sessionId,
+          profile: profile as Partial<CharacterProfile>,
+          llmProvider,
         });
+        actorCache.set(sessionId, actor);
+        actorSource = 'new';
+
+        if (session.conversation.length > 0) {
+          actor.restoreState({
+            conversation: session.conversation.map((m, idx) => ({
+              id: `msg-${idx}`,
+              content: m.content,
+              role: normalizeRole(m.role),
+              timestamp: new Date(m.timestamp),
+              thought: undefined,
+            })),
+            summary: session.summary,
+            inferredTraits: normalizeInferredTraits(session.inferredTraits),
+            exploredTopics: normalizeExploredTopics(session.exploredTopics),
+          });
+        }
       }
+
+      if (!actor || !sessionId) {
+        throw new Error('Failed to initialize actor');
+      }
+
+      actor.updateProfile(profile as Partial<CharacterProfile>);
+    } catch (error) {
+      log.error(
+        { err: error, sessionId, ownerEmail },
+        'studio conversation stream actor initialization failed'
+      );
+      return c.json(
+        { ok: false, error: 'Failed to initialize studio conversation stream actor' },
+        500
+      );
     }
 
-    if (!actor || !sessionId) {
-      return c.json({ ok: false, error: 'Failed to initialize actor' }, 500);
-    }
-
-    actor.updateProfile(profile as Partial<CharacterProfile>);
+    log.debug(
+      {
+        sessionId,
+        actorSource,
+        conversationMessageCount: actor.exportState().conversation.length,
+      },
+      'starting studio conversation stream'
+    );
 
     return streamSSE(c, async (stream) => {
       let fullResponse = '';
@@ -741,7 +763,13 @@ export function registerStudioRoutes(app: Hono, options?: RegisterStudioRoutesOp
         // Add context window (existing messages + new user message)
         const contextWindow = currentState.conversation.slice(-19);
         messages.push(...contextWindow.map(m => ({
-          role: (m.role === 'character' ? 'assistant' : 'user') as LLMMessage['role'],
+          role: (
+            m.role === 'character'
+              ? 'assistant'
+              : m.role === 'system'
+                ? 'system'
+                : 'user'
+          ) as LLMMessage['role'],
           content: m.content,
         })));
 
