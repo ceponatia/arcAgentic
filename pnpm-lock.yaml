@@ -322,6 +322,9 @@ importers:
       '@arcagentic/projections':
         specifier: workspace:*
         version: link:../projections
+      '@arcagentic/retrieval':
+        specifier: workspace:*
+        version: link:../retrieval
       '@arcagentic/schemas':
         specifier: workspace:*
         version: link:../schemas
@@ -523,6 +526,28 @@ importers:
       pino-pretty:
         specifier: 'catalog:'
         version: 13.1.3
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.10.1
+      rimraf:
+        specifier: 'catalog:'
+        version: 6.1.2
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+
+  packages/narrator:
+    dependencies:
+      '@arcagentic/llm':
+        specifier: workspace:*
+        version: link:../llm
+      '@arcagentic/schemas':
+        specifier: workspace:*
+        version: link:../schemas
+      effect:
+        specifier: 'catalog:'
+        version: 3.10.13
     devDependencies:
       '@types/node':
         specifier: 'catalog:'

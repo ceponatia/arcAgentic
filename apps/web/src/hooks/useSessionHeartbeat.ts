@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { isAbortError } from '@arcagentic/utils';
+import { API_BASE_URL } from '../config.js';
 import { postSessionHeartbeat } from '../shared/api/client.js';
 import { useSessionTabCoordination } from './useSessionTabCoordination.js';
 
@@ -43,7 +44,9 @@ export function useSessionHeartbeat(
   const sendDisconnect = useCallback((): void => {
     if (!sessionId) return;
     try {
-      navigator.sendBeacon(`/api/sessions/${encodeURIComponent(sessionId)}/disconnect`);
+      navigator.sendBeacon(
+        `${API_BASE_URL}/sessions/${encodeURIComponent(sessionId)}/disconnect`
+      );
     } catch {
       console.warn('[useSessionHeartbeat] Failed to send disconnect beacon');
     }

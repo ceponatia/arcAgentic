@@ -1,9 +1,18 @@
-import React from 'react';
-import { useSignals } from '@preact/signals-react/runtime';
-import { FEAR_CATEGORIES, COPING_MECHANISMS } from '@arcagentic/schemas';
-import { type FearEntry, createFearEntry } from '../../types.js';
-import { characterProfile, updatePersonalityMap } from '../../signals.js';
-import { SelectInput, SliderInput } from '../../../../shared/components/common.js';
+import React from "react";
+import { useSignals } from "@preact/signals-react/runtime";
+import { FEAR_CATEGORIES, COPING_MECHANISMS } from "@arcagentic/schemas";
+import { type FearEntry, createFearEntry } from "../../types.js";
+import {
+  characterProfile,
+  fearTriggerDrafts,
+  removeFearTriggerDraft,
+  setFearTriggerDraft,
+  updatePersonalityMap,
+} from "../../signals.js";
+import {
+  SelectInput,
+  SliderInput,
+} from "../../../../shared/components/common.js";
 
 export const FearsList: React.FC = () => {
   useSignals();
@@ -28,7 +37,9 @@ export const FearsList: React.FC = () => {
                 value={fear.category}
                 onChange={(v) => {
                   const newFears = fears.map((f, i) =>
-                    i === idx ? { ...f, category: v as FearEntry['category'] } : f
+                    i === idx
+                      ? { ...f, category: v as FearEntry["category"] }
+                      : f,
                   );
                   handleUpdate(newFears);
                 }}
@@ -41,7 +52,12 @@ export const FearsList: React.FC = () => {
                 value={fear.copingMechanism}
                 onChange={(v) => {
                   const newFears = fears.map((f, i) =>
-                    i === idx ? { ...f, copingMechanism: v as FearEntry['copingMechanism'] } : f
+                    i === idx
+                      ? {
+                          ...f,
+                          copingMechanism: v as FearEntry["copingMechanism"],
+                        }
+                      : f,
                   );
                   handleUpdate(newFears);
                 }}
@@ -57,7 +73,7 @@ export const FearsList: React.FC = () => {
               value={fear.specific}
               onChange={(e) => {
                 const newFears = fears.map((f, i) =>
-                  i === idx ? { ...f, specific: e.target.value } : f
+                  i === idx ? { ...f, specific: e.target.value } : f,
                 );
                 handleUpdate(newFears);
               }}
@@ -69,31 +85,23 @@ export const FearsList: React.FC = () => {
             label="Intensity"
             value={fear.intensity}
             onChange={(v) => {
-              const newFears = fears.map((f, i) => (i === idx ? { ...f, intensity: v } : f));
+              const newFears = fears.map((f, i) =>
+                i === idx ? { ...f, intensity: v } : f,
+              );
               handleUpdate(newFears);
             }}
           />
 
           <label className="block">
-            <span className="text-xs text-slate-400">Triggers (comma-separated)</span>
+            <span className="text-xs text-slate-400">
+              Triggers (comma-separated)
+            </span>
             <input
               className="mt-1 w-full bg-slate-900 text-slate-200 rounded-md px-3 py-2 outline-none ring-1 ring-slate-800 focus:ring-2 focus:ring-violet-500"
-              value={(fear.triggers ?? []).join(', ')}
-              onChange={(e) => {
-                const val = e.target.value;
-                const newFears = fears.map((f, i) =>
-                  i === idx
-                    ? {
-                        ...f,
-                        triggers: val
-                          .split(',')
-                          .map((s) => s.trim())
-                          .filter(Boolean),
-                      }
-                    : f
-                );
-                handleUpdate(newFears as FearEntry[]);
-              }}
+              value={
+                fearTriggerDrafts.value[idx] ?? (fear.triggers ?? []).join(", ")
+              }
+              onChange={(e) => setFearTriggerDraft(idx, e.target.value)}
               placeholder="e.g., darkness, crowds, loud noises"
             />
           </label>
@@ -102,6 +110,7 @@ export const FearsList: React.FC = () => {
             type="button"
             onClick={() => {
               const newFears = fears.filter((_, i) => i !== idx);
+              removeFearTriggerDraft(idx);
               handleUpdate(newFears);
             }}
             className="absolute -top-2 -right-2 w-6 h-6 bg-slate-800 text-slate-400 hover:text-red-400 rounded-full border border-slate-700 flex items-center justify-center transition-colors opacity-0 group-hover:opacity-100"

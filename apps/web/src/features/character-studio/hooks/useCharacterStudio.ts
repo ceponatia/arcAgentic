@@ -3,9 +3,11 @@ import { useSignals } from '@preact/signals-react/runtime';
 import {
   characterProfile,
   characterId,
+  fearTriggerDrafts,
   isDirty,
   saveStatus,
   isStudioLoading,
+  resetFearTriggerDrafts,
   sensoryProfileConfig,
   resetStudio,
   resetStudioSession,
@@ -20,7 +22,7 @@ import {
   persistCharacter,
   removeCharacter,
 } from '../services/api.js';
-import type { CharacterProfile, PersonalityMap } from '@arcagentic/schemas';
+import type { BodyMap, BodyRegionData, CharacterProfile, PersonalityMap } from '@arcagentic/schemas';
 
 export interface UseCharacterStudioOptions {
   id?: string | null;
@@ -60,6 +62,7 @@ export function useCharacterStudio(
       loadCharacter(id)
         .then((profile) => {
           characterProfile.value = profile;
+          resetFearTriggerDrafts(profile.personalityMap?.fears ?? []);
           sensoryProfileConfig.value = profile.sensoryProfile ?? {
             autoDefaults: { enabled: true },
           };
@@ -80,6 +83,7 @@ export function useCharacterStudio(
         personality: 'Unspecified',
         backstory: '',
       };
+      resetFearTriggerDrafts();
       sensoryProfileConfig.value = { autoDefaults: { enabled: true } };
     }
 
@@ -146,9 +150,12 @@ export function useCharacterStudio(
         const sanitized: PersonalityMap = { ...personalityMapForApi };
         // Filter fears with empty specific field (schema requires min 1 char)
         if (sanitized.fears) {
-          sanitized.fears = sanitized.fears.filter(
-            (f) => f.specific && f.specific.trim().length > 0
-          );
+          sanitized.fears = sanitized.fears
+            .map((fear, index) => ({
+              ...fear,
+              triggers: parseFearTriggers(fearTriggerDrafts.value[index], fear.triggers),
+            }))
+            .filter((f) => f.specific && f.specific.trim().length > 0);
           if (sanitized.fears.length === 0) delete sanitized.fears;
         }
         // Filter values with invalid entries
@@ -159,9 +166,12 @@ export function useCharacterStudio(
         personalityMapForApi = Object.keys(sanitized).length > 0 ? sanitized : undefined;
       }
 
+      const bodyForApi = sanitizeBodyMap(current.body);
+
       const profile: CharacterProfile = {
         ...current,
         id: current.id ?? generateCharacterId(),
+        body: bodyForApi,
         physique: physiqueForApi,
         personalityMap: personalityMapForApi,
         backstory:
@@ -182,6 +192,13 @@ export function useCharacterStudio(
       // Don't update characterProfile.value here - keep the flat physique object for form editing
       // Only send the transformed profile to the API
       await persistCharacter(profile);
+
+      characterProfile.value = {
+        ...characterProfile.value,
+        body: bodyForApi,
+        personalityMap: personalityMapForApi,
+      };
+      resetFearTriggerDrafts(personalityMapForApi?.fears ?? []);
 
       await waitForMinSavingIndicator(savingStartedAtMs, 300);
       saveStatus.value = 'saved';
@@ -254,4 +271,96 @@ async function waitForMinSavingIndicator(
   const remaining = minDurationMs - elapsed;
   if (remaining <= 0) return;
   await new Promise<void>((resolve) => setTimeout(resolve, remaining));
+}
+
+function parseFearTriggers(draft: string | undefined, current: string[] | undefined): string[] {
+  if (draft === undefined) {
+    return (current ?? []).map((trigger) => trigger.trim()).filter(Boolean);
+  }
+
+  return draft
+    .split(',')
+    .map((trigger) => trigger.trim())
+    .filter(Boolean);
+}
+
+function sanitizeBodyMap(body: CharacterProfile['body']): CharacterProfile['body'] {
+  if (!body) return undefined;
+
+  const sanitized = Object.entries(body).reduce<BodyMap>((nextBody, [region, data]) => {
+    const sanitizedRegion = sanitizeBodyRegionData(data);
+    if (sanitizedRegion) {
+      nextBody[region as keyof BodyMap] = sanitizedRegion;
+    }
+    return nextBody;
+  }, {});
+
+  return Object.keys(sanitized).length > 0 ? sanitized : undefined;
+}
+
+function sanitizeBodyRegionData(data: BodyRegionData | undefined): BodyRegionData | undefined {
+  if (!data) return undefined;
+
+  const nextRegion: BodyRegionData = {};
+
+  const visualDescription = trimToUndefined(data.visual?.description);
+  if (visualDescription) {
+    nextRegion.visual = {
+      ...data.visual,
+      description: visualDescription,
+    };
+  }
+
+  const scentPrimary = trimToUndefined(data.scent?.primary);
+  if (scentPrimary) {
+    nextRegion.scent = {
+      ...data.scent,
+      intensity: data.scent?.intensity ?? 0.5,
+      primary: scentPrimary,
+    };
+  }
+
+  const texturePrimary = trimToUndefined(data.texture?.primary);
+  if (texturePrimary) {
+    nextRegion.texture = {
+      ...data.texture,
+      temperature: data.texture?.temperature ?? 'neutral',
+      moisture: data.texture?.moisture ?? 'normal',
+      primary: texturePrimary,
+    };
+  }
+
+  const flavorPrimary = trimToUndefined(data.flavor?.primary);
+  if (flavorPrimary) {
+    nextRegion.flavor = {
+      ...data.flavor,
+      intensity: data.flavor?.intensity ?? 0.5,
+      primary: flavorPrimary,
+    };
+  }
+
+  if (data.appearance) {
+    const appearance = Object.entries(data.appearance).reduce<Record<string, string>>(
+      (nextAppearance, [key, value]) => {
+        const trimmedValue = trimToUndefined(value);
+        if (trimmedValue) {
+          nextAppearance[key] = trimmedValue;
+        }
+        return nextAppearance;
+      },
+      {}
+    );
+
+    if (Object.keys(appearance).length > 0) {
+      nextRegion.appearance = appearance;
+    }
+  }
+
+  return Object.keys(nextRegion).length > 0 ? nextRegion : undefined;
+}
+
+function trimToUndefined(value: string | undefined): string | undefined {
+  if (typeof value !== 'string') return undefined;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : undefined;
 }

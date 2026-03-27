@@ -20,6 +20,9 @@
       "path": "packages/llm"
     },
     {
+      "path": "packages/narrator"
+    },
+    {
       "path": "packages/retrieval"
     },
     {

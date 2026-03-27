@@ -1,6 +1,6 @@
 # arcagentic
 
-A monorepo for a roleplaying chat app with a Hono API server, a React/Vite web UI, and supporting packages for schemas, persistence, LLM providers, and game services.
+A monorepo for ArcAgentic, a roleplaying chat app with a Hono API server, a React/Vite web UI, and supporting packages for schemas, persistence, LLM providers, and game services. The short-term goal is to create one of the most robust and interesting romantic chatbot apps available, and the long-term goal is to build a platform for hosting and sharing full roleplaying game experiences similar to dungeons & dragons.
 
 This README focuses on what is true in this repository today (scripts, ports, and where to look for implementation details).
 

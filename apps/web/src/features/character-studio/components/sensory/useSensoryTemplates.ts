@@ -26,7 +26,6 @@ export function useSensoryTemplates(): {
 
   useEffect(() => {
     let isMounted = true;
-    const pollIntervalMs = 15000;
 
     const loadTemplates = async (showLoading: boolean): Promise<void> => {
       if (showLoading && isMounted) {
@@ -55,13 +54,9 @@ export function useSensoryTemplates(): {
     };
 
     void loadTemplates(true);
-    const intervalId = window.setInterval(() => {
-      void loadTemplates(false);
-    }, pollIntervalMs);
 
     return () => {
       isMounted = false;
-      window.clearInterval(intervalId);
     };
   }, []);
 

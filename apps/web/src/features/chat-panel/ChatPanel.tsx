@@ -201,24 +201,14 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ sessionId }) => {
         npcId: selectedNpcId ?? null,
       });
       const assistant = res.message;
-      setSession((prev) =>
-        prev ? { ...prev, messages: [...prev.messages, assistant] } : prev,
-      );
-
-      const hasNpcSpoke = Array.isArray(res.events)
-        ? res.events.some((event) => {
-            if (typeof event !== "object" || event === null) return false;
-            const record = event as Record<string, unknown>;
-            if (record["type"] !== "SPOKE") return false;
-            const actorId = record["actorId"];
-            return typeof actorId === "string" && !actorId.startsWith("player");
-          })
-        : false;
-
       const isPlaceholder = assistant.content.trim() === "The world is quiet.";
 
-      if (!hasNpcSpoke || isPlaceholder) {
-        scheduleMessageRefreshSequence([800, 2000, 3500]);
+      if (isPlaceholder) {
+        // NPC hasn't responded yet; schedule refreshes to pick up late response
+        scheduleMessageRefreshSequence([1000, 3000, 6000]);
+      } else {
+        // Refresh from DB to get authoritative message list
+        scheduleMessageRefreshSequence([300]);
       }
     } catch (e) {
       setDraft(text);
@@ -360,27 +350,13 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ sessionId }) => {
         },
       );
 
-      // Instead of manual appending, we should probably refresh the session to get the guaranteed order
-      // But for UX, we append the response. Note: the sequence will be missing until refresh.
       const assistant = res.message;
-      setSession((prev) =>
-        prev ? { ...prev, messages: [...prev.messages, assistant] } : prev,
-      );
-
-      const hasNpcSpoke = Array.isArray(res.events)
-        ? res.events.some((event) => {
-            if (typeof event !== "object" || event === null) return false;
-            const record = event as Record<string, unknown>;
-            if (record["type"] !== "SPOKE") return false;
-            const actorId = record["actorId"];
-            return typeof actorId === "string" && !actorId.startsWith("player");
-          })
-        : false;
-
       const isPlaceholder = assistant.content.trim() === "The world is quiet.";
 
-      if (!hasNpcSpoke || isPlaceholder) {
-        scheduleMessageRefreshSequence([800, 2000, 3500]);
+      if (isPlaceholder) {
+        scheduleMessageRefreshSequence([1000, 3000, 6000]);
+      } else {
+        scheduleMessageRefreshSequence([300]);
       }
     } catch (e) {
       const msg = getErrorMessage(e, "Failed to regenerate response");

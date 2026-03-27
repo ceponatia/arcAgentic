@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Vite-based React frontend for Minimal RPG. The player-facing web client that communicates with the API backend.
+Vite-based React frontend for ArcAgentic. The player-facing web client that communicates with the API backend.
 
 ## Scope
 

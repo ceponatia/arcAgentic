@@ -3,6 +3,7 @@ import {
   resolveSensoryProfile,
   type CharacterProfile,
   type ConversationMessage,
+  type FearEntry,
   type InferredTrait,
   type PersonalityMap,
   type ResolvedBodyMap,
@@ -91,6 +92,9 @@ export const expandedCards = signal<Set<string>>(new Set(['core']));
 
 /** Is a deletion operation in progress */
 export const isDeleting = signal<boolean>(false);
+
+/** Raw trigger draft text keyed by fear index for comma-separated editing */
+export const fearTriggerDrafts = signal<Record<number, string>>({});
 
 // ============================================================================
 // Computed Signals
@@ -196,6 +200,38 @@ export function updatePersonalityMap(updates: Partial<PersonalityMap>): void {
   isDirty.value = true;
 }
 
+export function setFearTriggerDraft(index: number, value: string): void {
+  fearTriggerDrafts.value = {
+    ...fearTriggerDrafts.value,
+    [index]: value,
+  };
+  isDirty.value = true;
+}
+
+export function removeFearTriggerDraft(index: number): void {
+  const nextDrafts: Record<number, string> = {};
+
+  for (const [key, value] of Object.entries(fearTriggerDrafts.value)) {
+    const draftIndex = Number(key);
+    if (draftIndex < index) {
+      nextDrafts[draftIndex] = value;
+    } else if (draftIndex > index) {
+      nextDrafts[draftIndex - 1] = value;
+    }
+  }
+
+  fearTriggerDrafts.value = nextDrafts;
+}
+
+export function resetFearTriggerDrafts(fears: FearEntry[] = []): void {
+  fearTriggerDrafts.value = fears.reduce<Record<number, string>>((drafts, fear, index) => {
+    if ((fear.triggers ?? []).length > 0) {
+      drafts[index] = fear.triggers.join(', ');
+    }
+    return drafts;
+  }, {});
+}
+
 /**
  * Update sensory profile config and persist to character profile.
  */
@@ -298,6 +334,7 @@ export function resetStudio(): void {
   suggestedPrompts.value = [];
   exploredTopics.value = [];
   isDeleting.value = false;
+  fearTriggerDrafts.value = {};
 }
 
 /** Reset session state (call when starting new character) */
