@@ -13,6 +13,9 @@
       "path": "../schemas"
     },
     {
+      "path": "../logger"
+    },
+    {
       "path": "../llm"
     }
   ]

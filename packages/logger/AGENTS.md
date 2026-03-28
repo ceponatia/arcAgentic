@@ -18,7 +18,7 @@ Shared structured logging factory for backend packages. Provides pino-based logg
 
 ## Package Connections
 
-- **api**, **bus**, **services**, **actors**, **workers**, **db**: All backend packages import from this package to create structured loggers
+- **api**, **bus**, **services**, **actors**, **narrator**, **workers**, **db**: All backend packages import from this package to create structured loggers
 
 This package has no internal workspace dependencies. It is a foundational logging layer.
 

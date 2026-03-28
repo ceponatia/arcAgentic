@@ -53,6 +53,14 @@
       "path": "packages/llm"
     },
     {
+      "name": "logger",
+      "path": "packages/logger"
+    },
+    {
+      "name": "narrator",
+      "path": "packages/narrator"
+    },
+    {
       "name": "projections",
       "path": "packages/projections"
     },

@@ -25,7 +25,7 @@ import {
 import { ensureUserByEmail, getEntityProfile } from '@arcagentic/db/node';
 import type { LoadedDataGetter } from '../../../loaders/types.js';
 import { badRequest, serverError, notFound } from '../../../utils/responses.js';
-import { generateId, generateInstanceId } from '@arcagentic/utils';
+import { generateId, generateInstanceId, isUuid } from '@arcagentic/utils';
 import { findCharacter, findSetting } from './shared.js';
 import { getAuthUser } from '../../../auth/middleware.js';
 import { toSessionId, toId, toIds } from '../../../utils/uuid.js';
@@ -211,10 +211,11 @@ export async function handleCreateFullSession(
         ownerEmail,
         name: `Session ${sessionId.substring(0, 8)}`,
         // Note: many built-in/test profiles use non-UUID IDs (e.g. "test-setting-001").
-        // These session columns are UUID foreign keys, so we intentionally leave them null
-        // and rely on actor state + projections for runtime behavior.
-        playerCharacterId: null,
-        settingId: null,
+        // These session columns are UUID foreign keys, so we only persist IDs when the
+        // request carries real UUID-backed entity profile IDs and otherwise leave them null.
+        playerCharacterId:
+          request.personaId && isUuid(request.personaId) ? toId(request.personaId) : null,
+        settingId: isUuid(request.settingId) ? toId(request.settingId) : null,
         status: 'active',
       });
 

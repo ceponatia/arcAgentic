@@ -15,5 +15,6 @@ export * from './feet/index.js';
 export * from './hygiene-data.js';
 export * from './hierarchy.js';
 export * from './utils.js';
+export * from './classification-defaults/index.js';
 export * from './autoDefaults.js';
 export * from './resolveSensoryProfile.js';

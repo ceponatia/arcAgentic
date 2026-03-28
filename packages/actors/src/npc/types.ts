@@ -18,6 +18,28 @@ export interface NpcRuntimeState extends BaseActorState {
   mood?: string;
 }
 
+export interface NpcRelationshipAffinity {
+  trust: number;
+  fondness: number;
+  fear: number;
+}
+
+export interface NpcRelationshipContext {
+  relationshipType: string;
+  affinity: NpcRelationshipAffinity;
+}
+
+export interface CognitionContextExtras {
+  /** Relationship context for this NPC keyed by target actor ID */
+  relationships?: Record<string, NpcRelationshipContext>;
+  /** Player character's name so NPC can address them */
+  playerName?: string;
+  /** Brief description of the player character */
+  playerDescription?: string;
+  /** The setting's starting scenario / initial scene description */
+  startingScenario?: string;
+}
+
 /** Priority level for event promotion. */
 export type EventPriority = 'high' | 'medium' | 'low';
 
@@ -80,7 +102,7 @@ export interface ActionResult {
 /**
  * NPC machine context (XState).
  */
-export interface NpcMachineContext {
+export interface NpcMachineContext extends CognitionContextExtras {
   actorId: string;
   npcId: string;
   sessionId: string;

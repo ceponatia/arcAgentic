@@ -19,6 +19,7 @@
   "dependencies": {
     "@arcagentic/schemas": "workspace:*",
     "@arcagentic/llm": "workspace:*",
+    "@arcagentic/logger": "workspace:*",
     "effect": "catalog:"
   },
   "devDependencies": {

@@ -34,6 +34,8 @@ const createSpeakIntentSchema = (timestampSchema: z.ZodType<Date>) =>
     type: z.literal('SPEAK_INTENT'),
     content: z.string(),
     targetActorId: z.string().optional(),
+    action: z.string().optional(),
+    emotion: z.string().optional(),
     ...baseIntentFields(timestampSchema),
   });
 

@@ -319,6 +319,9 @@ importers:
       '@arcagentic/logger':
         specifier: workspace:*
         version: link:../logger
+      '@arcagentic/narrator':
+        specifier: workspace:*
+        version: link:../narrator
       '@arcagentic/projections':
         specifier: workspace:*
         version: link:../projections

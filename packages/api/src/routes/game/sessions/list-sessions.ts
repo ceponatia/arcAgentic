@@ -1,5 +1,5 @@
 import type { Context } from 'hono';
-import { listSessions, getEntityProfile } from '@arcagentic/db/node';
+import { listSessions, getEntityProfile, getActorState } from '@arcagentic/db/node';
 import { getOwnerEmail } from '../../../auth/ownerEmail.js';
 import { toId } from '../../../utils/uuid.js';
 
@@ -17,6 +17,16 @@ interface EntityProfileRecord {
   name?: string | null;
 }
 
+interface ActorStateRecord {
+  state?: unknown;
+}
+
+interface PlayerActorStateProfileRecord {
+  profile?: {
+    name?: string | null;
+  } | null;
+}
+
 export async function handleListSessions(c: Context): Promise<Response> {
   const ownerEmail = getOwnerEmail(c);
   const sessions = (await listSessions(ownerEmail)) as SessionRecord[];
@@ -31,6 +41,12 @@ export async function handleListSessions(c: Context): Promise<Response> {
           | EntityProfileRecord
           | null;
         characterName = char?.name ?? undefined;
+      } else {
+        const actorState = (await getActorState(toId(sess.id), 'player')) as
+          | ActorStateRecord
+          | null;
+        const playerState = actorState?.state as PlayerActorStateProfileRecord | undefined;
+        characterName = playerState?.profile?.name ?? undefined;
       }
       if (sess.settingId) {
         const setting = (await getEntityProfile(toId(sess.settingId))) as

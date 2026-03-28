@@ -1,34 +1,7 @@
 import type { LLMProvider } from '@arcagentic/llm';
+import type { NarratorContext, NarrationSource, NpcNarrationIntent } from '@arcagentic/schemas';
 
-/** Structured output from an NPC's cognition decision. */
-export interface NpcIntent {
-  /** The actor ID of the NPC. */
-  actorId: string;
-  /** The NPC's display name. */
-  name: string;
-  /** What the NPC says (dialogue). May be empty if the NPC acts silently. */
-  dialogue: string;
-  /** A brief physical action or gesture (e.g., "crosses her arms", "glances away"). */
-  action?: string;
-  /** The NPC's current emotional state or reaction. */
-  emotion?: string;
-  /** The actor ID of who the NPC is addressing, if directed. */
-  targetId?: string;
-}
-
-/** Scene context provided to the narrator for composing prose. */
-export interface NarratorContext {
-  /** The name of the current location. */
-  locationName: string;
-  /** A short description of the current scene or setting. */
-  sceneDescription?: string;
-  /** Display names of actors present in the scene. */
-  presentActors: string[];
-  /** Recent narrative history lines for continuity (last N passages). */
-  recentHistory: string[];
-  /** The player's most recent message or action, if any. */
-  playerMessage?: string;
-}
+export type NpcIntent = NpcNarrationIntent;
 
 /** The result of a narration composition. */
 export interface NarrationResult {
@@ -36,6 +9,8 @@ export interface NarrationResult {
   prose: string;
   /** The original intents that were composed, for downstream reference. */
   sourceIntents: NpcIntent[];
+  /** How the narration was produced. */
+  source: NarrationSource;
 }
 
 /** Configuration for narrative style and constraints. */

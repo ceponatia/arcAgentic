@@ -3,7 +3,7 @@ import type { WorldEvent } from '@arcagentic/schemas';
 import type { Actor, BaseActorState, NpcActorConfig } from '../base/types.js';
 import { BaseActorLifecycle } from '../base/lifecycle.js';
 import { createNpcMachine } from './npc-machine.js';
-import type { NpcMachineContext } from './types.js';
+import type { CognitionContextExtras, NpcMachineContext } from './types.js';
 
 /**
  * NPC Actor implementation using XState.
@@ -18,7 +18,7 @@ export class NpcActor implements Actor {
   private readonly machine: ActorRefFrom<ReturnType<typeof createNpcMachine>>;
   private readonly lifecycle: BaseActorLifecycle;
 
-  constructor(config: NpcActorConfig) {
+  constructor(config: NpcActorConfig & CognitionContextExtras) {
     this.id = config.id;
     this.sessionId = config.sessionId;
     this.npcId = config.npcId;
@@ -33,6 +33,14 @@ export class NpcActor implements Actor {
       recentEvents: [],
       ...(config.profile ? { profile: config.profile } : {}),
       ...(config.llmProvider ? { llmProvider: config.llmProvider } : {}),
+      ...(config.relationships ? { relationships: config.relationships } : {}),
+      ...(config.playerName !== undefined ? { playerName: config.playerName } : {}),
+      ...(config.playerDescription !== undefined
+        ? { playerDescription: config.playerDescription }
+        : {}),
+      ...(config.startingScenario !== undefined
+        ? { startingScenario: config.startingScenario }
+        : {}),
     };
 
     // Create and start the machine

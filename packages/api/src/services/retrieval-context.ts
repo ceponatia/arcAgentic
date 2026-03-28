@@ -1,4 +1,3 @@
-import { Effect } from 'effect';
 import { createLogger } from '@arcagentic/logger';
 import {
   OpenAIEmbeddingService,
@@ -73,16 +72,22 @@ export function getRetrievalService(): PgRetrievalService | null {
     return retrievalService;
   }
 
-  const apiKey = getEnvValue('OPENAI_API_KEY');
+  const openaiKey = getEnvValue('OPENAI_API_KEY');
+  const openaiBaseUrl = getEnvValue('OPENAI_BASE_URL');
+
+  const openrouterKey = getEnvValue('OPENROUTER_API_KEY');
+  const openrouterBaseUrl = getEnvValue('OPENROUTER_BASE_URL') ?? 'https://openrouter.ai/api/v1';
+
+  const apiKey = openaiKey ?? openrouterKey;
   if (!apiKey) {
     if (!loggedMissingApiKey) {
-      log.warn('OPENAI_API_KEY not set; retrieval disabled');
+      log.warn('No OPENAI_API_KEY or OPENROUTER_API_KEY set; retrieval disabled');
       loggedMissingApiKey = true;
     }
     return null;
   }
 
-  const baseUrl = getEnvValue('OPENAI_BASE_URL');
+  const baseUrl = openaiKey ? openaiBaseUrl : openrouterBaseUrl;
   const embeddingService = new OpenAIEmbeddingService({
     apiKey,
     ...(baseUrl ? { baseURL: baseUrl } : {}),

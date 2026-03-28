@@ -214,8 +214,10 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ sessionId }) => {
       setDraft(text);
       const msg = getErrorMessage(e, "Failed to send message");
       setError(msg);
-      // revert optimistic append by reloading session
-      refresh();
+      setSession((prev) => {
+        if (!prev) return prev;
+        return { ...prev, messages: prev.messages.slice(0, -1) };
+      });
     } finally {
       setSending(false);
     }

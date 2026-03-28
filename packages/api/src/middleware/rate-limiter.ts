@@ -137,12 +137,12 @@ export const heartbeatRateLimiter = createRateLimiter({
 
 /**
  * Rate limiter for turn processing (LLM inference).
- * Strict limit: 1 request per minute per session.
+ * Strict limit: 10 requests per minute per session.
  * Acts as a fallback cost control if other systems fail.
  */
 export const turnRateLimiter = createRateLimiter({
   windowMs: 60_000,
-  maxRequests: 1,
+  maxRequests: 10,
   keyGenerator: (c) => {
     const sessionId = c.req.param('id') ?? 'unknown';
     return `turn:${sessionId}`;

@@ -31,6 +31,8 @@ export class DialogueService {
       targetActorId: event.targetActorId,
       sessionId,
       timestamp,
+      ...(event.action != null ? { action: event.action } : {}),
+      ...(event.emotion != null ? { emotion: event.emotion } : {}),
     };
 
     await worldBus.emit(spokeEvent);

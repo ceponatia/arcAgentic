@@ -173,7 +173,16 @@ export const createNpcMachine = (
           const profile = context.profile;
 
           if (llmProvider && profile) {
-            const result = await CognitionLayer.decideLLM(cognitionContext, profile, llmProvider);
+            const result = await CognitionLayer.decideLLM(cognitionContext, profile, llmProvider, {
+              ...(context.relationships ? { relationships: context.relationships } : {}),
+              ...(context.playerName !== undefined ? { playerName: context.playerName } : {}),
+              ...(context.playerDescription !== undefined
+                ? { playerDescription: context.playerDescription }
+                : {}),
+              ...(context.startingScenario !== undefined
+                ? { startingScenario: context.startingScenario }
+                : {}),
+            });
             return result?.intent ?? null;
           }
 

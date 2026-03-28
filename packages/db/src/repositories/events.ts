@@ -1,4 +1,4 @@
-import { eq, and, gte, asc } from 'drizzle-orm';
+import { eq, and, gte, asc, desc } from 'drizzle-orm';
 import { drizzle } from '../connection/drizzle.js';
 import { events } from '../schema/index.js';
 import type { UUID } from '../types.js';
@@ -33,4 +33,17 @@ export async function getEventsForSession(sessionId: UUID, fromSequence = 0n) {
     .from(events)
     .where(and(eq(events.sessionId, sessionId), gte(events.sequence, fromSequence)))
     .orderBy(asc(events.sequence));
+}
+
+/**
+ * Fetch the most recent SPOKE events for a session, ordered newest-first.
+ * Callers should reverse the result if ascending order is needed.
+ */
+export async function getRecentSpokeEvents(sessionId: UUID, limit = 6) {
+  return await drizzle
+    .select()
+    .from(events)
+    .where(and(eq(events.sessionId, sessionId), eq(events.type, 'SPOKE')))
+    .orderBy(desc(events.sequence))
+    .limit(limit);
 }

@@ -3,6 +3,7 @@ import { NpcActor } from '../npc/npc-actor.js';
 import { PlayerActor } from '../player/player-actor.js';
 import { worldBus } from '@arcagentic/bus';
 import type { WorldEvent } from '@arcagentic/schemas';
+import type { CognitionContextExtras } from '../npc/types.js';
 
 /**
  * Actor Registry - manages actor lifecycle and lookup.
@@ -16,7 +17,8 @@ export class ActorRegistry {
    */
   spawn(
     config: ActorConfig &
-      Partial<Pick<NpcActorConfig, 'npcId' | 'profile' | 'llmProvider'>>
+      Partial<Pick<NpcActorConfig, 'npcId' | 'profile' | 'llmProvider'>> &
+      CognitionContextExtras
   ): Actor {
     if (this.actors.has(config.id)) {
       throw new Error(`Actor ${config.id} already exists`);
@@ -33,7 +35,15 @@ export class ActorRegistry {
         npcId: config.npcId,
         ...(config.profile ? { profile: config.profile } : {}),
         ...(config.llmProvider ? { llmProvider: config.llmProvider } : {}),
-      } satisfies NpcActorConfig);
+        ...(config.relationships ? { relationships: config.relationships } : {}),
+        ...(config.playerName !== undefined ? { playerName: config.playerName } : {}),
+        ...(config.playerDescription !== undefined
+          ? { playerDescription: config.playerDescription }
+          : {}),
+        ...(config.startingScenario !== undefined
+          ? { startingScenario: config.startingScenario }
+          : {}),
+      } satisfies NpcActorConfig & CognitionContextExtras);
     } else if (config.type === 'player') {
       actor = new PlayerActor(config);
     } else {

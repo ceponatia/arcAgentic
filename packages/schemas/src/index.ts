@@ -16,6 +16,7 @@ export * from './schedule/index.js';
 export * from './simulation/index.js';
 export * from './affinity/index.js';
 export * from './events/index.js';
+export * from './narration/index.js';
 export * from './races/index.js';
 export * from './dialogue/index.js';
 export * from './utils/index.js';

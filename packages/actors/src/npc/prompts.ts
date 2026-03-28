@@ -9,7 +9,12 @@ import type {
   Value,
 } from '@arcagentic/schemas';
 import type { PersonalityModifiers } from './personality-modifiers.js';
-import type { PerceptionContext, NpcRuntimeState } from './types.js';
+import type {
+  CognitionContextExtras,
+  NpcRelationshipContext,
+  NpcRuntimeState,
+  PerceptionContext,
+} from './types.js';
 import { getStringField } from './event-access.js';
 import { isDefaultModifiers } from './personality-modifiers.js';
 
@@ -52,8 +57,49 @@ function formatMoodStability(stability: number): string {
   return 'moderate';
 }
 
+function formatAffinityLabel(value: number): string {
+  if (value <= 0.2) return 'very low';
+  if (value <= 0.4) return 'low';
+  if (value <= 0.6) return 'moderate';
+  if (value <= 0.8) return 'high';
+  return 'very high';
+}
+
 function humanizeToken(value: string): string {
   return value.replaceAll('-', ' ');
+}
+
+function getPlayerRelationship(
+  relationships?: CognitionContextExtras['relationships']
+): NpcRelationshipContext | undefined {
+  if (!relationships) {
+    return undefined;
+  }
+
+  const directPlayerRelationship = relationships['player'];
+  if (directPlayerRelationship) {
+    return directPlayerRelationship;
+  }
+
+  for (const [actorId, relationship] of Object.entries(relationships)) {
+    if (actorId.startsWith('player:')) {
+      return relationship;
+    }
+  }
+
+  return undefined;
+}
+
+function formatActorLabel(actorId: string, contextExtras?: CognitionContextExtras): string {
+  if (!contextExtras?.playerName) {
+    return actorId;
+  }
+
+  if (actorId === 'player' || actorId.startsWith('player:')) {
+    return contextExtras.playerName;
+  }
+
+  return actorId;
 }
 
 function getDimensionLabel(
@@ -527,8 +573,8 @@ export function buildSystemPrompt(speech?: SpeechStyle): string {
   const base = [
     'You decide how an NPC should act based on recent events and their personality.',
     'If no action is appropriate, respond with NO_ACTION.',
-    'Otherwise, provide a short in-character line of dialogue to say next.',
-    'Keep responses concise (max 20 words). Do not include narration.',
+    'Otherwise, decide the NPC\'s next spoken response, optional self-directed action, and emotional tone.',
+    'Keep dialogue concise (max 20 words). Do not narrate the player\'s state or other NPCs\' actions.',
   ];
 
   const directive = buildSpeechStyleDirective(speech);
@@ -571,11 +617,35 @@ function formatStressBehavior(stress: StressBehavior | undefined): string | unde
 
 export const NPC_DECISION_SYSTEM_PROMPT = buildSystemPrompt();
 
+/**
+ * Builds an instruction block that requests structured JSON output
+ * with dialogue, action, and emotion fields.
+ */
+export function buildStructuredOutputInstruction(): string {
+  return [
+    'Respond ONLY with a JSON object in this exact format (no markdown fences, no extra text):',
+    '{',
+    '  "dialogue": "What the NPC says aloud (empty string if silent)",',
+    '  "action": "A brief physical action or gesture, or null if none",',
+    '  "emotion": "The NPC\'s current emotional state, or null if neutral"',
+    '}',
+    '',
+    'Rules:',
+    '- dialogue: The spoken words only. No action descriptions or stage directions.',
+    '- action: A short third-person physical description of this NPC only (for example, "crosses her arms" or "glances away"). Null if no notable action.',
+    '- emotion: A single word or short phrase for the emotional state (for example, "amused", "nervous", or "coldly irritated"). Null if neutral.',
+    '- Do not describe the player\'s internal state or other NPCs\' actions.',
+    '- Do NOT wrap the response in markdown code fences.',
+    '- Respond with NO_ACTION as a plain string (not JSON) if the NPC would not react.',
+  ].join('\n');
+}
+
 export function buildNpcCognitionPrompt(
   perception: PerceptionContext,
   state: NpcRuntimeState,
   profile: CharacterProfile,
-  modifiers?: PersonalityModifiers
+  modifiers?: PersonalityModifiers,
+  contextExtras?: CognitionContextExtras
 ): string {
   const lines: string[] = [];
   const personalityMap = profile.personalityMap;
@@ -627,23 +697,54 @@ export function buildNpcCognitionPrompt(
     lines.push(`Backstory: ${profile.backstory.slice(0, 200)}`);
   }
 
+  if (contextExtras?.startingScenario) {
+    lines.push(`Scenario: ${contextExtras.startingScenario}`);
+  }
+
+  const playerRelationship = getPlayerRelationship(contextExtras?.relationships);
+  if (contextExtras?.playerName || contextExtras?.playerDescription || playerRelationship) {
+    lines.push('RELATIONSHIP WITH PLAYER:');
+
+    const playerIdentity: string[] = [];
+    if (contextExtras?.playerName) {
+      playerIdentity.push(`The player's name is ${contextExtras.playerName}.`);
+    }
+    if (contextExtras?.playerDescription) {
+      playerIdentity.push(contextExtras.playerDescription);
+    }
+    if (playerIdentity.length > 0) {
+      lines.push(playerIdentity.join(' '));
+    }
+
+    if (playerRelationship) {
+      lines.push(
+        `Your relationship: ${playerRelationship.relationshipType} (Trust: ${formatAffinityLabel(
+          playerRelationship.affinity.trust
+        )}, Fondness: ${formatAffinityLabel(
+          playerRelationship.affinity.fondness
+        )}, Fear: ${formatAffinityLabel(playerRelationship.affinity.fear)})`
+      );
+    }
+  }
+
   lines.push('Recent events:');
   if (perception.relevantEvents.length === 0) {
     lines.push('- None');
   } else {
     perception.relevantEvents.slice(-5).forEach((event) => {
       const actorId = getStringField(event, 'actorId') ?? 'unknown';
+      const actorLabel = formatActorLabel(actorId, contextExtras);
       if (event.type === 'SPOKE') {
         const content = getStringField(event, 'content');
         if (content) {
-          lines.push(`- ${actorId} said: "${content}"`);
+          lines.push(`- ${actorLabel} said: "${content}"`);
         } else {
-          lines.push(`- ${actorId} spoke`);
+          lines.push(`- ${actorLabel} spoke`);
         }
         return;
       }
 
-      lines.push(`- ${event.type} from ${actorId}`);
+      lines.push(`- ${event.type} from ${actorLabel}`);
     });
   }
 
@@ -665,9 +766,10 @@ export function buildNpcCognitionPrompt(
 
   lines.push(
     modifiers?.urgency === 'critical'
-      ? 'Instruction: Respond urgently and in-character.'
-      : 'Instruction: Decide the next thing the NPC should say.'
+      ? 'Instruction: Respond urgently and stay in character.'
+      : 'Instruction: Decide the NPC\'s next response in character.'
   );
+  lines.push(buildStructuredOutputInstruction());
 
   return lines.join('\n');
 }

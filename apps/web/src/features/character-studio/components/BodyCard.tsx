@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { useSignals } from "@preact/signals-react/runtime";
+import { X, ChevronDown, ChevronRight } from "lucide-react";
 import {
   APPEARANCE_FEET_SIZES,
   getRecordOptional,
@@ -11,199 +12,496 @@ import {
   type RegionScent,
   type RegionTexture,
   type RegionVisual,
+  type ResolvedBodyMap,
 } from "@arcagentic/schemas";
-import { characterProfile, updateProfile } from "../signals.js";
+import {
+  characterProfile,
+  resolvedBodyMap,
+  updateProfile,
+} from "../signals.js";
 import { IdentityCard } from "./IdentityCard.js";
 
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+interface RegionEntry {
+  label: string;
+  /** Primary canonical key used for reading override state */
+  primaryKey: BodyRegion;
+  /** All canonical keys this entry writes to (for grouped L/R regions) */
+  writeKeys: BodyRegion[];
+  /** Legacy key from old 6-region layout; read as fallback, cleared on first write */
+  legacyKey?: BodyRegion;
+  /** Whether to show appearance fields (size/shape) - only for feet */
+  showAppearance?: boolean;
+}
+
+interface RegionGroupDef {
+  title: string;
+  regions: RegionEntry[];
+}
+
+// ---------------------------------------------------------------------------
+// Region Group Definitions
+// ---------------------------------------------------------------------------
+
+const BODY_REGION_GROUPS: RegionGroupDef[] = [
+  {
+    title: "Head",
+    regions: [
+      { label: "Hair", primaryKey: "hair", writeKeys: ["hair"] },
+      { label: "Face", primaryKey: "face", writeKeys: ["face"] },
+      {
+        label: "Ears",
+        primaryKey: "leftEar",
+        writeKeys: ["leftEar", "rightEar"],
+      },
+      { label: "Neck", primaryKey: "neck", writeKeys: ["neck"] },
+    ],
+  },
+  {
+    title: "Upper Body",
+    regions: [
+      {
+        label: "Shoulders",
+        primaryKey: "leftShoulder",
+        writeKeys: ["leftShoulder", "rightShoulder"],
+      },
+      { label: "Chest", primaryKey: "chest", writeKeys: ["chest"] },
+      { label: "Back", primaryKey: "back", writeKeys: ["back"] },
+    ],
+  },
+  {
+    title: "Torso",
+    regions: [
+      {
+        label: "Abdomen",
+        primaryKey: "abdomen",
+        writeKeys: ["abdomen"],
+        legacyKey: "torso",
+      },
+      {
+        label: "Sides",
+        primaryKey: "leftSide",
+        writeKeys: ["leftSide", "rightSide"],
+      },
+      {
+        label: "Hips",
+        primaryKey: "leftHip",
+        writeKeys: ["leftHip", "rightHip"],
+      },
+    ],
+  },
+  {
+    title: "Arms",
+    regions: [
+      {
+        label: "Arms",
+        primaryKey: "leftArm",
+        writeKeys: ["leftArm", "rightArm"],
+      },
+      {
+        label: "Hands",
+        primaryKey: "leftHand",
+        writeKeys: ["leftHand", "rightHand"],
+        legacyKey: "hands",
+      },
+      {
+        label: "Fingers",
+        primaryKey: "leftFingers",
+        writeKeys: ["leftFingers", "rightFingers"],
+      },
+    ],
+  },
+  {
+    title: "Legs",
+    regions: [
+      {
+        label: "Thighs",
+        primaryKey: "leftThigh",
+        writeKeys: ["leftThigh", "rightThigh"],
+      },
+      {
+        label: "Knees",
+        primaryKey: "leftKnee",
+        writeKeys: ["leftKnee", "rightKnee"],
+      },
+      {
+        label: "Calves",
+        primaryKey: "leftCalf",
+        writeKeys: ["leftCalf", "rightCalf"],
+      },
+    ],
+  },
+  {
+    title: "Feet",
+    regions: [
+      {
+        label: "Feet",
+        primaryKey: "leftFoot",
+        writeKeys: ["leftFoot", "rightFoot"],
+        showAppearance: true,
+      },
+      { label: "Toes", primaryKey: "toes", writeKeys: ["toes"] },
+    ],
+  },
+];
+
+// ---------------------------------------------------------------------------
+// Data Helpers
+// ---------------------------------------------------------------------------
+
+function readOverride(
+  body: BodyMap,
+  entry: RegionEntry,
+): BodyRegionData | undefined {
+  const primary = getRecordOptional(body, entry.primaryKey);
+  if (primary) return primary;
+  if (entry.legacyKey) return getRecordOptional(body, entry.legacyKey);
+  return undefined;
+}
+
+function readResolved(
+  resolved: ResolvedBodyMap,
+  entry: RegionEntry,
+): BodyRegionData | undefined {
+  // Cast to BodyMap to avoid ResolvedBodyMap._meta leaking into the value type
+  const map: BodyMap = resolved;
+  const primary = getRecordOptional(map, entry.primaryKey);
+  if (primary) return primary;
+  if (entry.legacyKey) return getRecordOptional(map, entry.legacyKey);
+  return undefined;
+}
+
+function groupHasOverrides(body: BodyMap, group: RegionGroupDef): boolean {
+  return group.regions.some((entry) => readOverride(body, entry) !== undefined);
+}
+
+// ---------------------------------------------------------------------------
+// Pure update logic (shared by single-key and grouped writes)
+// ---------------------------------------------------------------------------
+
+function applyRegionUpdate(
+  current: BodyRegionData | undefined,
+  updates: Partial<BodyRegionData>,
+): BodyRegionData | undefined {
+  const next: BodyRegionData = { ...(current ?? {}) };
+
+  if ("visual" in updates) {
+    if (updates.visual) next.visual = updates.visual;
+    else delete next.visual;
+  }
+  if ("scent" in updates) {
+    if (updates.scent) next.scent = updates.scent;
+    else delete next.scent;
+  }
+  if ("texture" in updates) {
+    if (updates.texture) next.texture = updates.texture;
+    else delete next.texture;
+  }
+  if ("flavor" in updates) {
+    if (updates.flavor) next.flavor = updates.flavor;
+    else delete next.flavor;
+  }
+  if ("appearance" in updates) {
+    if (updates.appearance) next.appearance = updates.appearance;
+    else delete next.appearance;
+  }
+
+  const hasAny = Boolean(
+    next.visual ?? next.scent ?? next.texture ?? next.flavor ?? next.appearance,
+  );
+  return hasAny ? next : undefined;
+}
+
+// ---------------------------------------------------------------------------
+// Sub-components
+// ---------------------------------------------------------------------------
+
+const INPUT_CLASS =
+  "w-full bg-slate-900 text-slate-200 rounded-md pl-3 pr-7 py-1.5 outline-none ring-1 ring-slate-800 focus:ring-2 focus:ring-violet-500 text-sm";
+
+/** Small clearable text input with embedded "x" button. */
+const ClearableInput: React.FC<{
+  value: string;
+  placeholder: string;
+  onChange: (value: string) => void;
+  onClear: () => void;
+  label: string;
+}> = ({ value, placeholder, onChange, onClear, label }) => (
+  <div className="relative">
+    <input
+      type="text"
+      className={INPUT_CLASS}
+      value={value}
+      placeholder={placeholder}
+      onChange={(e) => onChange(e.target.value)}
+      aria-label={label}
+    />
+    {value && (
+      <button
+        type="button"
+        onClick={onClear}
+        className="absolute right-1.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 p-0.5"
+        aria-label={`Clear ${label}`}
+      >
+        <X size={12} />
+      </button>
+    )}
+  </div>
+);
+
+/** Renders the sensory inputs for a single region entry. */
+const RegionRow: React.FC<{
+  label: string;
+  overrideData: BodyRegionData | undefined;
+  resolvedData: BodyRegionData | undefined;
+  showAppearance?: boolean;
+  onUpdate: (updates: Partial<BodyRegionData>) => void;
+}> = ({ label, overrideData, resolvedData, showAppearance, onUpdate }) => {
+  // --- Visual ---
+  const visualValue = overrideData?.visual?.description ?? "";
+  const visualPlaceholder = resolvedData?.visual?.description ?? "Visual...";
+
+  const handleVisualChange = (description: string): void => {
+    const nextVisual: RegionVisual | undefined = description
+      ? {
+          description,
+          features: overrideData?.visual?.features,
+          skinCondition: overrideData?.visual?.skinCondition,
+        }
+      : undefined;
+    onUpdate({ visual: nextVisual });
+  };
+
+  // --- Scent ---
+  const scentValue = overrideData?.scent?.primary ?? "";
+  const scentPlaceholder = resolvedData?.scent?.primary ?? "Scent...";
+
+  const handleScentChange = (primary: string): void => {
+    const nextScent: RegionScent | undefined = primary
+      ? {
+          primary,
+          notes: overrideData?.scent?.notes,
+          intensity: overrideData?.scent?.intensity ?? 0.5,
+        }
+      : undefined;
+    onUpdate({ scent: nextScent });
+  };
+
+  // --- Texture ---
+  const textureValue = overrideData?.texture?.primary ?? "";
+  const texturePlaceholder = resolvedData?.texture?.primary ?? "Texture...";
+
+  const handleTextureChange = (primary: string): void => {
+    const nextTexture: RegionTexture | undefined = primary
+      ? {
+          primary,
+          temperature: overrideData?.texture?.temperature ?? "neutral",
+          moisture: overrideData?.texture?.moisture ?? "normal",
+          notes: overrideData?.texture?.notes,
+        }
+      : undefined;
+    onUpdate({ texture: nextTexture });
+  };
+
+  // --- Flavor ---
+  const flavorValue = overrideData?.flavor?.primary ?? "";
+  const flavorPlaceholder = resolvedData?.flavor?.primary ?? "Flavor...";
+
+  const handleFlavorChange = (primary: string): void => {
+    const nextFlavor: RegionFlavor | undefined = primary
+      ? {
+          primary,
+          notes: overrideData?.flavor?.notes,
+          intensity: overrideData?.flavor?.intensity ?? 0.5,
+        }
+      : undefined;
+    onUpdate({ flavor: nextFlavor });
+  };
+
+  // --- Appearance (feet only) ---
+  const handleAppearanceChange = (
+    key: "size" | "shape",
+    value: string,
+  ): void => {
+    const currentAppearance = { ...(overrideData?.appearance ?? {}) };
+    if (value) {
+      currentAppearance[key] = value;
+    } else {
+      delete currentAppearance[key];
+    }
+    const hasAny = Object.keys(currentAppearance).length > 0;
+    onUpdate({ appearance: hasAny ? currentAppearance : undefined });
+  };
+
+  return (
+    <div className="space-y-1.5">
+      <span className="text-xs text-slate-400 font-medium">{label}</span>
+
+      <ClearableInput
+        value={visualValue}
+        placeholder={visualPlaceholder}
+        onChange={handleVisualChange}
+        onClear={() => onUpdate({ visual: undefined })}
+        label={`${label} visual`}
+      />
+
+      <div className="grid grid-cols-3 gap-1.5">
+        <ClearableInput
+          value={scentValue}
+          placeholder={scentPlaceholder}
+          onChange={handleScentChange}
+          onClear={() => onUpdate({ scent: undefined })}
+          label={`${label} scent`}
+        />
+        <ClearableInput
+          value={textureValue}
+          placeholder={texturePlaceholder}
+          onChange={handleTextureChange}
+          onClear={() => onUpdate({ texture: undefined })}
+          label={`${label} texture`}
+        />
+        <ClearableInput
+          value={flavorValue}
+          placeholder={flavorPlaceholder}
+          onChange={handleFlavorChange}
+          onClear={() => onUpdate({ flavor: undefined })}
+          label={`${label} flavor`}
+        />
+      </div>
+
+      {showAppearance && (
+        <div className="grid grid-cols-2 gap-1.5">
+          <div>
+            <select
+              value={overrideData?.appearance?.["size"] ?? ""}
+              onChange={(e) => handleAppearanceChange("size", e.target.value)}
+              className="w-full bg-slate-900 text-slate-200 rounded-md px-3 py-1.5 outline-none ring-1 ring-slate-800 focus:ring-2 focus:ring-violet-500 text-sm"
+              aria-label={`${label} size`}
+            >
+              <option value="">Size...</option>
+              {APPEARANCE_FEET_SIZES.map((size) => (
+                <option key={size} value={size}>
+                  {size}
+                </option>
+              ))}
+            </select>
+          </div>
+          <ClearableInput
+            value={overrideData?.appearance?.["shape"] ?? ""}
+            placeholder="Shape..."
+            onChange={(v) => handleAppearanceChange("shape", v)}
+            onClear={() => handleAppearanceChange("shape", "")}
+            label={`${label} shape`}
+          />
+        </div>
+      )}
+    </div>
+  );
+};
+
+/** Collapsible group of region entries. */
+const RegionGroup: React.FC<{
+  group: RegionGroupDef;
+  defaultOpen: boolean;
+  body: BodyMap;
+  resolved: ResolvedBodyMap;
+  onUpdateGrouped: (
+    entry: RegionEntry,
+    updates: Partial<BodyRegionData>,
+  ) => void;
+}> = ({ group, defaultOpen, body, resolved, onUpdateGrouped }) => {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={() => setIsOpen((o) => !o)}
+        className="flex items-center gap-1.5 py-1.5 text-sm text-slate-300 hover:text-slate-100 transition-colors w-full"
+      >
+        {isOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+        <span className="font-medium tracking-wide">{group.title}</span>
+      </button>
+
+      {isOpen && (
+        <div className="pl-5 space-y-3 pb-2">
+          {group.regions.map((entry) => (
+            <RegionRow
+              key={entry.primaryKey}
+              label={entry.label}
+              overrideData={readOverride(body, entry)}
+              resolvedData={readResolved(resolved, entry)}
+              showAppearance={entry.showAppearance === true}
+              onUpdate={(updates) => onUpdateGrouped(entry, updates)}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ---------------------------------------------------------------------------
+// Main Component
+// ---------------------------------------------------------------------------
+
 /**
- * BodyCard handles manual per-region overrides for a few key regions.
- * These overrides always win over computed defaults/templates.
+ * BodyCard renders ~20 region entries organized in 6 collapsible groups.
+ * Each region shows sensory override inputs (visual, scent, texture, flavor)
+ * with computed classification defaults as placeholder text.
  */
 export const BodyCard: React.FC<{ hasContent?: boolean }> = ({
   hasContent,
 }) => {
   useSignals();
 
-  /** Current body map from signal */
   const body: BodyMap = characterProfile.value.body ?? {};
+  const resolved = resolvedBodyMap.value;
 
-  const HAIR_REGION: BodyRegion = "hair";
-  const FACE_REGION: BodyRegion = "face";
-  const TORSO_REGION: BodyRegion = "torso";
-  const HANDS_REGION: BodyRegion = "hands";
-  const LEFT_FOOT_REGION: BodyRegion = "leftFoot";
-  const RIGHT_FOOT_REGION: BodyRegion = "rightFoot";
+  // Expand groups that already have user overrides on initial render
+  const [expandedGroups] = useState<Set<string>>(() => {
+    const initialBody: BodyMap = characterProfile.value.body ?? {};
+    const expanded = new Set<string>();
+    for (const group of BODY_REGION_GROUPS) {
+      if (groupHasOverrides(initialBody, group)) {
+        expanded.add(group.title);
+      }
+    }
+    return expanded;
+  });
 
-  const updateBodyRegionData = (
-    region: BodyRegion,
+  /**
+   * Writes updates to all writeKeys for a grouped entry in a single signal
+   * update. Migrates legacy data on first write so old overrides are preserved.
+   */
+  const handleUpdateGrouped = (
+    entry: RegionEntry,
     updates: Partial<BodyRegionData>,
   ): void => {
-    const currentRegionData = getRecordOptional(body, region) ?? {};
-    const nextRegionData: BodyRegionData = { ...currentRegionData };
-
-    if ("visual" in updates) {
-      if (updates.visual) nextRegionData.visual = updates.visual;
-      else delete nextRegionData.visual;
-    }
-    if ("scent" in updates) {
-      if (updates.scent) nextRegionData.scent = updates.scent;
-      else delete nextRegionData.scent;
-    }
-    if ("texture" in updates) {
-      if (updates.texture) nextRegionData.texture = updates.texture;
-      else delete nextRegionData.texture;
-    }
-    if ("flavor" in updates) {
-      if (updates.flavor) nextRegionData.flavor = updates.flavor;
-      else delete nextRegionData.flavor;
-    }
-    if ("appearance" in updates) {
-      if (updates.appearance) nextRegionData.appearance = updates.appearance;
-      else delete nextRegionData.appearance;
-    }
-
-    const hasAnyOverrides = Boolean(
-      nextRegionData.visual ??
-      nextRegionData.scent ??
-      nextRegionData.texture ??
-      nextRegionData.flavor ??
-      nextRegionData.appearance,
-    );
-
     const nextBody: BodyMap = { ...body };
-    if (!hasAnyOverrides) {
-      setPartialRecord(nextBody, region, undefined);
-      updateProfile("body", nextBody);
-      return;
+
+    // Migrate legacy data to writeKeys on first write
+    if (entry.legacyKey) {
+      const legacyData = getRecordOptional(body, entry.legacyKey);
+      if (legacyData && !getRecordOptional(body, entry.primaryKey)) {
+        for (const key of entry.writeKeys) {
+          setPartialRecord(nextBody, key, { ...legacyData });
+        }
+        setPartialRecord(nextBody, entry.legacyKey, undefined);
+      }
     }
 
-    setPartialRecord(nextBody, region, nextRegionData);
+    // Apply field-specific updates to every writeKey
+    for (const key of entry.writeKeys) {
+      const current = getRecordOptional(nextBody, key);
+      const next = applyRegionUpdate(current, updates);
+      setPartialRecord(nextBody, key, next);
+    }
+
     updateProfile("body", nextBody);
-  };
-
-  const getRegionVisualDescription = (region: BodyRegion): string => {
-    const data = getRecordOptional(body, region);
-    return data?.visual?.description ?? "";
-  };
-
-  const updateRegionVisualDescription = (
-    region: BodyRegion,
-    description: string,
-  ): void => {
-    const current = getRecordOptional(body, region);
-
-    const nextVisual: RegionVisual | undefined = description
-      ? {
-          description,
-          features: current?.visual?.features,
-          skinCondition: current?.visual?.skinCondition,
-        }
-      : undefined;
-
-    updateBodyRegionData(region, { visual: nextVisual });
-  };
-
-  const getRegionScentPrimary = (region: BodyRegion): string => {
-    const data = getRecordOptional(body, region);
-    return data?.scent?.primary ?? "";
-  };
-
-  const updateRegionScentPrimary = (
-    region: BodyRegion,
-    primary: string,
-  ): void => {
-    const current = getRecordOptional(body, region);
-
-    const nextScent: RegionScent | undefined = primary
-      ? {
-          primary,
-          notes: current?.scent?.notes,
-          intensity: current?.scent?.intensity ?? 0.5,
-        }
-      : undefined;
-
-    updateBodyRegionData(region, { scent: nextScent });
-  };
-
-  const getRegionTexturePrimary = (region: BodyRegion): string => {
-    const data = getRecordOptional(body, region);
-    return data?.texture?.primary ?? "";
-  };
-
-  const updateRegionTexturePrimary = (
-    region: BodyRegion,
-    primary: string,
-  ): void => {
-    const current = getRecordOptional(body, region);
-
-    const nextTexture: RegionTexture | undefined = primary
-      ? {
-          primary,
-          temperature: current?.texture?.temperature ?? "neutral",
-          moisture: current?.texture?.moisture ?? "normal",
-          notes: current?.texture?.notes,
-        }
-      : undefined;
-
-    updateBodyRegionData(region, { texture: nextTexture });
-  };
-
-  const getRegionFlavorPrimary = (region: BodyRegion): string => {
-    const data = getRecordOptional(body, region);
-    return data?.flavor?.primary ?? "";
-  };
-
-  const updateRegionFlavorPrimary = (
-    region: BodyRegion,
-    primary: string,
-  ): void => {
-    const current = getRecordOptional(body, region);
-
-    const nextFlavor: RegionFlavor | undefined = primary
-      ? {
-          primary,
-          notes: current?.flavor?.notes,
-          intensity: current?.flavor?.intensity ?? 0.5,
-        }
-      : undefined;
-
-    updateBodyRegionData(region, { flavor: nextFlavor });
-  };
-
-  type FootAppearanceKey = "size" | "shape";
-
-  const getRegionAppearanceValue = (
-    region: BodyRegion,
-    key: FootAppearanceKey,
-  ): string => {
-    const data = getRecordOptional(body, region);
-    if (key === "size") return data?.appearance?.["size"] ?? "";
-    return data?.appearance?.["shape"] ?? "";
-  };
-
-  const updateRegionAppearanceValue = (
-    region: BodyRegion,
-    key: FootAppearanceKey,
-    value: string,
-  ): void => {
-    const current = getRecordOptional(body, region);
-    const currentAppearance = current?.appearance;
-
-    const nextAppearance: Record<string, string> = {
-      ...(currentAppearance ?? {}),
-    };
-    if (value) {
-      if (key === "size") nextAppearance["size"] = value;
-      else nextAppearance["shape"] = value;
-    } else {
-      if (key === "size") delete nextAppearance["size"];
-      else delete nextAppearance["shape"];
-    }
-
-    const hasAnyAppearance = Object.keys(nextAppearance).length > 0;
-    updateBodyRegionData(region, {
-      appearance: hasAnyAppearance ? nextAppearance : undefined,
-    });
   };
 
   return (
@@ -213,373 +511,22 @@ export const BodyCard: React.FC<{ hasContent?: boolean }> = ({
       hasContent={hasContent}
       cardId="body"
     >
-      <div className="space-y-4">
-        <p className="text-xs text-slate-500">
-          These fields are manual overrides. They always win over defaults and
-          templates.
+      <div className="space-y-1">
+        <p className="text-xs text-slate-500 mb-3">
+          Override computed defaults for any body region. Placeholder text shows
+          the current computed default.
         </p>
 
-        <label className="block">
-          <span className="text-xs text-slate-400 font-medium uppercase tracking-wider">
-            Hair
-          </span>
-          <div className="mt-2 grid grid-cols-1 gap-2">
-            <input
-              type="text"
-              className="w-full bg-slate-900 text-slate-200 rounded-md px-3 py-2 outline-none ring-1 ring-slate-800 focus:ring-2 focus:ring-violet-500 text-sm"
-              placeholder="Visual: color, style, length..."
-              value={getRegionVisualDescription(HAIR_REGION)}
-              onChange={(e) =>
-                updateRegionVisualDescription(HAIR_REGION, e.target.value)
-              }
-            />
-
-            <div className="grid grid-cols-3 gap-2">
-              <input
-                type="text"
-                className="w-full bg-slate-900 text-slate-200 rounded-md px-3 py-2 outline-none ring-1 ring-slate-800 focus:ring-2 focus:ring-violet-500 text-sm"
-                placeholder="Scent: lavender shampoo"
-                value={getRegionScentPrimary(HAIR_REGION)}
-                onChange={(e) =>
-                  updateRegionScentPrimary(HAIR_REGION, e.target.value)
-                }
-              />
-              <input
-                type="text"
-                className="w-full bg-slate-900 text-slate-200 rounded-md px-3 py-2 outline-none ring-1 ring-slate-800 focus:ring-2 focus:ring-violet-500 text-sm"
-                placeholder="Texture: silky"
-                value={getRegionTexturePrimary(HAIR_REGION)}
-                onChange={(e) =>
-                  updateRegionTexturePrimary(HAIR_REGION, e.target.value)
-                }
-              />
-              <input
-                type="text"
-                className="w-full bg-slate-900 text-slate-200 rounded-md px-3 py-2 outline-none ring-1 ring-slate-800 focus:ring-2 focus:ring-violet-500 text-sm"
-                placeholder="Flavor (optional)"
-                value={getRegionFlavorPrimary(HAIR_REGION)}
-                onChange={(e) =>
-                  updateRegionFlavorPrimary(HAIR_REGION, e.target.value)
-                }
-              />
-            </div>
-          </div>
-        </label>
-
-        <label className="block">
-          <span className="text-xs text-slate-400 font-medium uppercase tracking-wider">
-            Face
-          </span>
-          <div className="mt-2 grid grid-cols-1 gap-2">
-            <textarea
-              className="w-full min-h-[80px] bg-slate-900 text-slate-200 rounded-md px-3 py-2 outline-none ring-1 ring-slate-800 focus:ring-2 focus:ring-violet-500 text-sm"
-              placeholder="Visual: facial features, eye color, uniquely shaped nose..."
-              value={getRegionVisualDescription(FACE_REGION)}
-              onChange={(e) =>
-                updateRegionVisualDescription(FACE_REGION, e.target.value)
-              }
-            />
-            <div className="grid grid-cols-3 gap-2">
-              <input
-                type="text"
-                className="w-full bg-slate-900 text-slate-200 rounded-md px-3 py-2 outline-none ring-1 ring-slate-800 focus:ring-2 focus:ring-violet-500 text-sm"
-                placeholder="Scent: clean soap"
-                value={getRegionScentPrimary(FACE_REGION)}
-                onChange={(e) =>
-                  updateRegionScentPrimary(FACE_REGION, e.target.value)
-                }
-              />
-              <input
-                type="text"
-                className="w-full bg-slate-900 text-slate-200 rounded-md px-3 py-2 outline-none ring-1 ring-slate-800 focus:ring-2 focus:ring-violet-500 text-sm"
-                placeholder="Texture: smooth"
-                value={getRegionTexturePrimary(FACE_REGION)}
-                onChange={(e) =>
-                  updateRegionTexturePrimary(FACE_REGION, e.target.value)
-                }
-              />
-              <input
-                type="text"
-                className="w-full bg-slate-900 text-slate-200 rounded-md px-3 py-2 outline-none ring-1 ring-slate-800 focus:ring-2 focus:ring-violet-500 text-sm"
-                placeholder="Flavor (optional)"
-                value={getRegionFlavorPrimary(FACE_REGION)}
-                onChange={(e) =>
-                  updateRegionFlavorPrimary(FACE_REGION, e.target.value)
-                }
-              />
-            </div>
-          </div>
-        </label>
-
-        <label className="block">
-          <span className="text-xs text-slate-400 font-medium uppercase tracking-wider">
-            Torso
-          </span>
-          <div className="mt-2 grid grid-cols-1 gap-2">
-            <input
-              type="text"
-              className="w-full bg-slate-900 text-slate-200 rounded-md px-3 py-2 outline-none ring-1 ring-slate-800 focus:ring-2 focus:ring-violet-500 text-sm"
-              placeholder="Visual: build, musculature, posture, notable birthmarks..."
-              value={getRegionVisualDescription(TORSO_REGION)}
-              onChange={(e) =>
-                updateRegionVisualDescription(TORSO_REGION, e.target.value)
-              }
-            />
-            <div className="grid grid-cols-3 gap-2">
-              <input
-                type="text"
-                className="w-full bg-slate-900 text-slate-200 rounded-md px-3 py-2 outline-none ring-1 ring-slate-800 focus:ring-2 focus:ring-violet-500 text-sm"
-                placeholder="Scent: warm skin"
-                value={getRegionScentPrimary(TORSO_REGION)}
-                onChange={(e) =>
-                  updateRegionScentPrimary(TORSO_REGION, e.target.value)
-                }
-              />
-              <input
-                type="text"
-                className="w-full bg-slate-900 text-slate-200 rounded-md px-3 py-2 outline-none ring-1 ring-slate-800 focus:ring-2 focus:ring-violet-500 text-sm"
-                placeholder="Texture: firm"
-                value={getRegionTexturePrimary(TORSO_REGION)}
-                onChange={(e) =>
-                  updateRegionTexturePrimary(TORSO_REGION, e.target.value)
-                }
-              />
-              <input
-                type="text"
-                className="w-full bg-slate-900 text-slate-200 rounded-md px-3 py-2 outline-none ring-1 ring-slate-800 focus:ring-2 focus:ring-violet-500 text-sm"
-                placeholder="Flavor (optional)"
-                value={getRegionFlavorPrimary(TORSO_REGION)}
-                onChange={(e) =>
-                  updateRegionFlavorPrimary(TORSO_REGION, e.target.value)
-                }
-              />
-            </div>
-          </div>
-        </label>
-
-        <label className="block">
-          <span className="text-xs text-slate-400 font-medium uppercase tracking-wider">
-            Hands
-          </span>
-          <div className="mt-2 grid grid-cols-1 gap-2">
-            <input
-              type="text"
-              className="w-full bg-slate-900 text-slate-200 rounded-md px-3 py-2 outline-none ring-1 ring-slate-800 focus:ring-2 focus:ring-violet-500 text-sm"
-              placeholder="Visual: calluses, scars, ring marks..."
-              value={getRegionVisualDescription(HANDS_REGION)}
-              onChange={(e) =>
-                updateRegionVisualDescription(HANDS_REGION, e.target.value)
-              }
-            />
-            <div className="grid grid-cols-3 gap-2">
-              <input
-                type="text"
-                className="w-full bg-slate-900 text-slate-200 rounded-md px-3 py-2 outline-none ring-1 ring-slate-800 focus:ring-2 focus:ring-violet-500 text-sm"
-                placeholder="Scent: smoke, leather"
-                value={getRegionScentPrimary(HANDS_REGION)}
-                onChange={(e) =>
-                  updateRegionScentPrimary(HANDS_REGION, e.target.value)
-                }
-              />
-              <input
-                type="text"
-                className="w-full bg-slate-900 text-slate-200 rounded-md px-3 py-2 outline-none ring-1 ring-slate-800 focus:ring-2 focus:ring-violet-500 text-sm"
-                placeholder="Texture: calloused"
-                value={getRegionTexturePrimary(HANDS_REGION)}
-                onChange={(e) =>
-                  updateRegionTexturePrimary(HANDS_REGION, e.target.value)
-                }
-              />
-              <input
-                type="text"
-                className="w-full bg-slate-900 text-slate-200 rounded-md px-3 py-2 outline-none ring-1 ring-slate-800 focus:ring-2 focus:ring-violet-500 text-sm"
-                placeholder="Flavor (optional)"
-                value={getRegionFlavorPrimary(HANDS_REGION)}
-                onChange={(e) =>
-                  updateRegionFlavorPrimary(HANDS_REGION, e.target.value)
-                }
-              />
-            </div>
-          </div>
-        </label>
-
-        <div className="pt-4 border-t border-slate-800" />
-
-        <div>
-          <span className="text-xs text-slate-400 font-medium uppercase tracking-wider">
-            Feet
-          </span>
-          <div className="mt-2 grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <div className="text-xs text-slate-500">Left Foot</div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <label className="block">
-                  <span className="text-[10px] text-slate-500 uppercase tracking-wider">
-                    Size
-                  </span>
-                  <select
-                    value={getRegionAppearanceValue(LEFT_FOOT_REGION, "size")}
-                    onChange={(e) =>
-                      updateRegionAppearanceValue(
-                        LEFT_FOOT_REGION,
-                        "size",
-                        e.target.value,
-                      )
-                    }
-                    className="mt-1 w-full bg-slate-900 text-slate-200 rounded-md px-3 py-2 outline-none ring-1 ring-slate-800 focus:ring-2 focus:ring-violet-500 text-sm"
-                  >
-                    <option value="">(unset)</option>
-                    {APPEARANCE_FEET_SIZES.map((size) => (
-                      <option key={size} value={size}>
-                        {size}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-
-                <label className="block">
-                  <span className="text-[10px] text-slate-500 uppercase tracking-wider">
-                    Shape
-                  </span>
-                  <input
-                    type="text"
-                    value={getRegionAppearanceValue(LEFT_FOOT_REGION, "shape")}
-                    onChange={(e) =>
-                      updateRegionAppearanceValue(
-                        LEFT_FOOT_REGION,
-                        "shape",
-                        e.target.value,
-                      )
-                    }
-                    placeholder="e.g., narrow, wide"
-                    className="mt-1 w-full bg-slate-900 text-slate-200 rounded-md px-3 py-2 outline-none ring-1 ring-slate-800 focus:ring-2 focus:ring-violet-500 text-sm"
-                  />
-                </label>
-              </div>
-
-              <input
-                type="text"
-                className="w-full bg-slate-900 text-slate-200 rounded-md px-3 py-2 outline-none ring-1 ring-slate-800 focus:ring-2 focus:ring-violet-500 text-sm"
-                placeholder="Visual: calluses, dirt, scars..."
-                value={getRegionVisualDescription(LEFT_FOOT_REGION)}
-                onChange={(e) =>
-                  updateRegionVisualDescription(
-                    LEFT_FOOT_REGION,
-                    e.target.value,
-                  )
-                }
-              />
-
-              <div className="grid grid-cols-2 gap-2">
-                <input
-                  type="text"
-                  className="w-full bg-slate-900 text-slate-200 rounded-md px-3 py-2 outline-none ring-1 ring-slate-800 focus:ring-2 focus:ring-violet-500 text-sm"
-                  placeholder="Scent: leather, sweat"
-                  value={getRegionScentPrimary(LEFT_FOOT_REGION)}
-                  onChange={(e) =>
-                    updateRegionScentPrimary(LEFT_FOOT_REGION, e.target.value)
-                  }
-                />
-                <input
-                  type="text"
-                  className="w-full bg-slate-900 text-slate-200 rounded-md px-3 py-2 outline-none ring-1 ring-slate-800 focus:ring-2 focus:ring-violet-500 text-sm"
-                  placeholder="Texture: rough"
-                  value={getRegionTexturePrimary(LEFT_FOOT_REGION)}
-                  onChange={(e) =>
-                    updateRegionTexturePrimary(LEFT_FOOT_REGION, e.target.value)
-                  }
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <div className="text-xs text-slate-500">Right Foot</div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <label className="block">
-                  <span className="text-[10px] text-slate-500 uppercase tracking-wider">
-                    Size
-                  </span>
-                  <select
-                    value={getRegionAppearanceValue(RIGHT_FOOT_REGION, "size")}
-                    onChange={(e) =>
-                      updateRegionAppearanceValue(
-                        RIGHT_FOOT_REGION,
-                        "size",
-                        e.target.value,
-                      )
-                    }
-                    className="mt-1 w-full bg-slate-900 text-slate-200 rounded-md px-3 py-2 outline-none ring-1 ring-slate-800 focus:ring-2 focus:ring-violet-500 text-sm"
-                  >
-                    <option value="">(unset)</option>
-                    {APPEARANCE_FEET_SIZES.map((size) => (
-                      <option key={size} value={size}>
-                        {size}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-
-                <label className="block">
-                  <span className="text-[10px] text-slate-500 uppercase tracking-wider">
-                    Shape
-                  </span>
-                  <input
-                    type="text"
-                    value={getRegionAppearanceValue(RIGHT_FOOT_REGION, "shape")}
-                    onChange={(e) =>
-                      updateRegionAppearanceValue(
-                        RIGHT_FOOT_REGION,
-                        "shape",
-                        e.target.value,
-                      )
-                    }
-                    placeholder="e.g., narrow, wide"
-                    className="mt-1 w-full bg-slate-900 text-slate-200 rounded-md px-3 py-2 outline-none ring-1 ring-slate-800 focus:ring-2 focus:ring-violet-500 text-sm"
-                  />
-                </label>
-              </div>
-
-              <input
-                type="text"
-                className="w-full bg-slate-900 text-slate-200 rounded-md px-3 py-2 outline-none ring-1 ring-slate-800 focus:ring-2 focus:ring-violet-500 text-sm"
-                placeholder="Visual: calluses, dirt, scars..."
-                value={getRegionVisualDescription(RIGHT_FOOT_REGION)}
-                onChange={(e) =>
-                  updateRegionVisualDescription(
-                    RIGHT_FOOT_REGION,
-                    e.target.value,
-                  )
-                }
-              />
-
-              <div className="grid grid-cols-2 gap-2">
-                <input
-                  type="text"
-                  className="w-full bg-slate-900 text-slate-200 rounded-md px-3 py-2 outline-none ring-1 ring-slate-800 focus:ring-2 focus:ring-violet-500 text-sm"
-                  placeholder="Scent: leather, sweat"
-                  value={getRegionScentPrimary(RIGHT_FOOT_REGION)}
-                  onChange={(e) =>
-                    updateRegionScentPrimary(RIGHT_FOOT_REGION, e.target.value)
-                  }
-                />
-                <input
-                  type="text"
-                  className="w-full bg-slate-900 text-slate-200 rounded-md px-3 py-2 outline-none ring-1 ring-slate-800 focus:ring-2 focus:ring-violet-500 text-sm"
-                  placeholder="Texture: rough"
-                  value={getRegionTexturePrimary(RIGHT_FOOT_REGION)}
-                  onChange={(e) =>
-                    updateRegionTexturePrimary(
-                      RIGHT_FOOT_REGION,
-                      e.target.value,
-                    )
-                  }
-                />
-              </div>
-            </div>
-          </div>
-        </div>
+        {BODY_REGION_GROUPS.map((group) => (
+          <RegionGroup
+            key={group.title}
+            group={group}
+            defaultOpen={expandedGroups.has(group.title)}
+            body={body}
+            resolved={resolved}
+            onUpdateGrouped={handleUpdateGrouped}
+          />
+        ))}
       </div>
     </IdentityCard>
   );

@@ -1,7 +1,7 @@
 import { Effect } from 'effect';
 import type { LLMMessage, LLMProvider } from '@arcagentic/llm';
 import type { CharacterProfile, WorldEvent } from '@arcagentic/schemas';
-import type { CognitionContext, ActionResult } from './types.js';
+import type { ActionResult, CognitionContext, CognitionContextExtras } from './types.js';
 import { buildNpcCognitionPrompt, buildSystemPrompt } from './prompts.js';
 import { applyPersonalityModifiers } from './personality-modifiers.js';
 import { getStringField } from './event-access.js';
@@ -9,6 +9,95 @@ import { validateSpeechStyle } from './speech-validation.js';
 import { performance } from 'node:perf_hooks';
 
 const NPC_DECISION_TIMEOUT_MS = 8000;
+
+interface StructuredNpcResponse {
+  dialogue: string;
+  action?: string;
+  emotion?: string;
+}
+
+function normalizeStructuredField(value: unknown): string | undefined {
+  if (typeof value !== 'string') {
+    return undefined;
+  }
+
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : undefined;
+}
+
+function tryParseJson(jsonStr: string): StructuredNpcResponse | null {
+  try {
+    const parsed: unknown = JSON.parse(jsonStr);
+
+    if (typeof parsed === 'object' && parsed !== null) {
+      const obj = parsed as Record<string, unknown>;
+      const dialogue = obj['dialogue'];
+
+      if (typeof dialogue === 'string') {
+        const response: StructuredNpcResponse = {
+          dialogue: dialogue.trim(),
+        };
+        const action = normalizeStructuredField(obj['action']);
+        const emotion = normalizeStructuredField(obj['emotion']);
+
+        if (action) {
+          response.action = action;
+        }
+
+        if (emotion) {
+          response.emotion = emotion;
+        }
+
+        return response;
+      }
+    }
+  } catch {
+    // JSON parse failed. Caller handles fallback behavior.
+  }
+
+  return null;
+}
+
+/**
+ * Parse structured JSON from the LLM response.
+ * Falls back to treating the entire content as plain dialogue if parsing fails.
+ */
+function parseStructuredResponse(content: string): StructuredNpcResponse {
+  const trimmed = content.trim();
+
+  if (trimmed.toUpperCase() === 'NO_ACTION') {
+    return { dialogue: '' };
+  }
+
+  const normalized = trimmed
+    .replace(/[\u201C\u201D\u201E\u201F\u2033\u2036]/g, '"')
+    .replace(/[\u2018\u2019\u201A\u201B\u2032\u2035]/g, "'");
+
+  const stripped = normalized
+    .replace(/^```(?:json)?\s*\n?/i, '')
+    .replace(/\n?```\s*$/i, '')
+    .replace(/^`\s*/, '')
+    .replace(/\s*`$/, '')
+    .trim();
+
+  const directResult = tryParseJson(stripped);
+  if (directResult) {
+    return directResult;
+  }
+
+  const jsonStart = stripped.indexOf('{');
+  const jsonEnd = stripped.lastIndexOf('}');
+  if (jsonStart >= 0 && jsonEnd > jsonStart) {
+    const extracted = stripped.slice(jsonStart, jsonEnd + 1);
+    const extractedResult = tryParseJson(extracted);
+
+    if (extractedResult) {
+      return extractedResult;
+    }
+  }
+
+  return { dialogue: stripped };
+}
 
 function withTimeout<T>(promise: Promise<T>, timeoutMs: number, label: string): Promise<T> {
   return new Promise<T>((resolve, reject) => {
@@ -59,16 +148,10 @@ export class CognitionLayer {
       const speakerActorId = lastSpeak ? getStringField(lastSpeak, 'actorId') : undefined;
 
       if (speakerActorId && speakerActorId !== state.id) {
-        const intent: WorldEvent = {
-          type: 'SPEAK_INTENT',
-          content: `[NPC ${state.npcId} responding to speech]`,
-          targetActorId: speakerActorId,
-          actorId: state.id,
-          sessionId: state.sessionId,
-          timestamp: new Date(),
-        };
-
-        return { intent, delayMs: 500 };
+        // Rule-based fallback has no access to NPC profile or name.
+        // Return null so the turn route handles the absence gracefully
+        // instead of surfacing a debug placeholder.
+        return null;
       }
     }
 
@@ -92,12 +175,13 @@ export class CognitionLayer {
   static async decideLLM(
     context: CognitionContext,
     profile: CharacterProfile,
-    llmProvider: LLMProvider
+    llmProvider: LLMProvider,
+    contextExtras?: CognitionContextExtras
   ): Promise<ActionResult | null> {
     if (context.perception.relevantEvents.length === 0) return null;
 
     if (Date.now() < this.circuitOpenUntil) {
-      return this.decideSync(context);
+      return null;
     }
 
     const start = performance.now();
@@ -108,7 +192,8 @@ export class CognitionLayer {
         context.perception,
         context.state,
         profile,
-        modifiers
+        modifiers,
+        contextExtras
       );
       const speechStyle = profile.personalityMap?.speech;
       const messages: LLMMessage[] = [
@@ -132,13 +217,14 @@ export class CognitionLayer {
         );
       }
 
-      const content = result.content?.trim();
-      if (!content || content.toUpperCase().includes('NO_ACTION')) {
-        return this.decideSync(context);
+      const structured = parseStructuredResponse(result.content ?? '');
+      if (!structured.dialogue && !structured.action) {
+        // LLM returned NO_ACTION or empty response - NPC chose not to react.
+        return null;
       }
 
-      if (speechStyle) {
-        const validation = validateSpeechStyle(content, speechStyle);
+      if (speechStyle && structured.dialogue) {
+        const validation = validateSpeechStyle(structured.dialogue, speechStyle);
         if (!validation.passed) {
           for (const warning of validation.warnings) {
             console.debug(
@@ -150,7 +236,9 @@ export class CognitionLayer {
 
       const intent: WorldEvent = {
         type: 'SPEAK_INTENT',
-        content,
+        content: structured.dialogue,
+        ...(structured.action ? { action: structured.action } : {}),
+        ...(structured.emotion ? { emotion: structured.emotion } : {}),
         actorId: context.state.id,
         sessionId: context.state.sessionId,
         timestamp: new Date(),
@@ -174,8 +262,8 @@ export class CognitionLayer {
       } else {
         this.consecutiveTimeouts = 0;
       }
-      console.error('[NPC Cognition] LLM failed, falling back to rules', error);
-      return this.decideSync(context);
+      console.error('[NPC Cognition] LLM failed; NPC will not respond this turn', error);
+      return null;
     }
   }
 
