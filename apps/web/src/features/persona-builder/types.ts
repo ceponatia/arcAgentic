@@ -35,6 +35,7 @@ export const createInitialState = (): PersonaFormState => ({
   gender: '',
   summary: '',
   appearance: '',
+  appealTags: [],
   appearances: [createAppearanceEntry()],
   bodySensory: [createBodySensoryEntry()],
 });

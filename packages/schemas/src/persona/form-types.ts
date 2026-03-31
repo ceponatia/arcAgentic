@@ -39,6 +39,8 @@ export interface PersonaFormState {
   appearance: string;
   /** Structured appearance entries (region -> attribute -> value) */
   appearances: PersonaAppearanceEntry[];
+  /** Selected appeal tag IDs for NPC feature preferences */
+  appealTags: string[];
   /** Body sensory entries (scent, texture, visual per region) */
   bodySensory: PersonaBodySensoryEntry[];
 }

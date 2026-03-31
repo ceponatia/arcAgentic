@@ -99,7 +99,8 @@ export const FearsList: React.FC = () => {
             <input
               className="mt-1 w-full bg-slate-900 text-slate-200 rounded-md px-3 py-2 outline-none ring-1 ring-slate-800 focus:ring-2 focus:ring-violet-500"
               value={
-                fearTriggerDrafts.value[idx] ?? (fear.triggers ?? []).join(", ")
+                fearTriggerDrafts.value.get(idx) ??
+                (fear.triggers ?? []).join(", ")
               }
               onChange={(e) => setFearTriggerDraft(idx, e.target.value)}
               placeholder="e.g., darkness, crowds, loud noises"

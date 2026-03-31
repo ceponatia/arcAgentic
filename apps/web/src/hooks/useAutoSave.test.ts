@@ -30,7 +30,7 @@ describe('useAutoSave utilities', () => {
   });
 
   it('loadDraft returns null for invalid JSON', () => {
-    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => { });
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     localStorage.setItem('draft-key', '{invalid-json');
 
     expect(loadDraft('draft-key')).toBeNull();

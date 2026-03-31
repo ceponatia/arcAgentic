@@ -18,6 +18,7 @@ const dbModule = vi.hoisted(() => ({
   upsertActorState: vi.fn().mockResolvedValue(undefined),
   getSessionProjection: vi.fn().mockResolvedValue(null),
   getEventsForSession: vi.fn().mockResolvedValue([]),
+  listNarratorMessagesBySession: vi.fn().mockResolvedValue([]),
   getActorState: vi.fn().mockResolvedValue(null),
 }));
 
@@ -49,6 +50,7 @@ vi.mock('@arcagentic/db/node', () => ({
   upsertActorState: dbModule.upsertActorState,
   getSessionProjection: dbModule.getSessionProjection,
   getEventsForSession: dbModule.getEventsForSession,
+  listNarratorMessagesBySession: dbModule.listNarratorMessagesBySession,
   getActorState: dbModule.getActorState,
 }));
 
@@ -153,6 +155,7 @@ describe('session routes', () => {
     dbModule.upsertActorState.mockResolvedValue(undefined);
     dbModule.getSessionProjection.mockResolvedValue(null);
     dbModule.getEventsForSession.mockResolvedValue([]);
+    dbModule.listNarratorMessagesBySession.mockResolvedValue([]);
     dbModule.getActorState.mockResolvedValue(null);
   });
 

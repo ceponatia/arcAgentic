@@ -25,17 +25,24 @@ function mergeRegionData(
 }
 
 function mergeBodyMaps(base: PartialBodyMap, overlay: PartialBodyMap): PartialBodyMap {
-  const result: PartialBodyMap = { ...base };
+  const mergedRegions = new Map<BodyRegion, Partial<BodyRegionData>>();
+
+  for (const [region, data] of Object.entries(base)) {
+    if (data) {
+      mergedRegions.set(region as BodyRegion, data);
+    }
+  }
 
   for (const [region, data] of Object.entries(overlay)) {
     if (!data) continue;
 
     const key = region as BodyRegion;
-    const existing = result[key];
-    result[key] = existing ? mergeRegionData(existing, data) : data;
+    const existing = mergedRegions.get(key);
+
+    mergedRegions.set(key, existing ? mergeRegionData(existing, data) : data);
   }
 
-  return result;
+  return Object.fromEntries(mergedRegions) as PartialBodyMap;
 }
 
 /**
@@ -64,15 +71,23 @@ export function resolveClassificationDefaults(
 
   const gender = context.gender ?? '*';
   if (gender !== '*') {
-    const genderBucket = raceDefaults[gender];
-    if (genderBucket) {
+    const genderEntry = Object.entries(raceDefaults).find(
+      ([bucketGender]) => bucketGender === gender
+    );
+
+    if (genderEntry) {
+      const [, genderBucket] = genderEntry;
       const ageWildcard = genderBucket['*'];
       if (ageWildcard) {
         result = mergeBodyMaps(result, ageWildcard);
       }
 
-      const ageBucket = genderBucket[context.ageBucket];
-      if (ageBucket) {
+      const ageEntry = Object.entries(genderBucket).find(
+        ([bucketAge]) => bucketAge === context.ageBucket
+      );
+
+      if (ageEntry) {
+        const [, ageBucket] = ageEntry;
         result = mergeBodyMaps(result, ageBucket);
       }
     }

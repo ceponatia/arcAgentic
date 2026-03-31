@@ -18,7 +18,10 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@arcagentic/schemas": "workspace:*"
+    "@arcagentic/llm": "workspace:*",
+    "@arcagentic/schemas": "workspace:*",
+    "effect": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:",

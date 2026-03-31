@@ -77,6 +77,19 @@ export {
   type EncounterNarrationOptions,
 } from './encounter-service.js';
 
+// NPC Seeding Service
+export {
+  DEFAULT_POPULATION_CONFIG,
+  deriveBatchCounts,
+  generateSeedNpcs,
+} from './npc-seeding.js';
+
+// NPC Promotion Service
+export {
+  checkAndExpandNpc,
+  type NpcPromotionResult,
+} from './npc-promotion.js';
+
 // Turn Orchestrator
 export {
   TurnOrchestrator,

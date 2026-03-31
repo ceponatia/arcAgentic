@@ -153,7 +153,7 @@ export function useCharacterStudio(
           sanitized.fears = sanitized.fears
             .map((fear, index) => ({
               ...fear,
-              triggers: parseFearTriggers(fearTriggerDrafts.value[index], fear.triggers),
+              triggers: parseFearTriggers(fearTriggerDrafts.value.get(index), fear.triggers),
             }))
             .filter((f) => f.specific && f.specific.trim().length > 0);
           if (sanitized.fears.length === 0) delete sanitized.fears;
@@ -340,15 +340,11 @@ function sanitizeBodyRegionData(data: BodyRegionData | undefined): BodyRegionDat
   }
 
   if (data.appearance) {
-    const appearance = Object.entries(data.appearance).reduce<Record<string, string>>(
-      (nextAppearance, [key, value]) => {
+    const appearance = Object.fromEntries(
+      Object.entries(data.appearance).flatMap(([key, value]) => {
         const trimmedValue = trimToUndefined(value);
-        if (trimmedValue) {
-          nextAppearance[key] = trimmedValue;
-        }
-        return nextAppearance;
-      },
-      {}
+        return trimmedValue ? [[key, trimmedValue] as const] : [];
+      })
     );
 
     if (Object.keys(appearance).length > 0) {

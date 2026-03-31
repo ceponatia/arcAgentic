@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Effect } from 'effect';
-import type { CharacterProfile, SpeechStyle, WorldEvent } from '@arcagentic/schemas';
+import type { CharacterProfile, SpeechStyle, ToolDefinition, ToolCall, WorldEvent } from '@arcagentic/schemas';
 
 import {
   buildMovedEffect,
@@ -156,7 +156,7 @@ describe('CognitionLayer', () => {
         llmProvider
       );
 
-      expect(result).toBeNull();
+      expect(result).toEqual({ type: 'action', result: null });
       expect(llmProvider.chat).not.toHaveBeenCalled();
     });
 
@@ -179,13 +179,81 @@ describe('CognitionLayer', () => {
 
       expect(llmProvider.chat).toHaveBeenCalledTimes(1);
       expect(result).toEqual({
-        intent: expect.objectContaining({
-          type: 'SPEAK_INTENT',
-          actorId: 'npc-001',
-          sessionId: 'session-001',
-          content: 'Let us talk this through calmly.',
-        }),
-        delayMs: 300,
+        type: 'action',
+        result: {
+          intent: expect.objectContaining({
+            type: 'SPEAK_INTENT',
+            actorId: 'npc-001',
+            sessionId: 'session-001',
+            content: 'Let us talk this through calmly.',
+          }),
+          delayMs: 300,
+        },
+      });
+    });
+
+    it('returns tool calls and message history when the llm requests tools', async () => {
+      const llmProvider = mockLlmProvider();
+      const tools: ToolDefinition[] = [
+        {
+          type: 'function',
+          function: {
+            name: 'get_scene_context',
+            description: 'Fetch the current scene context.',
+            parameters: {
+              type: 'object',
+              properties: {},
+            },
+          },
+        },
+      ];
+      const toolCalls: ToolCall[] = [
+        {
+          id: 'call-001',
+          type: 'function',
+          function: {
+            name: 'get_scene_context',
+            arguments: '{}',
+          },
+        },
+      ];
+      llmProvider.chat.mockReturnValue(
+        Effect.succeed({
+          id: 'llm-response-tool-calls',
+          content: 'Let me check the scene first.',
+          tool_calls: toolCalls,
+          usage: null,
+        })
+      );
+
+      const result = await CognitionLayer.decideLLM(
+        createContext([buildSpokeEffect({ actorId: 'actor-002', sessionId: 'session-001' })]),
+        createProfile(),
+        llmProvider,
+        undefined,
+        undefined,
+        { tools }
+      );
+
+      expect(llmProvider.chat).toHaveBeenCalledWith(
+        expect.any(Array),
+        expect.objectContaining({
+          tools,
+          tool_choice: 'auto',
+        })
+      );
+      expect(result).toEqual({
+        type: 'tool_calls',
+        calls: toolCalls,
+        messages: [
+          expect.objectContaining({ role: 'system' }),
+          expect.objectContaining({ role: 'user' }),
+          {
+            role: 'assistant',
+            content: 'Let me check the scene first.',
+            tool_calls: toolCalls,
+          },
+        ],
       });
     });
 
@@ -243,13 +311,8 @@ describe('CognitionLayer', () => {
       );
 
       expect(result).toEqual({
-        intent: expect.objectContaining({
-          type: 'SPEAK_INTENT',
-          actorId: 'npc-001',
-          targetActorId: 'actor-002',
-          content: '[NPC npc-001 responding to speech]',
-        }),
-        delayMs: 500,
+        type: 'action',
+        result: null,
       });
     });
 
@@ -277,7 +340,7 @@ describe('CognitionLayer', () => {
         llmProvider
       );
 
-      expect(result).toBeNull();
+      expect(result).toEqual({ type: 'action', result: null });
     });
 
     it('falls back to decideSync when the llm provider fails', async () => {
@@ -291,12 +354,8 @@ describe('CognitionLayer', () => {
       );
 
       expect(result).toEqual({
-        intent: expect.objectContaining({
-          type: 'SPEAK_INTENT',
-          actorId: 'npc-001',
-          targetActorId: 'actor-002',
-        }),
-        delayMs: 500,
+        type: 'action',
+        result: null,
       });
     });
 
@@ -317,7 +376,7 @@ describe('CognitionLayer', () => {
         llmProvider
       );
 
-      expect(result).toBeNull();
+      expect(result).toEqual({ type: 'action', result: null });
     });
 
     it('logs debug warnings when speech validation fails', async () => {
@@ -372,14 +431,7 @@ describe('CognitionLayer', () => {
 
       await vi.advanceTimersByTimeAsync(8001);
 
-      await expect(decisionPromise).resolves.toEqual({
-        intent: expect.objectContaining({
-          type: 'SPEAK_INTENT',
-          actorId: 'npc-001',
-          targetActorId: 'actor-002',
-        }),
-        delayMs: 500,
-      });
+      await expect(decisionPromise).resolves.toEqual({ type: 'action', result: null });
     });
   });
 });

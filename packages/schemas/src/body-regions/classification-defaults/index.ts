@@ -15,5 +15,11 @@ const CLASSIFICATION_REGISTRY: Record<string, ClassificationDefaultMap> = {
 export function getClassificationDefaults(
   race: string
 ): ClassificationDefaultMap | undefined {
-  return CLASSIFICATION_REGISTRY[race];
+  for (const [classification, defaults] of Object.entries(CLASSIFICATION_REGISTRY)) {
+    if (classification === race) {
+      return defaults;
+    }
+  }
+
+  return undefined;
 }

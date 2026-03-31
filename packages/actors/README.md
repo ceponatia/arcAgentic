@@ -17,6 +17,7 @@ This package implements the actor model for the World Bus architecture. Actors a
 - Event-driven runtime actors with a perception/cognition/action loop
 - React to selected world events autonomously
 - Emit intents based on simple rules, with optional LLM-backed cognition when profile and provider data are available
+- LLM-backed cognition can optionally receive episodic memories through an injected memory provider seam
 
 ### Player Actors
 

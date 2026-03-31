@@ -1,6 +1,7 @@
 import type { Hono } from 'hono';
 import type { LoadedDataGetter } from '../../loaders/types.js';
 import { registerSessionRoutes } from './sessions/index.js';
+import { registerNpcGenerationRoutes } from './npc-generation.js';
 import { registerTurnRoutes } from './turns.js';
 import { registerHygieneRoutes } from './hygiene.js';
 import { registerScheduleRoutes } from './schedules.js';
@@ -11,6 +12,7 @@ interface GameRouteDeps {
 
 export function registerGameRoutes(app: Hono, deps: GameRouteDeps) {
   registerSessionRoutes(app, deps);
+  registerNpcGenerationRoutes(app, deps);
   registerTurnRoutes(app);
   registerHygieneRoutes(app);
   registerScheduleRoutes(app);

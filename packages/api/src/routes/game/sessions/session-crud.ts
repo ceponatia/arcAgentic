@@ -9,6 +9,7 @@ import {
   upsertActorState,
   getSessionProjection,
   getEventsForSession,
+  listNarratorMessagesBySession,
 } from '@arcagentic/db/node';
 import type { LoadedDataGetter } from '../../../loaders/types.js';
 import { notFound, badRequest, serverError } from '../../../utils/responses.js';
@@ -45,7 +46,13 @@ export async function handleGetSession(c: Context): Promise<Response> {
     (event): event is SpokeEventRecord => event.type === 'SPOKE' && typeof event.actorId === 'string'
   );
 
-  const messages = await mapSpokeEventsToMessages(spokeEvents, createMessageMappingDeps(id));
+  const narratorMessages = await listNarratorMessagesBySession(toSessionId(id));
+
+  const messages = await mapSpokeEventsToMessages(
+    spokeEvents,
+    createMessageMappingDeps(id),
+    narratorMessages
+  );
 
   return c.json(jsonifyBigInts({ ...session, projection, messages }), 200);
 }

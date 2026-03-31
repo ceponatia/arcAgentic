@@ -1,5 +1,9 @@
 export * from './types.js';
+export type { CognitionLLMOptions, CognitionLLMResult } from './types.js';
+export * from './appeal-tags.js';
+export * from './prompts.js';
 export * from './perception.js';
+export * from './engagement.js';
 export * from './cognition.js';
 export * from './personality-modifiers.js';
 export * from './speech-validation.js';

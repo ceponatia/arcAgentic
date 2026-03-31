@@ -219,7 +219,7 @@ export interface RetrievalService {
 /**
  * Interface for the embedding service.
  */
-export interface EmbeddingService {
+export interface RetrievalEmbeddingService {
   /**
    * Compute embeddings for one or more texts.
    */

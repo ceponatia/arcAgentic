@@ -64,6 +64,10 @@ function serializeEmbeddingLiteral(embedding: number[]): string {
 export async function insertKnowledgeNode(
   node: InsertKnowledgeNodeInput
 ): Promise<KnowledgeNodeRecord> {
+  const serializedEmbedding = node.embedding
+    ? sql`${sql.raw(serializeEmbeddingLiteral(node.embedding))}::vector`
+    : null;
+
   const [row] = await db
     .insert(knowledgeNodes)
     .values({
@@ -79,7 +83,7 @@ export async function insertKnowledgeNode(
       sourceType: node.sourceType,
       sourceEntityId: node.sourceEntityId,
       sourceEventId: node.sourceEventId,
-      embedding: node.embedding,
+      embedding: serializedEmbedding,
     })
     .returning();
 

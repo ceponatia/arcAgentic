@@ -1,18 +1,27 @@
 import { Effect } from 'effect';
-import type { LLMMessage, LLMProvider } from '@arcagentic/llm';
+import type { ChatOptions, LLMMessage, LLMProvider } from '@arcagentic/llm';
 import type { CharacterProfile, WorldEvent } from '@arcagentic/schemas';
-import type { ActionResult, CognitionContext, CognitionContextExtras } from './types.js';
+import type {
+  ActionResult,
+  CognitionContext,
+  CognitionContextExtras,
+  CognitionLLMOptions,
+  CognitionLLMResult,
+  EpisodicMemorySummary,
+} from './types.js';
+import { NPC_DECISION_TIMEOUT_MS } from './config.js';
 import { buildNpcCognitionPrompt, buildSystemPrompt } from './prompts.js';
 import { applyPersonalityModifiers } from './personality-modifiers.js';
 import { getStringField } from './event-access.js';
 import { validateSpeechStyle } from './speech-validation.js';
 import { performance } from 'node:perf_hooks';
 
-const NPC_DECISION_TIMEOUT_MS = 8000;
-
 interface StructuredNpcResponse {
-  dialogue: string;
-  action?: string;
+  dialogue?: string;
+  physicalAction?: string;
+  observation?: string;
+  internalState?: string;
+  sensoryDetail?: string;
   emotion?: string;
 }
 
@@ -25,31 +34,58 @@ function normalizeStructuredField(value: unknown): string | undefined {
   return trimmed.length > 0 ? trimmed : undefined;
 }
 
+function hasStructuredContent(response: StructuredNpcResponse): boolean {
+  return (
+    response.dialogue !== undefined ||
+    response.physicalAction !== undefined ||
+    response.observation !== undefined ||
+    response.internalState !== undefined ||
+    response.sensoryDetail !== undefined ||
+    response.emotion !== undefined
+  );
+}
+
 function tryParseJson(jsonStr: string): StructuredNpcResponse | null {
   try {
     const parsed: unknown = JSON.parse(jsonStr);
 
     if (typeof parsed === 'object' && parsed !== null) {
       const obj = parsed as Record<string, unknown>;
-      const dialogue = obj['dialogue'];
+      const response: StructuredNpcResponse = {};
+      const dialogue = normalizeStructuredField(obj['dialogue']);
+      const physicalAction =
+        normalizeStructuredField(obj['physicalAction']) ??
+        normalizeStructuredField(obj['action']);
+      const observation = normalizeStructuredField(obj['observation']);
+      const internalState = normalizeStructuredField(obj['internalState']);
+      const sensoryDetail = normalizeStructuredField(obj['sensoryDetail']);
+      const emotion = normalizeStructuredField(obj['emotion']);
 
-      if (typeof dialogue === 'string') {
-        const response: StructuredNpcResponse = {
-          dialogue: dialogue.trim(),
-        };
-        const action = normalizeStructuredField(obj['action']);
-        const emotion = normalizeStructuredField(obj['emotion']);
-
-        if (action) {
-          response.action = action;
-        }
-
-        if (emotion) {
-          response.emotion = emotion;
-        }
-
-        return response;
+      if (dialogue) {
+        response.dialogue = dialogue;
       }
+
+      if (physicalAction) {
+        response.physicalAction = physicalAction;
+      }
+
+      if (observation) {
+        response.observation = observation;
+      }
+
+      if (internalState) {
+        response.internalState = internalState;
+      }
+
+      if (sensoryDetail) {
+        response.sensoryDetail = sensoryDetail;
+      }
+
+      if (emotion) {
+        response.emotion = emotion;
+      }
+
+      return hasStructuredContent(response) ? response : null;
     }
   } catch {
     // JSON parse failed. Caller handles fallback behavior.
@@ -62,11 +98,11 @@ function tryParseJson(jsonStr: string): StructuredNpcResponse | null {
  * Parse structured JSON from the LLM response.
  * Falls back to treating the entire content as plain dialogue if parsing fails.
  */
-function parseStructuredResponse(content: string): StructuredNpcResponse {
+function parseStructuredResponse(content: string): StructuredNpcResponse | null {
   const trimmed = content.trim();
 
   if (trimmed.toUpperCase() === 'NO_ACTION') {
-    return { dialogue: '' };
+    return null;
   }
 
   const normalized = trimmed
@@ -96,7 +132,8 @@ function parseStructuredResponse(content: string): StructuredNpcResponse {
     }
   }
 
-  return { dialogue: stripped };
+  const dialogue = normalizeStructuredField(stripped);
+  return dialogue ? { dialogue } : null;
 }
 
 function withTimeout<T>(promise: Promise<T>, timeoutMs: number, label: string): Promise<T> {
@@ -176,12 +213,16 @@ export class CognitionLayer {
     context: CognitionContext,
     profile: CharacterProfile,
     llmProvider: LLMProvider,
-    contextExtras?: CognitionContextExtras
-  ): Promise<ActionResult | null> {
-    if (context.perception.relevantEvents.length === 0) return null;
+    contextExtras?: CognitionContextExtras,
+    episodicMemories?: EpisodicMemorySummary[],
+    llmOptions?: CognitionLLMOptions
+  ): Promise<CognitionLLMResult> {
+    if (context.perception.relevantEvents.length === 0) {
+      return { type: 'action', result: null };
+    }
 
     if (Date.now() < this.circuitOpenUntil) {
-      return null;
+      return { type: 'action', result: null };
     }
 
     const start = performance.now();
@@ -193,16 +234,23 @@ export class CognitionLayer {
         context.state,
         profile,
         modifiers,
-        contextExtras
+        contextExtras,
+        episodicMemories
       );
       const speechStyle = profile.personalityMap?.speech;
       const messages: LLMMessage[] = [
         { role: 'system', content: buildSystemPrompt(speechStyle) },
         { role: 'user', content: prompt },
       ];
+      const chatOptions: ChatOptions = {};
+
+      if (llmOptions?.tools && llmOptions.tools.length > 0 && llmProvider.supportsTools) {
+        chatOptions.tools = llmOptions.tools;
+        chatOptions.tool_choice = 'auto';
+      }
 
       const result = await withTimeout(
-        Effect.runPromise(llmProvider.chat(messages)),
+        Effect.runPromise(llmProvider.chat(messages, chatOptions)),
         NPC_DECISION_TIMEOUT_MS,
         '[NPC Cognition] LLM decision'
       );
@@ -217,10 +265,24 @@ export class CognitionLayer {
         );
       }
 
+      if (result.tool_calls && result.tool_calls.length > 0) {
+        const assistantMessage: LLMMessage = {
+          role: 'assistant',
+          content: result.content,
+          tool_calls: result.tool_calls,
+        };
+
+        return {
+          type: 'tool_calls',
+          calls: result.tool_calls,
+          messages: [...messages, assistantMessage],
+        };
+      }
+
       const structured = parseStructuredResponse(result.content ?? '');
-      if (!structured.dialogue && !structured.action) {
+      if (!structured) {
         // LLM returned NO_ACTION or empty response - NPC chose not to react.
-        return null;
+        return { type: 'action', result: null };
       }
 
       if (speechStyle && structured.dialogue) {
@@ -236,15 +298,26 @@ export class CognitionLayer {
 
       const intent: WorldEvent = {
         type: 'SPEAK_INTENT',
-        content: structured.dialogue,
-        ...(structured.action ? { action: structured.action } : {}),
+        content: structured.dialogue ?? '',
+        ...(structured.physicalAction
+          ? {
+              physicalAction: structured.physicalAction,
+              action: structured.physicalAction,
+            }
+          : {}),
+        ...(structured.observation ? { observation: structured.observation } : {}),
+        ...(structured.internalState ? { internalState: structured.internalState } : {}),
+        ...(structured.sensoryDetail ? { sensoryDetail: structured.sensoryDetail } : {}),
         ...(structured.emotion ? { emotion: structured.emotion } : {}),
         actorId: context.state.id,
         sessionId: context.state.sessionId,
         timestamp: new Date(),
       };
 
-      return { intent, delayMs: 300 } satisfies ActionResult;
+      return {
+        type: 'action',
+        result: { intent, delayMs: 300 } satisfies ActionResult,
+      };
     } catch (error) {
       if (error instanceof Error && error.message.includes('timed out')) {
         this.consecutiveTimeouts += 1;
@@ -259,11 +332,23 @@ export class CognitionLayer {
         console.warn(
           `[NPC Cognition] Decision timed out (>${NPC_DECISION_TIMEOUT_MS}ms); falling back to rules`
         );
+
+        try {
+          const fallbackResult = this.decideSync(context);
+
+          return { type: 'action', result: fallbackResult };
+        } catch (fallbackError) {
+          console.error(
+            '[NPC Cognition] Rule-based fallback failed after LLM timeout; NPC will not respond this turn',
+            fallbackError
+          );
+          return { type: 'action', result: null };
+        }
       } else {
         this.consecutiveTimeouts = 0;
       }
       console.error('[NPC Cognition] LLM failed; NPC will not respond this turn', error);
-      return null;
+      return { type: 'action', result: null };
     }
   }
 

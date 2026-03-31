@@ -3,6 +3,7 @@ import type {
   CharacterSummary,
   SettingSummary,
   TagTargetType,
+  TurnNarrationMetadata,
   UserAssistantMessageRole,
   Speaker,
   ApiError,
@@ -141,15 +142,7 @@ export interface PhaseTiming {
   responseAggregationMs?: number;
 }
 
-export interface TurnMetadata {
-  processingTimeMs: number;
-  intent?: DetectedIntent;
-  intentDebug?: IntentDetectionDebug;
-  agentsInvoked: AgentType[];
-  agentOutputs?: AgentOutputWithType[];
-  nodesRetrieved?: number;
-  phaseTiming?: PhaseTiming;
-}
+export type TurnMetadata = TurnNarrationMetadata;
 
 export interface NpcInstanceSummary {
   id: string;

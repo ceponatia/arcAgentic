@@ -94,7 +94,7 @@ export const expandedCards = signal<Set<string>>(new Set(['core']));
 export const isDeleting = signal<boolean>(false);
 
 /** Raw trigger draft text keyed by fear index for comma-separated editing */
-export const fearTriggerDrafts = signal<Record<number, string>>({});
+export const fearTriggerDrafts = signal<ReadonlyMap<number, string>>(new Map<number, string>());
 
 // ============================================================================
 // Computed Signals
@@ -201,22 +201,20 @@ export function updatePersonalityMap(updates: Partial<PersonalityMap>): void {
 }
 
 export function setFearTriggerDraft(index: number, value: string): void {
-  fearTriggerDrafts.value = {
-    ...fearTriggerDrafts.value,
-    [index]: value,
-  };
+  const nextDrafts = new Map<number, string>(fearTriggerDrafts.value);
+  nextDrafts.set(index, value);
+  fearTriggerDrafts.value = nextDrafts;
   isDirty.value = true;
 }
 
 export function removeFearTriggerDraft(index: number): void {
-  const nextDrafts: Record<number, string> = {};
+  const nextDrafts = new Map<number, string>();
 
-  for (const [key, value] of Object.entries(fearTriggerDrafts.value)) {
-    const draftIndex = Number(key);
+  for (const [draftIndex, value] of fearTriggerDrafts.value.entries()) {
     if (draftIndex < index) {
-      nextDrafts[draftIndex] = value;
+      nextDrafts.set(draftIndex, value);
     } else if (draftIndex > index) {
-      nextDrafts[draftIndex - 1] = value;
+      nextDrafts.set(draftIndex - 1, value);
     }
   }
 
@@ -224,12 +222,14 @@ export function removeFearTriggerDraft(index: number): void {
 }
 
 export function resetFearTriggerDrafts(fears: FearEntry[] = []): void {
-  fearTriggerDrafts.value = fears.reduce<Record<number, string>>((drafts, fear, index) => {
+  const nextDrafts = fears.reduce<Map<number, string>>((drafts, fear, index) => {
     if ((fear.triggers ?? []).length > 0) {
-      drafts[index] = fear.triggers.join(', ');
+      drafts.set(index, fear.triggers.join(', '));
     }
     return drafts;
-  }, {});
+  }, new Map<number, string>());
+
+  fearTriggerDrafts.value = nextDrafts;
 }
 
 /**
@@ -334,7 +334,7 @@ export function resetStudio(): void {
   suggestedPrompts.value = [];
   exploredTopics.value = [];
   isDeleting.value = false;
-  fearTriggerDrafts.value = {};
+  fearTriggerDrafts.value = new Map<number, string>();
 }
 
 /** Reset session state (call when starting new character) */

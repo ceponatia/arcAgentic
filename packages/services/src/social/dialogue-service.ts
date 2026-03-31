@@ -33,6 +33,10 @@ export class DialogueService {
       timestamp,
       ...(event.action != null ? { action: event.action } : {}),
       ...(event.emotion != null ? { emotion: event.emotion } : {}),
+      ...(event.physicalAction != null ? { physicalAction: event.physicalAction } : {}),
+      ...(event.observation != null ? { observation: event.observation } : {}),
+      ...(event.internalState != null ? { internalState: event.internalState } : {}),
+      ...(event.sensoryDetail != null ? { sensoryDetail: event.sensoryDetail } : {}),
     };
 
     await worldBus.emit(spokeEvent);

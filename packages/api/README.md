@@ -18,6 +18,11 @@ Defaults (used if not set):
 
 - `PORT=3002`
 - `OPENROUTER_MODEL=deepseek/deepseek-chat`
+- `TURN_RESPONSE_TIMEOUT_MS=25000`
+
+Optional runtime tuning:
+
+- `TURN_RESPONSE_TIMEOUT_MS` controls how long the turn route waits for NPC cognition and response assembly before timing out. It defaults to 25000ms so it stays slightly longer than the default `NPC_COGNITION_TIMEOUT_MS=20000`.
 
 Required for LLM calls:
 

@@ -202,11 +202,20 @@ export class PerceptionLayer {
   /**
    * Build perception context from recent events.
    */
-  static buildContext(events: WorldEvent[], state: NpcRuntimeState): PerceptionContext {
+  static buildContext(
+    events: WorldEvent[],
+    state: NpcRuntimeState,
+    nearbyActorIds?: string[]
+  ): PerceptionContext {
     const relevantEvents = this.filterRelevantEvents(events, state);
 
     // Extract nearby actors from MOVED events
-    const nearbyActors = new Set<string>();
+    const nearbyActors = new Set(
+      (nearbyActorIds ?? []).filter(
+        (actorId) => actorId.length > 0 && actorId !== state.id
+      )
+    );
+
     for (const event of relevantEvents) {
       if (event.type === 'MOVED') {
         const actorId = getStringField(event, 'actorId');

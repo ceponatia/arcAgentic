@@ -1,7 +1,15 @@
-import type { NpcLocationState, WorldEvent } from '@arcagentic/schemas';
+import type {
+  CharacterProfile,
+  EpisodicMemorySummary,
+  NpcLocationState,
+  ToolCall,
+  ToolDefinition,
+  WorldEvent,
+} from '@arcagentic/schemas';
 import type { BaseActorState } from '../base/types.js';
-import type { LLMProvider } from '@arcagentic/llm';
-import type { CharacterProfile } from '@arcagentic/schemas';
+import type { LLMMessage, LLMProvider } from '@arcagentic/llm';
+
+export type { EpisodicMemorySummary } from '@arcagentic/schemas';
 
 /**
  * NPC-specific state extensions.
@@ -29,6 +37,14 @@ export interface NpcRelationshipContext {
   affinity: NpcRelationshipAffinity;
 }
 
+export interface NpcMemoryProvider {
+  getEpisodicMemories(input: {
+    sessionId: string;
+    actorId: string;
+    recentContext: string;
+  }): Promise<EpisodicMemorySummary[]>;
+}
+
 export interface CognitionContextExtras {
   /** Relationship context for this NPC keyed by target actor ID */
   relationships?: Record<string, NpcRelationshipContext>;
@@ -36,8 +52,49 @@ export interface CognitionContextExtras {
   playerName?: string;
   /** Brief description of the player character */
   playerDescription?: string;
+  /** Appeal tags active for the current player persona */
+  playerAppealTags?: string[];
   /** The setting's starting scenario / initial scene description */
   startingScenario?: string;
+  /** NPC's current location name/description */
+  locationName?: string;
+  locationDescription?: string;
+  /** NPC's current activity */
+  currentActivity?: {
+    type: string;
+    description: string;
+    engagement: string;
+    target?: string;
+  };
+  /** Proximity to the player */
+  playerProximity?: string;
+  /** Whether this NPC is interruptible */
+  interruptible?: boolean;
+  /** Whether the player is speaking directly to this NPC in the current turn */
+  playerAddressedDirectly?: boolean;
+  /** Other NPCs nearby with what they're doing */
+  nearbyNpcSummaries?: string[];
+  /** Actor IDs currently present in the nearby scene */
+  nearbyActorIds?: string[];
+  /** Optional episodic memory lookup provider for richer LLM cognition */
+  memoryProvider?: NpcMemoryProvider;
+}
+
+/** How a player event relates to this specific NPC. */
+export type EventAddressType = 'direct' | 'overheard' | 'ambient' | 'not-perceived';
+
+/** Enriched event with address classification for engagement gating. */
+export interface ClassifiedEvent {
+  event: WorldEvent;
+  addressType: EventAddressType;
+}
+
+/** Result of engagement evaluation before invoking LLM cognition. */
+export interface EngagementDecision {
+  shouldAct: boolean;
+  reason: string;
+  /** If not acting, provide a brief activity continuation description. */
+  continuationHint?: string;
 }
 
 /** Priority level for event promotion. */
@@ -75,6 +132,8 @@ export interface PerceptionContext {
   nearbyActors: string[];
   /** Current location state */
   locationState?: NpcLocationState | undefined;
+  /** Bounded recent narrator prose for scene continuity */
+  narratorHistory?: string[];
 }
 
 /**
@@ -108,19 +167,34 @@ export interface NpcMachineContext extends CognitionContextExtras {
   sessionId: string;
   locationId: string;
   recentEvents: WorldEvent[];
+  narratorHistory?: string[];
   perceptionConfig?: PerceptionConfig;
   perception?: PerceptionContext;
   cognition?: CognitionContext;
   pendingIntent?: WorldEvent;
+  engagementDecision?: EngagementDecision;
   profile?: CharacterProfile;
   llmProvider?: LLMProvider;
 }
+
+/** Options for LLM-backed cognition. */
+export interface CognitionLLMOptions {
+  /** Tool definitions to pass to the LLM. */
+  tools?: ToolDefinition[];
+}
+
+/** Discriminated union for decideLLM results. */
+export type CognitionLLMResult =
+  | { type: 'action'; result: ActionResult | null }
+  | { type: 'tool_calls'; calls: ToolCall[]; messages: LLMMessage[] };
 
 /**
  * NPC machine events (XState).
  */
 export type NpcMachineEvent =
   | { type: 'WORLD_EVENT'; event: WorldEvent }
+  | { type: 'SET_NARRATOR_HISTORY'; narratorHistory: string[] | undefined }
+  | { type: 'SET_CONTEXT_EXTRAS'; contextExtras: Partial<CognitionContextExtras> }
   | { type: 'PERCEIVE' }
   | { type: 'THINK' }
   | { type: 'ACT' }

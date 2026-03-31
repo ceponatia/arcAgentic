@@ -23,6 +23,8 @@ export interface NarrationConfig {
   includeAtmosphere: boolean;
   /** Optional tone directive (e.g., "dark", "playful", "tense"). */
   tone?: string;
+  /** Optional scene proximity directive used to intensify close-contact narration. */
+  sceneProximity?: string;
 }
 
 /** Default narration configuration. */

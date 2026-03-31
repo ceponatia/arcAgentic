@@ -1,12 +1,18 @@
 import type { CharacterProfile, NpcGenerationRequest, NpcGenerationResult } from '@arcagentic/schemas';
 import { generateCharacter } from '../../character/generate.js';
 import { TRANSIENT_NPC_THEME } from '../themes/index.js';
+import type { NpcGenDeps } from '../types.js';
 
 /**
  * Pool-only generation strategy for transient NPCs.
  * Wraps the existing character generator with transient defaults.
  */
-export function poolOnlyStrategy(request: NpcGenerationRequest): Promise<NpcGenerationResult> {
+export function poolOnlyStrategy(
+  request: NpcGenerationRequest,
+  deps?: NpcGenDeps,
+): Promise<NpcGenerationResult> {
+  void deps;
+
   const existing: Partial<CharacterProfile> = Object.fromEntries(
     Object.entries(request.seed ?? {}).filter(([, value]) => value !== undefined)
   );

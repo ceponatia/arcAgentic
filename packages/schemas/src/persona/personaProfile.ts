@@ -2,6 +2,8 @@ import { z } from 'zod';
 import { PersonaBasicsSchema, type PersonaBasics } from './basics.js';
 import { PersonaAppearanceSchema, type PersonaAppearance, type Physique } from './appearance.js';
 import { BodyMapSchema, type BodyMap } from '../character/body-map.js';
+import { AppealTagIdSchema } from './appeal-tags.js';
+import { MAX_PERSONA_APPEAL_TAGS } from './appeal-tag-data.js';
 
 /**
  * Persona Profile Schema - represents a player character for a session.
@@ -23,6 +25,12 @@ export const PersonaProfileSchema = PersonaBasicsSchema.extend({
    * Optional to allow minimal persona creation.
    */
   appearance: PersonaAppearanceSchema.optional(),
+
+  /**
+   * Optional set of NPC appeal tags selected by the player persona.
+   * Used to bias downstream descriptive focus without requiring the field.
+   */
+  appealTags: z.array(AppealTagIdSchema).max(MAX_PERSONA_APPEAL_TAGS).optional(),
 
   /**
    * Body map with per-region sensory data (scent, texture, visual, flavor).

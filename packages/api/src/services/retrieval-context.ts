@@ -5,12 +5,17 @@ import {
   type LLMMessage,
   type LLMProvider,
 } from '@arcagentic/llm';
-import { PgRetrievalService, type RetrievalResult } from '@arcagentic/retrieval';
+import {
+  PgRetrievalService,
+  type RetrievalEmbeddingService,
+  type RetrievalResult,
+} from '@arcagentic/retrieval';
 import { getEnvValue } from '../utils/env.js';
 
 const log = createLogger('api', 'retrieval');
 
 let retrievalService: PgRetrievalService | null = null;
+let retrievalEmbeddingService: RetrievalEmbeddingService | null = null;
 let loggedMissingApiKey = false;
 
 const sessionPromptContexts = new Map<string, string>();
@@ -32,11 +37,13 @@ function buildRetrievalPromptMessage(retrievalContext: string): LLMMessage {
   return {
     role: 'system',
     content: [
-      'Supplementary retrieved knowledge for the current turn is available below.',
-      'Use it only when it helps answer naturally and remain consistent.',
-      'Do not mention retrieval, knowledge nodes, or hidden context directly.',
+      'The following is background knowledge this character would naturally know or remember.',
+      'Incorporate it when relevant to the current situation, as you would real memories or learned facts.',
+      'Do not reference "retrieved information", "knowledge nodes", or "system data" - treat it as part of your character\'s lived experience.',
+      'If the knowledge is not relevant to the current moment, simply ignore it.',
+      '',
       retrievalContext,
-    ].join('\n\n'),
+    ].join('\n'),
   };
 }
 
@@ -65,11 +72,11 @@ function withRetrievalPromptContext(
 }
 
 /**
- * Lazy-initialise the retrieval service. Returns null when embeddings are unavailable.
+ * Lazy-initialise the retrieval embedding service. Returns null when embeddings are unavailable.
  */
-export function getRetrievalService(): PgRetrievalService | null {
-  if (retrievalService) {
-    return retrievalService;
+export function getRetrievalEmbeddingService(): RetrievalEmbeddingService | null {
+  if (retrievalEmbeddingService) {
+    return retrievalEmbeddingService;
   }
 
   const openaiKey = getEnvValue('OPENAI_API_KEY');
@@ -88,10 +95,26 @@ export function getRetrievalService(): PgRetrievalService | null {
   }
 
   const baseUrl = openaiKey ? openaiBaseUrl : openrouterBaseUrl;
-  const embeddingService = new OpenAIEmbeddingService({
+  retrievalEmbeddingService = new OpenAIEmbeddingService({
     apiKey,
     ...(baseUrl ? { baseURL: baseUrl } : {}),
   });
+
+  return retrievalEmbeddingService;
+}
+
+/**
+ * Lazy-initialise the retrieval service. Returns null when embeddings are unavailable.
+ */
+export function getRetrievalService(): PgRetrievalService | null {
+  if (retrievalService) {
+    return retrievalService;
+  }
+
+  const embeddingService = getRetrievalEmbeddingService();
+  if (!embeddingService) {
+    return null;
+  }
 
   retrievalService = new PgRetrievalService(embeddingService);
   return retrievalService;

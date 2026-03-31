@@ -18,7 +18,7 @@ export class NpcActor implements Actor {
   private readonly machine: ActorRefFrom<ReturnType<typeof createNpcMachine>>;
   private readonly lifecycle: BaseActorLifecycle;
 
-  constructor(config: NpcActorConfig & CognitionContextExtras) {
+  constructor(config: NpcActorConfig & CognitionContextExtras & { narratorHistory?: string[] }) {
     this.id = config.id;
     this.sessionId = config.sessionId;
     this.npcId = config.npcId;
@@ -31,6 +31,9 @@ export class NpcActor implements Actor {
       sessionId: this.sessionId,
       locationId: this.locationId,
       recentEvents: [],
+      ...(config.narratorHistory !== undefined
+        ? { narratorHistory: config.narratorHistory }
+        : {}),
       ...(config.profile ? { profile: config.profile } : {}),
       ...(config.llmProvider ? { llmProvider: config.llmProvider } : {}),
       ...(config.relationships ? { relationships: config.relationships } : {}),
@@ -38,9 +41,35 @@ export class NpcActor implements Actor {
       ...(config.playerDescription !== undefined
         ? { playerDescription: config.playerDescription }
         : {}),
+      ...(config.playerAppealTags !== undefined
+        ? { playerAppealTags: config.playerAppealTags }
+        : {}),
       ...(config.startingScenario !== undefined
         ? { startingScenario: config.startingScenario }
         : {}),
+      ...(config.locationName !== undefined ? { locationName: config.locationName } : {}),
+      ...(config.locationDescription !== undefined
+        ? { locationDescription: config.locationDescription }
+        : {}),
+      ...(config.currentActivity !== undefined
+        ? { currentActivity: config.currentActivity }
+        : {}),
+      ...(config.playerProximity !== undefined
+        ? { playerProximity: config.playerProximity }
+        : {}),
+      ...(config.interruptible !== undefined
+        ? { interruptible: config.interruptible }
+        : {}),
+      ...(config.playerAddressedDirectly !== undefined
+        ? { playerAddressedDirectly: config.playerAddressedDirectly }
+        : {}),
+      ...(config.nearbyNpcSummaries !== undefined
+        ? { nearbyNpcSummaries: config.nearbyNpcSummaries }
+        : {}),
+      ...(config.nearbyActorIds !== undefined
+        ? { nearbyActorIds: config.nearbyActorIds }
+        : {}),
+      ...(config.memoryProvider ? { memoryProvider: config.memoryProvider } : {}),
     };
 
     // Create and start the machine
@@ -62,6 +91,14 @@ export class NpcActor implements Actor {
 
   send(event: WorldEvent): void {
     this.machine.send({ type: 'WORLD_EVENT', event });
+  }
+
+  setNarratorHistory(narratorHistory?: string[]): void {
+    this.machine.send({ type: 'SET_NARRATOR_HISTORY', narratorHistory });
+  }
+
+  setContextExtras(contextExtras: Partial<CognitionContextExtras>): void {
+    this.machine.send({ type: 'SET_CONTEXT_EXTRAS', contextExtras });
   }
 
   getSnapshot(): BaseActorState {

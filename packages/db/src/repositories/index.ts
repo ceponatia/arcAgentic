@@ -11,6 +11,7 @@ export * from './admin.js';
 export * from './studio-sessions.js';
 export * from './workspace-drafts.js';
 export * from './dialogue.js';
+export * from './narrator-messages.js';
 export * from './knowledge-nodes.js';
 export {
   getActorsAtLocation,

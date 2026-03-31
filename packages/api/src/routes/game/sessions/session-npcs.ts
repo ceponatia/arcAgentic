@@ -6,6 +6,7 @@
 import type { Context } from 'hono';
 import { createLogger } from '@arcagentic/logger';
 import { getSession, listActorStatesForSession, upsertActorState } from '@arcagentic/db/node';
+import { NpcActorRoleSchema } from '@arcagentic/schemas';
 import type { LoadedDataGetter } from '../../../loaders/types.js';
 import { notFound, serverError, conflict } from '../../../utils/responses.js';
 import { generateInstanceId } from '@arcagentic/utils';
@@ -23,6 +24,18 @@ interface NpcActorState {
   status?: 'active' | 'inactive';
 }
 
+const DEFAULT_NPC_ROLE = 'supporting' as const;
+
+function normalizeNpcRole(role: unknown) {
+  if (typeof role !== 'string') {
+    return DEFAULT_NPC_ROLE;
+  }
+
+  const parsedRole = NpcActorRoleSchema.safeParse(role.trim().toLowerCase());
+
+  return parsedRole.success ? parsedRole.data : DEFAULT_NPC_ROLE;
+}
+
 export async function handleListNpcs(c: Context): Promise<Response> {
   const ownerEmail = getOwnerEmail(c);
   const sessionIdResult = validateParamId(c, 'id');
@@ -37,7 +50,7 @@ export async function handleListNpcs(c: Context): Promise<Response> {
     .filter((ci) => ci.actorType === 'npc')
     .map((ci) => ({
       id: ci.actorId,
-      role: (ci.state as NpcActorState).role ?? 'npc',
+      role: normalizeNpcRole((ci.state as NpcActorState).role),
       label: (ci.state as NpcActorState).label ?? null,
       templateId: ci.entityProfileId,
       name: (ci.state as NpcActorState).name ?? 'Unknown',
@@ -62,8 +75,7 @@ export async function handleCreateNpc(c: Context, getLoaded: LoadedDataGetter): 
   if (!bodyResult.success) return bodyResult.errorResponse;
 
   const { templateId } = bodyResult.data;
-  const requestedRole = typeof bodyResult.data.role === 'string' ? bodyResult.data.role.trim() : '';
-  const normalizedRole = requestedRole.toLowerCase() === 'primary' ? 'primary' : 'npc';
+  const normalizedRole = normalizeNpcRole(bodyResult.data.role);
   const label = typeof bodyResult.data.label === 'string' ? bodyResult.data.label.trim() : '';
 
   // Prevent multiple primary instances in a session.

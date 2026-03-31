@@ -12,8 +12,7 @@ import type { CreateFullSessionRequest, CreateFullSessionResponse } from './type
 interface TurnEndpointResponse {
   message: string;
   events: unknown[];
-  stateChanges?: unknown;
-  metadata?: TurnMetadata;
+  narration?: TurnMetadata;
   speaker?: { actorId: string; name?: string };
   success: boolean;
 }
@@ -115,7 +114,7 @@ export async function sendMessage(
   content: string,
   signal?: AbortSignal,
   options?: { npcId?: string | null }
-): Promise<{ message: Message; events?: unknown[]; stateChanges?: unknown }> {
+): Promise<{ message: Message; events?: unknown[] }> {
   const result = await http<TurnEndpointResponse>(
     `/sessions/${encodeURIComponent(sessionId)}/turns`,
     {
@@ -131,7 +130,7 @@ export async function sendMessage(
     role: 'assistant',
     content: result.message,
     createdAt: new Date().toISOString(),
-    ...(result.metadata ? { turnMetadata: result.metadata } : {}),
+    ...(result.narration ? { turnMetadata: result.narration } : {}),
     ...(result.speaker
       ? {
         speaker: {
@@ -145,7 +144,6 @@ export async function sendMessage(
   return {
     message: assistant,
     events: result.events,
-    stateChanges: result.stateChanges,
   };
 }
 

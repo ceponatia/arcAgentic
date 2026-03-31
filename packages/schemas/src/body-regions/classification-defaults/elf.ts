@@ -8,13 +8,7 @@ function forRegions(
   data: Partial<BodyRegionData>,
   ...regions: readonly BodyRegion[]
 ): PartialBodyMap {
-  const result: PartialBodyMap = {};
-
-  for (const region of regions) {
-    result[region] = data;
-  }
-
-  return result;
+  return Object.fromEntries(regions.map((region) => [region, data])) as PartialBodyMap;
 }
 
 function mergeMaps(...maps: readonly PartialBodyMap[]): PartialBodyMap {

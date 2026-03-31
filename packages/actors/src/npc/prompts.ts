@@ -8,13 +8,19 @@ import type {
   StressBehavior,
   Value,
 } from '@arcagentic/schemas';
+import { getRecord, getRecordOptional } from '@arcagentic/schemas';
 import type { PersonalityModifiers } from './personality-modifiers.js';
 import type {
   CognitionContextExtras,
+  EpisodicMemorySummary,
   NpcRelationshipContext,
   NpcRuntimeState,
   PerceptionContext,
 } from './types.js';
+import {
+  buildAppealPromptSection,
+  findTriggeredAppealTags,
+} from './appeal-tags.js';
 import { getStringField } from './event-access.js';
 import { isDefaultModifiers } from './personality-modifiers.js';
 
@@ -29,32 +35,44 @@ const EMOTION_ADJECTIVES = {
   anticipation: 'anticipatory',
 } as const;
 
-function formatValuePriority(priority: number): string {
-  if (priority <= 2) return 'paramount';
-  if (priority <= 4) return 'strong';
-  if (priority <= 6) return 'moderate';
-  if (priority <= 8) return 'minor';
-  return 'slight';
+function ensureSentence(text: string): string {
+  const trimmed = text.trim();
+  if (trimmed.length === 0) {
+    return trimmed;
+  }
+
+  return /[.!?]$/.test(trimmed) ? trimmed : `${trimmed}.`;
 }
 
-function formatFearIntensity(intensity: number): string {
-  if (intensity <= 0.2) return 'faint';
-  if (intensity <= 0.4) return 'mild';
-  if (intensity <= 0.6) return 'moderate';
-  if (intensity <= 0.8) return 'intense';
-  return 'overwhelming';
+function joinNaturalList(items: string[]): string {
+  if (items.length === 0) {
+    return '';
+  }
+
+  if (items.length === 1) {
+    return items[0] ?? '';
+  }
+
+  if (items.length === 2) {
+    const first = items[0] ?? '';
+    const second = items[1] ?? '';
+    return `${first} and ${second}`;
+  }
+
+  const last = items[items.length - 1] ?? '';
+  return `${items.slice(0, -1).join(', ')}, and ${last}`;
 }
 
 function formatStressThreshold(threshold: number): string {
-  if (threshold < 0.3) return 'low';
-  if (threshold > 0.7) return 'high';
-  return 'moderate';
+  if (threshold < 0.3) return 'rattles easily';
+  if (threshold > 0.7) return 'takes a lot to rattle';
+  return 'has a moderate stress threshold';
 }
 
 function formatMoodStability(stability: number): string {
   if (stability < 0.3) return 'volatile';
-  if (stability > 0.7) return 'stable';
-  return 'moderate';
+  if (stability > 0.7) return 'steady';
+  return 'fairly even';
 }
 
 function formatAffinityLabel(value: number): string {
@@ -69,6 +87,21 @@ function humanizeToken(value: string): string {
   return value.replaceAll('-', ' ');
 }
 
+export function renderProximityDescription(proximity: string): string {
+  switch (proximity) {
+    case 'intimate':
+      return 'The player is in direct physical contact or immediate physical closeness with you.';
+    case 'close':
+      return 'The player is within arm\'s reach.';
+    case 'near':
+      return 'The player is nearby, within ordinary conversation distance.';
+    case 'distant':
+      return 'The player is far away, barely visible or audible.';
+    default:
+      return '';
+  }
+}
+
 function getPlayerRelationship(
   relationships?: CognitionContextExtras['relationships']
 ): NpcRelationshipContext | undefined {
@@ -76,7 +109,7 @@ function getPlayerRelationship(
     return undefined;
   }
 
-  const directPlayerRelationship = relationships['player'];
+  const directPlayerRelationship = relationships?.['player'];
   if (directPlayerRelationship) {
     return directPlayerRelationship;
   }
@@ -100,6 +133,38 @@ function formatActorLabel(actorId: string, contextExtras?: CognitionContextExtra
   }
 
   return actorId;
+}
+
+function isPlayerActorId(actorId: string | undefined): boolean {
+  if (!actorId) {
+    return false;
+  }
+
+  return actorId === 'player' || actorId.startsWith('player:');
+}
+
+function getLatestPlayerSpokeContent(perception: PerceptionContext): string {
+  for (let index = perception.relevantEvents.length - 1; index >= 0; index -= 1) {
+    const event = perception.relevantEvents.at(index);
+    if (event?.type !== 'SPOKE') {
+      continue;
+    }
+
+    const actorId = getStringField(event, 'actorId');
+    if (!isPlayerActorId(actorId)) {
+      continue;
+    }
+
+    return getStringField(event, 'content') ?? '';
+  }
+
+  return '';
+}
+
+function hasPlayerSpokeEvent(perception: PerceptionContext): boolean {
+  return perception.relevantEvents.some(
+    (event) => event.type === 'SPOKE' && isPlayerActorId(getStringField(event, 'actorId'))
+  );
 }
 
 function getDimensionLabel(
@@ -149,9 +214,9 @@ function formatValues(values: Value[] | undefined): string | undefined {
   const renderedValues = [...values]
     .sort((left, right) => left.priority - right.priority)
     .slice(0, 3)
-    .map((value) => `${value.value} (${formatValuePriority(value.priority)})`);
+    .map((value) => value.value);
 
-  return `Values: ${renderedValues.join(', ')}`;
+  return joinNaturalList(renderedValues);
 }
 
 function formatFears(fears: Fear[] | undefined): string | undefined {
@@ -161,12 +226,10 @@ function formatFears(fears: Fear[] | undefined): string | undefined {
 
   const renderedFears = [...fears]
     .sort((left, right) => right.intensity - left.intensity)
-    .map(
-      (fear) =>
-        `${fear.category} - "${fear.specific}" (${formatFearIntensity(fear.intensity)})`
-    );
+    .slice(0, 2)
+    .map((fear) => fear.specific.trim());
 
-  return `Fears: ${renderedFears.join(', ')}`;
+  return joinNaturalList(renderedFears);
 }
 
 function formatDimensions(dimensions: DimensionScores | undefined): string | undefined {
@@ -184,7 +247,7 @@ function formatDimensions(dimensions: DimensionScores | undefined): string | und
     ] as const
   )
     .flatMap((dimension) => {
-      const score = dimensions[dimension];
+      const score = getRecordOptional(dimensions, dimension);
       if (score === undefined || (score >= 0.35 && score <= 0.65)) {
         return [];
       }
@@ -200,7 +263,7 @@ function formatDimensions(dimensions: DimensionScores | undefined): string | und
     return undefined;
   }
 
-  return `Personality: ${renderedDimensions.join(', ')}`;
+  return joinNaturalList(renderedDimensions);
 }
 
 function formatEmotionalBaseline(emotional: EmotionalState | undefined): string | undefined {
@@ -210,11 +273,14 @@ function formatEmotionalBaseline(emotional: EmotionalState | undefined): string 
 
   const moodBaseline = emotional.moodBaseline ?? 'trust';
   const mood = getEmotionAdjective(moodBaseline);
-  return `Emotional baseline: ${mood} mood, ${formatMoodStability(
-    emotional.moodStability ?? 0.5
-  )} stability, currently ${emotional.intensity ?? 'mild'} ${humanizeToken(
+  const stability = formatMoodStability(emotional.moodStability ?? 0.5);
+  const currentEmotion = `${emotional.intensity ?? 'mild'} ${humanizeToken(
     emotional.current ?? 'anticipation'
   )}`;
+
+  return ensureSentence(
+    `Emotional baseline: Usually ${mood} with a ${stability} emotional center, currently ${currentEmotion}`
+  );
 }
 
 function formatSocialPatterns(social: SocialPattern | undefined): string | undefined {
@@ -253,7 +319,7 @@ function formatSocialPatterns(social: SocialPattern | undefined): string | undef
       entertainer: 'plays the entertainer',
       caretaker: 'slips into caretaker role',
     };
-    fragments.push(preferredRoleMap[preferredRole]);
+    fragments.push(getRecord(preferredRoleMap, preferredRole));
   }
 
   if (conflictStyle !== 'diplomatic') {
@@ -264,7 +330,7 @@ function formatSocialPatterns(social: SocialPattern | undefined): string | undef
       'passive-aggressive': 'turns conflict passive aggressive',
       collaborative: 'seeks collaborative solutions',
     };
-    fragments.push(conflictStyleMap[conflictStyle]);
+    fragments.push(getRecord(conflictStyleMap, conflictStyle));
   }
 
   if (criticismResponse !== 'reflective') {
@@ -275,7 +341,7 @@ function formatSocialPatterns(social: SocialPattern | undefined): string | undef
       hurt: 'takes criticism personally',
       grateful: 'welcomes criticism',
     };
-    fragments.push(criticismResponseMap[criticismResponse]);
+    fragments.push(getRecord(criticismResponseMap, criticismResponse));
   }
 
   if (boundaries !== 'healthy') {
@@ -285,14 +351,14 @@ function formatSocialPatterns(social: SocialPattern | undefined): string | undef
       porous: 'porous boundaries',
       nonexistent: 'almost no boundaries',
     };
-    fragments.push(boundariesMap[boundaries]);
+    fragments.push(getRecord(boundariesMap, boundaries));
   }
 
   if (fragments.length === 0) {
     return undefined;
   }
 
-  return `Social: ${fragments.join(', ')}`;
+  return ensureSentence(`Social patterns: ${fragments.join(', ')}`);
 }
 
 function formatSpeechStyle(speech: SpeechStyle | undefined): string | undefined {
@@ -317,7 +383,7 @@ function formatSpeechStyle(speech: SpeechStyle | undefined): string | undefined 
       erudite: 'erudite vocabulary',
       archaic: 'archaic vocabulary',
     };
-    fragments.push(vocabularyMap[vocabulary] ?? `${humanizeToken(vocabulary)} vocabulary`);
+    fragments.push(getRecord(vocabularyMap, vocabulary));
   }
 
   if (sentenceStructure !== 'moderate') {
@@ -328,9 +394,7 @@ function formatSpeechStyle(speech: SpeechStyle | undefined): string | undefined 
       complex: 'complex sentences',
       elaborate: 'elaborate sentences',
     };
-    fragments.push(
-      sentenceStructureMap[sentenceStructure] ?? `${humanizeToken(sentenceStructure)} sentences`
-    );
+    fragments.push(getRecord(sentenceStructureMap, sentenceStructure));
   }
 
   if (formality !== 'neutral') {
@@ -340,7 +404,7 @@ function formatSpeechStyle(speech: SpeechStyle | undefined): string | undefined 
       formal: 'formal tone',
       ritualistic: 'ritualistic tone',
     };
-    fragments.push(formalityMap[formality] ?? `${humanizeToken(formality)} tone`);
+    fragments.push(getRecord(formalityMap, formality));
   }
 
   if (humor !== 'occasional' || speech.humorType) {
@@ -365,9 +429,7 @@ function formatSpeechStyle(speech: SpeechStyle | undefined): string | undefined 
       expressive: 'expressive delivery',
       dramatic: 'dramatic delivery',
     };
-    fragments.push(
-      expressivenessMap[expressiveness] ?? `${humanizeToken(expressiveness)} delivery`
-    );
+    fragments.push(getRecord(expressivenessMap, expressiveness));
   }
 
   if (directness !== 'direct') {
@@ -377,7 +439,9 @@ function formatSpeechStyle(speech: SpeechStyle | undefined): string | undefined 
       indirect: 'indirect phrasing',
       evasive: 'evasive phrasing',
     };
-    fragments.push(directnessMap[directness] ?? `${humanizeToken(directness)} phrasing`);
+    fragments.push(
+      getRecordOptional(directnessMap, directness) ?? `${humanizeToken(directness)} phrasing`
+    );
   }
 
   if (pace !== 'moderate') {
@@ -388,14 +452,58 @@ function formatSpeechStyle(speech: SpeechStyle | undefined): string | undefined 
       quick: 'quick pace',
       rapid: 'rapid pace',
     };
-    fragments.push(paceMap[pace] ?? `${humanizeToken(pace)} pace`);
+    fragments.push(getRecord(paceMap, pace));
   }
 
   if (fragments.length === 0) {
     return undefined;
   }
 
-  return `Speech: ${fragments.join(', ')}`;
+  return joinNaturalList(fragments);
+}
+
+function buildCharacterSummary(
+  npcName: string,
+  personalityMap: CharacterProfile['personalityMap'] | undefined
+): string | undefined {
+  if (!personalityMap) {
+    return undefined;
+  }
+
+  const summarySentences: string[] = [];
+  const dimensions = formatDimensions(personalityMap.dimensions);
+  const traits = personalityMap.traits?.slice(0, 3).map((trait) => humanizeToken(trait)) ?? [];
+  const values = formatValues(personalityMap.values);
+  const fears = formatFears(personalityMap.fears);
+  const speechStyle = formatSpeechStyle(personalityMap.speech);
+
+  if (dimensions && traits.length > 0) {
+    summarySentences.push(
+      `${npcName} is ${dimensions}, with ${joinNaturalList(traits)} instincts`
+    );
+  } else if (dimensions) {
+    summarySentences.push(`${npcName} is ${dimensions}`);
+  } else if (traits.length > 0) {
+    summarySentences.push(`${npcName} comes across as ${joinNaturalList(traits)}`);
+  }
+
+  if (values) {
+    summarySentences.push(`What matters most to ${npcName} is ${values}`);
+  }
+
+  if (fears) {
+    summarySentences.push(`They fear ${fears}`);
+  }
+
+  if (speechStyle) {
+    summarySentences.push(`They speak with ${speechStyle}`);
+  }
+
+  if (summarySentences.length === 0) {
+    return undefined;
+  }
+
+  return `Character: ${summarySentences.map((sentence) => ensureSentence(sentence)).join(' ')}`;
 }
 
 function describeHumorType(humorType: NonNullable<SpeechStyle['humorType']>): string {
@@ -571,10 +679,14 @@ export function buildSpeechStyleDirective(speech?: SpeechStyle): string | undefi
  */
 export function buildSystemPrompt(speech?: SpeechStyle): string {
   const base = [
-    'You decide how an NPC should act based on recent events and their personality.',
-    'If no action is appropriate, respond with NO_ACTION.',
-    'Otherwise, decide the NPC\'s next spoken response, optional self-directed action, and emotional tone.',
-    'Keep dialogue concise (max 20 words). Do not narrate the player\'s state or other NPCs\' actions.',
+    'You are inhabiting a character in a living world. You have your own wants, feelings, and momentum.',
+    'Choose what you do next from your own point of view, based on who you are, what you notice, and what matters right now.',
+    'You are not obligated to answer or perform. If nothing truly calls for action, continue what you were doing or respond with NO_ACTION.',
+    'If you are busy with your own activity and the player is not addressing you, you may keep doing what you are doing without speaking.',
+    'Produce at most one coherent beat for this turn.',
+    'Do not control the player or invent the player\'s thoughts, words, or actions.',
+    'Stay grounded in what you have actually perceived.',
+    'Favor concrete, physically plausible behavior over abstract explanation.',
   ];
 
   const directive = buildSpeechStyleDirective(speech);
@@ -589,13 +701,13 @@ export function buildSystemPrompt(speech?: SpeechStyle): string {
 
 function formatStressResponse(response: StressBehavior['primary']): string {
   const responseMap: Record<StressBehavior['primary'], string> = {
-    fight: 'fights',
-    flight: 'flees',
-    freeze: 'freezes',
-    fawn: 'fawns',
+    fight: 'fight',
+    flight: 'flee',
+    freeze: 'freeze',
+    fawn: 'fawn',
   };
 
-  return responseMap[response] ?? humanizeToken(response);
+  return getRecord(responseMap, response);
 }
 
 function formatStressBehavior(stress: StressBehavior | undefined): string | undefined {
@@ -610,33 +722,41 @@ function formatStressBehavior(stress: StressBehavior | undefined): string | unde
     ? `${formatStressResponse(primary)} then ${formatStressResponse(stress.secondary)}`
     : formatStressResponse(primary);
 
-  return `Under stress: ${response}, ${formatStressThreshold(
-    threshold
-  )} threshold, ${humanizeToken(recoveryRate)} recovery`;
+  return ensureSentence(
+    `Stress behavior: Under pressure, tends to ${response}, ${formatStressThreshold(
+      threshold
+    )}, and recovers ${humanizeToken(recoveryRate)}`
+  );
 }
 
 export const NPC_DECISION_SYSTEM_PROMPT = buildSystemPrompt();
 
 /**
  * Builds an instruction block that requests structured JSON output
- * with dialogue, action, and emotion fields.
+ * for the NPC's next scene beat.
  */
 export function buildStructuredOutputInstruction(): string {
   return [
-    'Respond ONLY with a JSON object in this exact format (no markdown fences, no extra text):',
+    'You MUST respond with valid JSON matching exactly this structure:',
     '{',
-    '  "dialogue": "What the NPC says aloud (empty string if silent)",',
-    '  "action": "A brief physical action or gesture, or null if none",',
-    '  "emotion": "The NPC\'s current emotional state, or null if neutral"',
+    '  "dialogue": "What you say aloud - keep it natural, concise, and in character. Avoid restating what was just said",',
+    '  "physicalAction": "A brief outward action or gesture the player can observe",',
+    '  "observation": "What you notice about the scene, the player, or other characters",',
+    '  "internalState": "A short note about your current feeling or thought shift",',
+    '  "sensoryDetail": "A relevant smell, sound, touch, temperature, or sensory cue you notice",',
+    '  "emotion": "A short emotional label or phrase"',
     '}',
     '',
     'Rules:',
-    '- dialogue: The spoken words only. No action descriptions or stage directions.',
-    '- action: A short third-person physical description of this NPC only (for example, "crosses her arms" or "glances away"). Null if no notable action.',
-    '- emotion: A single word or short phrase for the emotional state (for example, "amused", "nervous", or "coldly irritated"). Null if neutral.',
-    '- Do not describe the player\'s internal state or other NPCs\' actions.',
-    '- Do NOT wrap the response in markdown code fences.',
-    '- Respond with NO_ACTION as a plain string (not JSON) if the NPC would not react.',
+    '- "dialogue" is spoken text only. Keep it natural, concise, and in character. Do not include action descriptions or simply repeat what was just said.',
+    '- "physicalAction" is outward, player-observable behavior. Keep it to one concrete gesture or movement.',
+    '- "observation" is what you personally notice. Do not narrate what others are thinking.',
+    '- "internalState" is brief and private. One short sentence about how you feel.',
+    '- "sensoryDetail" is optional. Include only when something is genuinely salient to you.',
+    '- "emotion" is a short label like "amused", "wary", "curious".',
+    '- All fields except "dialogue" are optional. Omit fields that do not apply rather than filling them with generic text.',
+    '- If you are occupied with your own activity and do not have a reason to respond, it is valid to keep doing what you are doing. That ongoing activity may be narrated later as ambient scene detail.',
+    '- If you would not react at all, respond with the plain text: NO_ACTION',
   ].join('\n');
 }
 
@@ -645,39 +765,25 @@ export function buildNpcCognitionPrompt(
   state: NpcRuntimeState,
   profile: CharacterProfile,
   modifiers?: PersonalityModifiers,
-  contextExtras?: CognitionContextExtras
+  contextExtras?: CognitionContextExtras,
+  episodicMemories?: EpisodicMemorySummary[]
 ): string {
   const lines: string[] = [];
+  const npcName = profile.name ?? state.npcId;
   const personalityMap = profile.personalityMap;
+  const hasNarratorHistory = (perception.narratorHistory ?? []).some(
+    (entry) => entry.trim().length > 0
+  );
 
-  lines.push(`NPC: ${profile.name ?? state.npcId}`);
-  const dimensions = formatDimensions(personalityMap?.dimensions);
-  if (dimensions) {
-    lines.push(dimensions);
-  }
-
-  if (personalityMap?.traits?.length) {
-    lines.push(`Traits: ${personalityMap.traits.join(', ')}`);
-  }
-
-  const values = formatValues(personalityMap?.values);
-  if (values) {
-    lines.push(values);
-  }
-
-  const fears = formatFears(personalityMap?.fears);
-  if (fears) {
-    lines.push(fears);
+  lines.push(`NPC: ${npcName}`);
+  const characterSummary = buildCharacterSummary(npcName, personalityMap);
+  if (characterSummary) {
+    lines.push(characterSummary);
   }
 
   const socialPatterns = formatSocialPatterns(personalityMap?.social);
   if (socialPatterns) {
     lines.push(socialPatterns);
-  }
-
-  const speechStyle = formatSpeechStyle(personalityMap?.speech);
-  if (speechStyle) {
-    lines.push(speechStyle);
   }
 
   const emotionalBaseline = formatEmotionalBaseline(personalityMap?.emotionalBaseline);
@@ -694,11 +800,74 @@ export function buildNpcCognitionPrompt(
     lines.push(`Summary: ${profile.summary}`);
   }
   if (profile.backstory) {
-    lines.push(`Backstory: ${profile.backstory.slice(0, 200)}`);
+    lines.push(`Backstory: ${profile.backstory}`);
   }
 
-  if (contextExtras?.startingScenario) {
-    lines.push(`Scenario: ${contextExtras.startingScenario}`);
+  lines.push('## Current Situation');
+
+  if (contextExtras?.locationName) {
+    const locationLine = contextExtras.locationDescription
+      ? `You are at ${contextExtras.locationName}. ${ensureSentence(contextExtras.locationDescription)}`
+      : `You are at ${contextExtras.locationName}.`;
+    lines.push(locationLine);
+  }
+
+  if (contextExtras?.currentActivity) {
+    lines.push(
+      `You are currently: ${contextExtras.currentActivity.description} (${contextExtras.currentActivity.engagement})`
+    );
+
+    if (
+      contextExtras.currentActivity.engagement === 'focused' ||
+      contextExtras.currentActivity.engagement === 'absorbed'
+    ) {
+      lines.push('You are deeply engaged in this and would need a good reason to stop.');
+    }
+  }
+
+  if (contextExtras?.interruptible === false) {
+    lines.push('You cannot be interrupted right now.');
+  }
+
+  if (contextExtras?.playerProximity) {
+    const proximityDescription = renderProximityDescription(contextExtras.playerProximity);
+    if (proximityDescription) {
+      lines.push(proximityDescription);
+    }
+
+    if (
+      contextExtras.playerProximity === 'close' ||
+      contextExtras.playerProximity === 'intimate'
+    ) {
+      lines.push(
+        'Physical closeness is relevant to this scene. Be aware of physical sensations, warmth, touch, and the intimacy of the moment when deciding your response.'
+      );
+    }
+  }
+
+  if (hasPlayerSpokeEvent(perception)) {
+    if (contextExtras?.playerAddressedDirectly === true) {
+      lines.push('The player is speaking directly to you.');
+    } else if (contextExtras?.playerAddressedDirectly === false) {
+      lines.push(
+        'You overheard the player speaking, but they were not addressing you specifically.'
+      );
+    }
+  }
+
+  if (contextExtras?.nearbyNpcSummaries?.length) {
+    lines.push('Others nearby:');
+    contextExtras.nearbyNpcSummaries.forEach((summary) => {
+      lines.push(`- ${summary}`);
+    });
+  }
+
+  lines.push('[Time: not yet tracked]');
+
+  if (!hasNarratorHistory && contextExtras?.startingScenario) {
+    lines.push('');
+    lines.push('## Setting');
+    lines.push(contextExtras.startingScenario);
   }
 
   const playerRelationship = getPlayerRelationship(contextExtras?.relationships);
@@ -727,25 +896,79 @@ export function buildNpcCognitionPrompt(
     }
   }
 
+  const rememberedMemories = (episodicMemories ?? [])
+    .map((memory) => memory.content.replace(/\s+/g, ' ').trim())
+    .filter((memory) => memory.length > 0)
+    .slice(0, 5);
+
+  if (rememberedMemories.length > 0) {
+    lines.push('Things you remember from past encounters:');
+    rememberedMemories.forEach((memory) => {
+      lines.push(`- ${memory}`);
+    });
+    lines.push(
+      "Let these memories inform your behavior naturally. Don't reference them as 'memories' - they're just things you know."
+    );
+  }
+
+  const narratorHistory = (perception.narratorHistory ?? [])
+    .map((entry) => entry.replace(/\s+/g, ' ').trim())
+    .filter((entry) => entry.length > 0)
+    .slice(0, 5);
+
+  if (narratorHistory.length > 0) {
+    lines.push('## Recent Scene Context');
+    lines.push(
+      'The following is scene narration from your surroundings. Use it for atmospheric grounding. It reflects what has been happening around you recently.'
+    );
+    narratorHistory.forEach((entry) => {
+      lines.push(entry);
+    });
+  }
+
+  const recentEventDescriptions: string[] = [];
   lines.push('Recent events:');
   if (perception.relevantEvents.length === 0) {
     lines.push('- None');
   } else {
-    perception.relevantEvents.slice(-5).forEach((event) => {
+    perception.relevantEvents.slice(-10).forEach((event) => {
       const actorId = getStringField(event, 'actorId') ?? 'unknown';
       const actorLabel = formatActorLabel(actorId, contextExtras);
       if (event.type === 'SPOKE') {
         const content = getStringField(event, 'content');
         if (content) {
-          lines.push(`- ${actorLabel} said: "${content}"`);
+          const description = `${actorLabel} said: "${content}"`;
+          recentEventDescriptions.push(description);
+          lines.push(`- ${description}`);
         } else {
-          lines.push(`- ${actorLabel} spoke`);
+          const description = `${actorLabel} spoke`;
+          recentEventDescriptions.push(description);
+          lines.push(`- ${description}`);
         }
         return;
       }
 
-      lines.push(`- ${event.type} from ${actorLabel}`);
+      const description = `${event.type} from ${actorLabel}`;
+      recentEventDescriptions.push(description);
+      lines.push(`- ${description}`);
     });
+  }
+
+  if (contextExtras?.playerAppealTags?.length) {
+    const triggeredAppealTags = findTriggeredAppealTags(
+      getLatestPlayerSpokeContent(perception),
+      recentEventDescriptions,
+      contextExtras.playerAppealTags,
+    );
+    const appealPromptSection = buildAppealPromptSection(
+      triggeredAppealTags,
+      profile,
+      npcName,
+    );
+
+    if (appealPromptSection) {
+      lines.push(appealPromptSection);
+    }
   }
 
   if (modifiers && !isDefaultModifiers(modifiers)) {

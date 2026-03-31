@@ -77,9 +77,14 @@ export {
 // ============================================================================
 
 export {
+  expandNpcProfile,
+  generateNpcBatch,
   generateNpc,
+  llmAuthorStrategy,
+  poolLlmRefineStrategy,
   poolOnlyStrategy,
   TRANSIENT_NPC_THEME,
+  type NpcGenDeps,
   type NpcGenStrategy,
   type NpcStrategyMap,
 } from './npc/index.js';

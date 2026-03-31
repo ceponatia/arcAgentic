@@ -33,7 +33,7 @@ function applyUrgencyDelta(urgency: UrgencyLevel, delta: number): UrgencyLevel {
     Math.max(0, currentIndex + delta)
   );
 
-  return URGENCY_LEVELS[nextIndex] ?? 'normal';
+  return URGENCY_LEVELS.at(nextIndex) ?? 'normal';
 }
 
 function getStressPrimaryNote(primary: StressBehavior['primary'] | undefined): string | null {

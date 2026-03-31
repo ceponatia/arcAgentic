@@ -10,7 +10,9 @@ import {
 } from './fixtures/personality-fixtures.js';
 import {
   buildNpcCognitionPrompt,
+  renderProximityDescription,
   buildSpeechStyleDirective,
+  buildStructuredOutputInstruction,
   buildSystemPrompt,
   NPC_DECISION_SYSTEM_PROMPT,
 } from '../../src/npc/prompts.js';
@@ -105,6 +107,19 @@ describe('buildSystemPrompt', () => {
     expect(buildSystemPrompt()).toBe(NPC_DECISION_SYSTEM_PROMPT);
   });
 
+  it('uses embodiment-style agency guidance without a hard dialogue cap', () => {
+    const prompt = buildSystemPrompt();
+
+    expect(prompt).toContain(
+      'You are inhabiting a character in a living world. You have your own wants, feelings, and momentum.'
+    );
+    expect(prompt).toContain(
+      'You are not obligated to answer or perform. If nothing truly calls for action, continue what you were doing or respond with NO_ACTION.'
+    );
+    expect(prompt).toContain('Do not control the player or invent the player\'s thoughts, words, or actions.');
+    expect(prompt).not.toContain('max 20 words');
+  });
+
   it('includes a speech style requirements section when speech style is present', () => {
     const prompt = buildSystemPrompt({
       ...DEFAULT_SPEECH_STYLE,
@@ -115,6 +130,24 @@ describe('buildSystemPrompt', () => {
     expect(prompt).toContain(
       'Use archaic, old-fashioned language. Thee, thou, henceforth.'
     );
+  });
+});
+
+describe('renderProximityDescription', () => {
+  it('maps supported proximity levels to natural-language descriptions', () => {
+    expect(renderProximityDescription('distant')).toBe(
+      'The player is far away, barely visible or audible.'
+    );
+    expect(renderProximityDescription('near')).toBe(
+      'The player is nearby, within ordinary conversation distance.'
+    );
+    expect(renderProximityDescription('close')).toBe(
+      'The player is within arm\'s reach.'
+    );
+    expect(renderProximityDescription('intimate')).toBe(
+      'The player is in direct physical contact or immediate physical closeness with you.'
+    );
+    expect(renderProximityDescription('unknown')).toBe('');
   });
 });
 
@@ -130,13 +163,58 @@ describe('buildNpcCognitionPrompt', () => {
       'NPC: Mara',
       'Summary: A guarded sentinel who chooses her words carefully.',
       'Backstory: Mara survived a long border war and now trusts slowly.',
+      '## Current Situation',
+      '[Time: not yet tracked]',
       'Recent events:',
       '- actor-002 said: "Test message"',
-      'Instruction: Decide the next thing the NPC should say.',
+      'Instruction: Decide the NPC\'s next response in character.',
+      buildStructuredOutputInstruction(),
     ].join('\n'));
   });
 
-  it('renders only the values section for a partial personality map', () => {
+  it('adds direct-address context when the player is speaking to the npc', () => {
+    const prompt = buildNpcCognitionPrompt(
+      createPerception([
+        {
+          type: 'SPOKE',
+          actorId: 'player:test',
+          sessionId: 'session-001',
+          content: 'Look at me.',
+          timestamp: new Date('2025-01-01T00:00:00Z'),
+        } as WorldEvent,
+      ]),
+      createNpcState(),
+      createProfile(),
+      undefined,
+      { playerAddressedDirectly: true }
+    );
+
+    expect(prompt).toContain('The player is speaking directly to you.');
+  });
+
+  it('adds overheard context when the player was not addressing the npc', () => {
+    const prompt = buildNpcCognitionPrompt(
+      createPerception([
+        {
+          type: 'SPOKE',
+          actorId: 'player:test',
+          sessionId: 'session-001',
+          content: 'Anyone here?',
+          timestamp: new Date('2025-01-01T00:00:00Z'),
+        } as WorldEvent,
+      ]),
+      createNpcState(),
+      createProfile(),
+      undefined,
+      { playerAddressedDirectly: false }
+    );
+
+    expect(prompt).toContain(
+      'You overheard the player speaking, but they were not addressing you specifically.'
+    );
+  });
+
+  it('renders a natural-language character summary for a partial personality map', () => {
     const prompt = buildNpcCognitionPrompt(
       createPerception(),
       createNpcState(),
@@ -150,14 +228,13 @@ describe('buildNpcCognitionPrompt', () => {
       })
     );
 
-    expect(prompt).toContain('Values: loyalty (paramount), justice (strong)');
+    expect(prompt).toContain('Character: What matters most to Mara is loyalty and justice.');
     expect(prompt).not.toContain('Personality:');
     expect(prompt).not.toContain('Traits:');
     expect(prompt).not.toContain('Fears:');
-    expect(prompt).not.toContain('Social:');
-    expect(prompt).not.toContain('Speech:');
+    expect(prompt).not.toContain('Social patterns:');
     expect(prompt).not.toContain('Emotional baseline:');
-    expect(prompt).not.toContain('Under stress:');
+    expect(prompt).not.toContain('Stress behavior:');
   });
 
   it('renders all enriched personality sections in the expected order', () => {
@@ -242,16 +319,14 @@ describe('buildNpcCognitionPrompt', () => {
     const lines = prompt.split('\n');
     const orderedPrefixes = [
       'NPC:',
-      'Personality:',
-      'Traits:',
-      'Values:',
-      'Fears:',
-      'Social:',
-      'Speech:',
+      'Character:',
+      'Social patterns:',
       'Emotional baseline:',
-      'Under stress:',
+      'Stress behavior:',
       'Summary:',
       'Backstory:',
+      '## Current Situation',
+      '[Time: not yet tracked]',
       'Recent events:',
       'Instruction:',
     ];
@@ -263,7 +338,88 @@ describe('buildNpcCognitionPrompt', () => {
     expect(indexes.every((index) => index >= 0)).toBe(true);
     expect(indexes).toEqual([...indexes].sort((left, right) => left - right));
     expect(prompt).toContain(
-      'Speech: erudite vocabulary, complex sentences, formal tone, frequent dry humor, reserved delivery, tactful phrasing, measured pace'
+      'Character: Mara is very open and curious, spontaneous and flexible, reserved and introspective, cooperative and trusting, and very anxious and reactive, with guarded and loyal instincts. What matters most to Mara is loyalty, justice, and curiosity. They fear never being good enough and being left behind. They speak with erudite vocabulary, complex sentences, formal tone, frequent dry humor, reserved delivery, tactful phrasing, and measured pace.'
+    );
+  });
+
+  it('renders environment, activity, proximity, and nearby NPC context in the current situation section', () => {
+    const prompt = buildNpcCognitionPrompt(
+      createPerception(),
+      createNpcState(),
+      createProfile(),
+      undefined,
+      {
+        locationName: 'Moonlit Bathhouse',
+        locationDescription: 'Steam curls through blue lantern light',
+        currentActivity: {
+          type: 'bathing',
+          description: 'soaking in the hot spring',
+          engagement: 'absorbed',
+        },
+        playerProximity: 'intimate',
+        interruptible: false,
+        nearbyNpcSummaries: ['Iris: folding towels', 'Jun: humming by the doorway'],
+      },
+    );
+
+    expect(prompt).toContain('## Current Situation');
+    expect(prompt).toContain(
+      'You are at Moonlit Bathhouse. Steam curls through blue lantern light.'
+    );
+    expect(prompt).toContain('You are currently: soaking in the hot spring (absorbed)');
+    expect(prompt).toContain(
+      'You are deeply engaged in this and would need a good reason to stop.'
+    );
+    expect(prompt).toContain('You cannot be interrupted right now.');
+    expect(prompt).toContain(
+      'The player is in direct physical contact or immediate physical closeness with you.'
+    );
+    expect(prompt).toContain(
+      'Physical closeness is relevant to this scene. Be aware of physical sensations, warmth, touch, and the intimacy of the moment when deciding your response.'
+    );
+    expect(prompt).toContain('Others nearby:');
+    expect(prompt).toContain('- Iris: folding towels');
+    expect(prompt).toContain('- Jun: humming by the doorway');
+  });
+
+  it('renders the explicit setting fallback when no narrator history is available', () => {
+    const prompt = buildNpcCognitionPrompt(
+      createPerception(),
+      createNpcState(),
+      createProfile(),
+      undefined,
+      {
+        startingScenario:
+          'Moonlight spills across the empty bathhouse as steam coils above the water.',
+      }
+    );
+
+    expect(prompt).toContain(
+      '\n## Setting\nMoonlight spills across the empty bathhouse as steam coils above the water.'
+    );
+  });
+
+  it('does not duplicate the setting fallback when narrator history already contains scene context', () => {
+    const prompt = buildNpcCognitionPrompt(
+      {
+        ...createPerception(),
+        narratorHistory: [
+          'Moonlight spills across the empty bathhouse as steam coils above the water.',
+        ],
+      },
+      createNpcState(),
+      createProfile(),
+      undefined,
+      {
+        startingScenario:
+          'Moonlight spills across the empty bathhouse as steam coils above the water.',
+      }
+    );
+
+    expect(prompt).not.toContain('## Setting');
+    expect(prompt).toContain('## Recent Scene Context');
+    expect(prompt).toContain(
+      'Moonlight spills across the empty bathhouse as steam coils above the water.'
     );
   });
 
@@ -283,8 +439,8 @@ describe('buildNpcCognitionPrompt', () => {
       })
     );
 
-    expect(prompt).toContain('Values: loyalty (paramount), justice (strong), curiosity (moderate)');
-    expect(prompt).not.toContain('freedom (slight)');
+    expect(prompt).toContain('What matters most to Mara is loyalty, justice, and curiosity.');
+    expect(prompt).not.toContain('freedom');
   });
 
   it('omits moderate dimensions and renders only notable deviations', () => {
@@ -305,7 +461,7 @@ describe('buildNpcCognitionPrompt', () => {
     );
 
     expect(prompt).toContain(
-      'Personality: very open and curious, reserved and introspective, cooperative and trusting'
+      'Character: Mara is very open and curious, reserved and introspective, and cooperative and trusting.'
     );
     expect(prompt).not.toContain('disciplined and organized');
     expect(prompt).not.toContain('calm and stable');
@@ -337,9 +493,7 @@ describe('buildNpcCognitionPrompt', () => {
       })
     );
 
-    expect(prompt).toContain(
-      'Fears: failure - "never being good enough" (overwhelming), abandonment - "being left behind" (moderate)'
-    );
+    expect(prompt).toContain('They fear never being good enough and being left behind.');
   });
 
   it('skips the social line when all social values are defaults', () => {
@@ -360,10 +514,10 @@ describe('buildNpcCognitionPrompt', () => {
       })
     );
 
-    expect(prompt).not.toContain('Social:');
+    expect(prompt).not.toContain('Social patterns:');
   });
 
-  it('skips the speech line when all speech values are defaults', () => {
+  it('skips the character summary when only default speech values are present', () => {
     const prompt = buildNpcCognitionPrompt(
       createPerception(),
       createNpcState(),
@@ -382,7 +536,7 @@ describe('buildNpcCognitionPrompt', () => {
       })
     );
 
-    expect(prompt).not.toContain('Speech:');
+    expect(prompt).not.toContain('Character:');
   });
 
   it('formats stress behavior with primary and secondary responses', () => {
@@ -403,7 +557,58 @@ describe('buildNpcCognitionPrompt', () => {
       })
     );
 
-    expect(prompt).toContain('Under stress: freezes then flees, low threshold, slow recovery');
+    expect(prompt).toContain(
+      'Stress behavior: Under pressure, tends to freeze then flee, rattles easily, and recovers slow.'
+    );
+  });
+
+  it('includes the full backstory without hard truncation', () => {
+    const longBackstory =
+      'Mara kept a journal through the border war, then spent years carrying messages between ruined towers, learning every oath, betrayal, and burial path along the frontier without ever finding a place that felt fully safe.';
+
+    const prompt = buildNpcCognitionPrompt(
+      createPerception(),
+      createNpcState(),
+      createProfile({ backstory: longBackstory })
+    );
+
+    expect(prompt).toContain(`Backstory: ${longBackstory}`);
+  });
+
+  it('adds a sensory focus section after recent events when player appeal tags are triggered', () => {
+    const prompt = buildNpcCognitionPrompt(
+      createPerception([
+        buildSpokeEffect({
+          actorId: 'player',
+          sessionId: 'session-001',
+          content: 'I want to touch hair and stay close.',
+        }),
+      ]),
+      createNpcState(),
+      createProfile({
+        body: {
+          hair: {
+            scent: { primary: 'lavender', intensity: 0.4 },
+            texture: { primary: 'silky', temperature: 'warm', moisture: 'normal' },
+          },
+        },
+      }),
+      undefined,
+      {
+        playerName: 'Avery',
+        playerAppealTags: ['hair'],
+      },
+    );
+
+    const lines = prompt.split('\n');
+    const recentEventsIndex = lines.findIndex((line) => line === 'Recent events:');
+    const sensoryFocusIndex = lines.findIndex((line) => line === 'Sensory focus:');
+    const instructionIndex = lines.findIndex((line) => line.startsWith('Instruction:'));
+
+    expect(sensoryFocusIndex).toBeGreaterThan(recentEventsIndex);
+    expect(sensoryFocusIndex).toBeLessThan(instructionIndex);
+    expect(prompt).toContain("The player is especially drawn to Mara's hair.");
+    expect(prompt).toContain('warm, silky texture and lavender scent');
   });
 });
 

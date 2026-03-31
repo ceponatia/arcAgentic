@@ -1,7 +1,11 @@
 import { NpcGenerationRequestSchema } from '@arcagentic/schemas';
 import type { NpcGenerationRequest, NpcGenerationResult } from '@arcagentic/schemas';
-import { poolOnlyStrategy } from './strategies/index.js';
-import type { NpcStrategyMap } from './types.js';
+import {
+  llmAuthorStrategy,
+  poolLlmRefineStrategy,
+  poolOnlyStrategy,
+} from './strategies/index.js';
+import type { NpcGenDeps, NpcStrategyMap } from './types.js';
 
 /**
  * Strategy map for NPC generation.
@@ -9,6 +13,9 @@ import type { NpcStrategyMap } from './types.js';
  */
 const strategyMap: NpcStrategyMap = {
   transient: poolOnlyStrategy,
+  background: poolLlmRefineStrategy,
+  minor: llmAuthorStrategy,
+  major: llmAuthorStrategy,
 };
 
 /**
@@ -24,12 +31,13 @@ const strategyMap: NpcStrategyMap = {
  */
 export async function generateNpc(
   request: NpcGenerationRequest,
+  deps?: NpcGenDeps,
 ): Promise<NpcGenerationResult> {
   const parsed = NpcGenerationRequestSchema.parse(request);
   const strategy = strategyMap[parsed.tier];
 
   if (strategy) {
-    return strategy(parsed);
+    return strategy(parsed, deps);
   }
 
   if (parsed.allowFallback !== false) {
@@ -37,7 +45,7 @@ export async function generateNpc(
       ...parsed,
       tier: 'transient',
     };
-    const result = await poolOnlyStrategy(fallbackRequest);
+    const result = await poolOnlyStrategy(fallbackRequest, deps);
 
     return {
       ...result,

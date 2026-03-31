@@ -1,9 +1,12 @@
 import React, { useState } from "react";
-import type {
-  TurnMetadata,
-  AgentOutputWithType,
-  PhaseTiming,
-} from "../../../types.js";
+import type { AgentOutputWithType, PhaseTiming } from "../../../types.js";
+
+interface DebugTurnMetadata {
+  processingTimeMs: number;
+  agentsInvoked: string[];
+  agentOutputs?: AgentOutputWithType[];
+  phaseTiming?: PhaseTiming;
+}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -67,7 +70,7 @@ interface StateChanges {
 }
 
 export interface DebugSidebarProps {
-  metadata: TurnMetadata | null;
+  metadata: DebugTurnMetadata | null;
   events?: TurnEvent[];
   stateChanges?: StateChanges | null;
 }

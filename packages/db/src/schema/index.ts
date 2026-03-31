@@ -387,3 +387,38 @@ export const dialogueState = pgTable(
     };
   }
 );
+
+// =============================================================================
+// 011_NARRATOR
+// =============================================================================
+
+export const narratorMessages = pgTable(
+  'narrator_messages',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    sessionId: uuid('session_id')
+      .notNull()
+      .references(() => sessions.id, { onDelete: 'cascade' }),
+    turnSequence: bigint('turn_sequence', { mode: 'bigint' }).notNull(),
+    prose: text('prose').notNull(),
+    source: text('source').notNull(),
+    locationId: text('location_id'),
+    contributingActorIds: jsonb('contributing_actor_ids').$type<string[]>().notNull(),
+    spokeEventIds: jsonb('spoke_event_ids').$type<string[]>().notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => {
+    return {
+      sessionTurnUnique: unique().on(table.sessionId, table.turnSequence),
+      sessionLocationIdx: index('idx_narrator_messages_session_location').on(
+        table.sessionId,
+        table.locationId
+      ),
+      sessionTurnIdx: index('idx_narrator_messages_session_turn').on(
+        table.sessionId,
+        table.turnSequence
+      ),
+    };
+  }
+);

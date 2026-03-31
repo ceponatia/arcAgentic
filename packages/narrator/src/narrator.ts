@@ -13,26 +13,55 @@ import {
 const NARRATOR_TIMEOUT_MS = 12_000;
 const logger = createLogger('narrator');
 
+function getTrimmedText(value: string | undefined): string | undefined {
+  const trimmed = value?.trim();
+  return trimmed;
+}
+
+function getIntentPhysicalAction(intent: NpcIntent): string | undefined {
+  return getTrimmedText(intent.physicalAction) ?? getTrimmedText(intent.action);
+}
+
+function getContinuationActivity(intent: NpcIntent): string | undefined {
+  return getTrimmedText(intent.continuationActivity) ?? getIntentPhysicalAction(intent);
+}
+
+function pushIntentDetail(
+  lines: string[],
+  label: string,
+  value: string | undefined,
+  options?: { quote?: boolean },
+): void {
+  if (!value) {
+    return;
+  }
+
+  const renderedValue = options?.quote ? `"${value}"` : value;
+  lines.push(`  ${label}: ${renderedValue}`);
+}
+
 /** Build the narrator system prompt. */
 export function buildNarratorSystemPrompt(config: NarrationConfig): string {
   const lines: string[] = [
     'You are a skilled narrative writer composing prose for an interactive romantic roleplaying game.',
     `Write in ${config.voice} perspective.`,
-    'Write like a scene from a novel, not a chat log or transcript.',
+    'CARDINAL RULE: Every response must be descriptive prose. Never return bare dialogue, chat-log formatting, or screenplay notation. Write like a scene from a novel.',
     'Combine the provided NPC actions and dialogue into a flowing, immersive passage.',
-    'CRITICAL: Your output must ALWAYS be a descriptive prose passage of at least 40 words. NEVER return just a line of dialogue.',
-    'Bare dialogue output is NEVER acceptable.',
-    'Always describe the NPC\'s body language, expressions, posture, physical presence, and manner of speaking, even when only dialogue is provided.',
-    'If the NPC intent is only dialogue, you MUST describe how the character delivers the line: their posture, expression, tone of voice, where their eyes go, and the atmosphere of the space around them.',
-    'Add visual detail about how the character looks in the moment and how they carry themselves.',
-    'For romantic or interpersonal scenes, emphasize subtle emotional cues, tension, and proximity awareness.',
-    'Treat dialogue-only intents as an opportunity to flesh out the scene, not as a signal to produce minimal output.',
-    'Even if an NPC intent contains only dialogue with no action or emotion, you MUST add descriptive prose around the dialogue showing body language, tone of voice, facial expressions, and scene atmosphere.',
+    'Render each character with body language, expression, posture, physical presence, and manner of speaking, even when the structured intent only contains dialogue.',
+    'Use emotional cues, subtle tension, and scene-aware physical staging to make close interpersonal moments feel embodied rather than abstract.',
+    'Preserve concrete NPC-provided physical actions, observations, and sensory details when they are present instead of flattening them into generic connective prose.',
+    'Use internal state as subtext that shapes delivery, implication, and tone; do not automatically expose it as blunt omniscient exposition.',
+    'When multiple NPCs respond, combine their beats into a single cohesive passage without losing which actor said or did what.',
+    'When an NPC intent is marked as a continuation, treat it as ambient scene detail only. Do not invent dialogue for that NPC.',
     'Use *italics* for action descriptions and inner thoughts.',
     'Use "quotes" for spoken dialogue.',
     'Maintain consistent tense and voice throughout.',
     'You may add low-stakes descriptive staging and sensory detail that interprets the provided moment, but do not introduce new decisions, plot events, or materially new actions.',
   ];
+
+  if (config.sceneProximity === 'close' || config.sceneProximity === 'intimate') {
+    lines.push('Physical closeness is central to this scene. Emphasize sensory detail - warmth, breath, touch, scent - and the emotional weight of proximity. Avoid clinical language; write with intimacy and presence.');
+  }
 
   if (config.includeAtmosphere) {
     lines.push('Actively layer in sensory atmosphere such as sounds, lighting, texture, temperature, and environmental feel when they support the moment.');
@@ -58,6 +87,8 @@ export function buildNarratorUserPrompt(
 ): string {
   const lines: string[] = [];
   const playerLabel = context.playerName?.trim() ?? 'The player';
+  const dialogueIntents = intents.filter((intent) => !intent.isContinuation);
+  const continuationIntents = intents.filter((intent) => intent.isContinuation);
 
   lines.push(`Location: ${context.locationName}`);
   if (context.sceneDescription) {
@@ -90,32 +121,65 @@ export function buildNarratorUserPrompt(
     }
   }
 
+  if (context.sceneProximity) {
+    lines.push('');
+    lines.push(`Scene proximity: ${context.sceneProximity}`);
+  }
+
   if (context.playerMessage) {
     lines.push('');
     lines.push(`${playerLabel} said: "${context.playerMessage}"`);
   }
 
-  lines.push('');
-  lines.push('NPC intents to narrate:');
-  for (const intent of intents) {
-    const parts: string[] = [`- ${intent.name}`];
-    if (intent.dialogue) {
-      parts.push(`says: "${intent.dialogue}"`);
+  if (context.characterSummaries && context.characterSummaries.length > 0) {
+    lines.push('');
+    lines.push('Character guides for this scene:');
+    for (const characterSummary of context.characterSummaries) {
+      const parts = [characterSummary.name];
+      if (characterSummary.speechStyle) {
+        parts.push(`speaks ${characterSummary.speechStyle}`);
+      }
+      if (characterSummary.emotionalBaseline) {
+        parts.push(`emotional tone: ${characterSummary.emotionalBaseline}`);
+      }
+      if (characterSummary.physicalMannerisms) {
+        parts.push(`manner: ${characterSummary.physicalMannerisms}`);
+      }
+      if (characterSummary.proximityToPlayer) {
+        parts.push(`proximity: ${characterSummary.proximityToPlayer}`);
+      }
+      lines.push(`- ${parts.join('; ')}`);
     }
-    if (intent.action) {
-      parts.push(`does: ${intent.action}`);
+  }
+
+  if (dialogueIntents.length > 0) {
+    lines.push('');
+    lines.push('NPC intents to narrate:');
+    for (const intent of dialogueIntents) {
+      lines.push(`- ${intent.name}`);
+      pushIntentDetail(lines, 'speech', getTrimmedText(intent.dialogue), { quote: true });
+      pushIntentDetail(lines, 'physical action', getIntentPhysicalAction(intent));
+      pushIntentDetail(lines, 'observation', getTrimmedText(intent.observation));
+      pushIntentDetail(lines, 'sensory detail', getTrimmedText(intent.sensoryDetail));
+      pushIntentDetail(lines, 'emotion', getTrimmedText(intent.emotion));
+      pushIntentDetail(lines, 'internal state', getTrimmedText(intent.internalState));
+      pushIntentDetail(lines, 'target actor', getTrimmedText(intent.targetActorId));
     }
-    if (intent.emotion) {
-      parts.push(`feeling: ${intent.emotion}`);
+  }
+
+  if (continuationIntents.length > 0) {
+    lines.push('');
+    lines.push('Ambient scene activity (NPCs continuing what they were doing):');
+    for (const intent of continuationIntents) {
+      lines.push(
+        `- ${intent.name}: ${getContinuationActivity(intent) ?? 'continuing their activity'}`
+      );
     }
-    if (intent.targetActorId) {
-      parts.push(`(directed at ${intent.targetActorId})`);
-    }
-    lines.push(parts.join(' | '));
+    lines.push('Weave these into the scene description as brief ambient detail. Do not give them dialogue.');
   }
 
   lines.push('');
-  lines.push('Compose the above into a vivid, descriptive prose passage of at least 40 words. Describe body language, expressions, and atmosphere - do not just repeat the dialogue.');
+  lines.push('Compose the above into a vivid, descriptive prose passage of at least 40 words. Describe body language, expressions, and atmosphere - do not just repeat the dialogue. Render continuation intents only as brief ambient scene detail and do not make those NPCs answer the player unless dialogue was explicitly provided.');
 
   return lines.join('\n');
 }
@@ -126,23 +190,33 @@ export function composeNarrationFallback(intents: NpcIntent[]): NarrationResult 
     return { prose: '', sourceIntents: [], source: 'fallback' };
   }
 
+  const dialogueIntents = intents.filter((intent) => !intent.isContinuation);
+  const continuationIntents = intents.filter((intent) => intent.isContinuation);
   const parts: string[] = [];
-  for (const intent of intents) {
+  for (const intent of dialogueIntents) {
     const segments: string[] = [];
-    if (intent.action) {
-      segments.push(`*${intent.name} ${intent.action}.*`);
+    const physicalAction = getIntentPhysicalAction(intent);
+    const observation = getTrimmedText(intent.observation);
+    const sensoryDetail = getTrimmedText(intent.sensoryDetail);
+    const emotion = getTrimmedText(intent.emotion);
+    const dialogue = getTrimmedText(intent.dialogue);
+    const targetActorId = getTrimmedText(intent.targetActorId);
+
+    if (physicalAction) {
+      segments.push(`*Action - ${intent.name}: ${physicalAction}.*`);
     }
-    if (intent.dialogue) {
-      const speechTarget = intent.targetActorId ? ` to ${intent.targetActorId}` : '';
-      if (intent.emotion) {
-        const expressionLine = intent.action
-          ? `*${intent.name}'s expression carries ${intent.emotion} through the moment.*`
-          : `*${intent.name}'s expression shifts, ${intent.emotion} evident in every line.*`;
-        segments.push(expressionLine);
-      }
-      segments.push(`"${intent.dialogue}" ${intent.name} says${speechTarget}.`);
-    } else if (intent.emotion) {
-      segments.push(`*${intent.name}'s expression and tone suggest ${intent.emotion}.*`);
+    if (observation) {
+      segments.push(`*Observation - ${intent.name}: ${observation}.*`);
+    }
+    if (sensoryDetail) {
+      segments.push(`*Sensory detail - ${intent.name}: ${sensoryDetail}.*`);
+    }
+    if (emotion) {
+      segments.push(`*Emotion - ${intent.name}: ${emotion}.*`);
+    }
+    if (dialogue) {
+      const speechTarget = targetActorId ? ` to ${targetActorId}` : '';
+      segments.push(`"${dialogue}" ${intent.name} says${speechTarget}.`);
     }
     if (segments.length === 0) {
       segments.push(`*${intent.name} is silent.*`);
@@ -150,8 +224,13 @@ export function composeNarrationFallback(intents: NpcIntent[]): NarrationResult 
     parts.push(segments.join(' '));
   }
 
+  for (const intent of continuationIntents) {
+    const continuationActivity = getContinuationActivity(intent) ?? 'their activity';
+    parts.push(`*${intent.name} continues ${continuationActivity}.*`);
+  }
+
   return {
-    prose: parts.join('\n\n'),
+    prose: parts.join('\n\n') || 'The world is quiet.',
     sourceIntents: intents,
     source: 'fallback',
   };
@@ -162,9 +241,11 @@ export async function composeNarration(
   options: ComposeNarrationOptions,
 ): Promise<NarrationResult> {
   const { llmProvider, intents, context } = options;
+  const resolvedSceneProximity = options.config?.sceneProximity ?? context.sceneProximity;
   const config: NarrationConfig = {
     ...DEFAULT_NARRATION_CONFIG,
     ...options.config,
+    ...(resolvedSceneProximity ? { sceneProximity: resolvedSceneProximity } : {}),
   };
 
   logger.debug(

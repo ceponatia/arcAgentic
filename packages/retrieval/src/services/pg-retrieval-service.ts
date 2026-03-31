@@ -16,10 +16,10 @@ import {
   computeScore,
 } from '../scoring/scoring.js';
 import type {
-  EmbeddingService,
   NodeIngestionInput,
   NodeIngestionResult,
   RetrievalConfig,
+  RetrievalEmbeddingService,
   RetrievalMetadata,
   RetrievalQuery,
   RetrievalResult,
@@ -34,9 +34,9 @@ import { DEFAULT_RETRIEVAL_CONFIG } from './retrieval-service.js';
  */
 export class PgRetrievalService implements RetrievalService {
   private readonly config: Required<RetrievalConfig>;
-  private readonly embeddingService: EmbeddingService;
+  private readonly embeddingService: RetrievalEmbeddingService;
 
-  constructor(embeddingService: EmbeddingService, config: RetrievalConfig = {}) {
+  constructor(embeddingService: RetrievalEmbeddingService, config: RetrievalConfig = {}) {
     this.embeddingService = embeddingService;
     this.config = {
       ...DEFAULT_RETRIEVAL_CONFIG,

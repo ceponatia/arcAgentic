@@ -29,10 +29,16 @@ export const useRuntimeStore = create<RuntimeStore>((set) => ({
   selectedActorId: null,
   overlayOpen: false,
   updateActorState: (id, patch) =>
-    set((s) => ({
-      actorStates: { ...s.actorStates, [id]: { ...s.actorStates[id], ...patch } },
-      activeActorIds: s.activeActorIds.includes(id) ? s.activeActorIds : [...s.activeActorIds, id],
-    })),
+    set((s) => {
+      const actorStates = new Map<string, ActorDebugState>(Object.entries(s.actorStates));
+      const existingState = actorStates.get(id);
+      actorStates.set(id, { ...existingState, ...patch });
+
+      return {
+        actorStates: Object.fromEntries(actorStates) as Record<string, ActorDebugState>,
+        activeActorIds: s.activeActorIds.includes(id) ? s.activeActorIds : [...s.activeActorIds, id],
+      };
+    }),
   resetActors: () => set({ actorStates: {}, activeActorIds: [] }),
   addEvent: (event) =>
     set((s) => {

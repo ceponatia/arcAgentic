@@ -23,6 +23,9 @@
       "path": "../db"
     },
     {
+      "path": "../generator"
+    },
+    {
       "path": "../projections"
     },
     {

@@ -112,3 +112,9 @@ export {
   type CognitionTaskContext,
   type CognitionTask,
 } from './cognition-task.js';
+
+// Episodic memory
+export {
+  EpisodicMemorySummarySchema,
+  type EpisodicMemorySummary,
+} from './episodic-memory.js';

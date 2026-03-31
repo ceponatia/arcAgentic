@@ -37,6 +37,10 @@ const createSpokeEffectSchema = (timestampSchema: z.ZodType<Date>) =>
     content: z.string(),
     targetActorId: z.string().optional(),
     action: z.string().optional(),
+    physicalAction: z.string().optional(),
+    observation: z.string().optional(),
+    internalState: z.string().optional(),
+    sensoryDetail: z.string().optional(),
     emotion: z.string().optional(),
     ...baseEffectFields(timestampSchema),
   });

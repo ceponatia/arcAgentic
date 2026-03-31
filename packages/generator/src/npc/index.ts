@@ -1,4 +1,6 @@
+export { generateNpcBatch } from './batch.js';
+export { expandNpcProfile } from './expansion.js';
 export { generateNpc } from './pipeline.js';
-export { poolOnlyStrategy } from './strategies/index.js';
+export { llmAuthorStrategy, poolLlmRefineStrategy, poolOnlyStrategy } from './strategies/index.js';
 export { TRANSIENT_NPC_THEME } from './themes/index.js';
-export type { NpcGenStrategy, NpcStrategyMap } from './types.js';
+export type { NpcGenDeps, NpcGenStrategy, NpcStrategyMap } from './types.js';

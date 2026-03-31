@@ -1,4 +1,5 @@
 // packages/actors/src/studio-npc/prompts.ts
+import { getRecord, getRecordOptional } from '@arcagentic/schemas';
 import type {
   AttachmentStyle,
   CharacterProfile,
@@ -108,7 +109,7 @@ function buildDimensionsLine(dimensions: DimensionScores | undefined): string | 
     ] as const
   )
     .map((dimension) => {
-      const score = dimensions[dimension];
+      const score = getRecordOptional(dimensions, dimension);
       if (score === undefined) return null;
       return describeDimension(dimension, score);
     })
@@ -198,7 +199,7 @@ function buildAttachmentLine(attachment: AttachmentStyle | undefined): string | 
       'In close relationships, you want closeness but fear it, creating a painful push-pull inside you.',
   };
 
-  return attachmentMap[attachment];
+  return getRecord(attachmentMap, attachment);
 }
 
 function buildSocialLine(social: SocialPattern | undefined): string | null {
@@ -219,7 +220,7 @@ function buildSocialLine(social: SocialPattern | undefined): string | null {
       guarded: 'You meet strangers with guarded reserve.',
       hostile: 'You meet strangers with visible hostility.',
     };
-    const fragment = strangerMap[strangerDefault];
+    const fragment = getRecord(strangerMap, strangerDefault);
     if (fragment) fragments.push(fragment);
   }
 
@@ -230,7 +231,7 @@ function buildSocialLine(social: SocialPattern | undefined): string | null {
       slow: 'You warm up to people slowly.',
       'very-slow': 'You take a long time to let people close.',
     };
-    const fragment = warmthMap[warmthRate];
+    const fragment = getRecord(warmthMap, warmthRate);
     if (fragment) fragments.push(fragment);
   }
 
@@ -243,7 +244,7 @@ function buildSocialLine(social: SocialPattern | undefined): string | null {
       entertainer: 'In a group, you instinctively lift the mood and draw attention through charm or performance.',
       caretaker: 'In a group, you instinctively notice needs and move to take care of them.',
     };
-    const fragment = roleMap[preferredRole];
+    const fragment = getRecord(roleMap, preferredRole);
     if (fragment) fragments.push(fragment);
   }
 
@@ -255,7 +256,7 @@ function buildSocialLine(social: SocialPattern | undefined): string | null {
       'passive-aggressive': 'When conflict comes, you let sharpness leak through sideways instead of striking directly.',
       collaborative: 'When conflict comes, you try to work toward a shared solution.',
     };
-    const fragment = conflictMap[conflictStyle];
+    const fragment = getRecord(conflictMap, conflictStyle);
     if (fragment) fragments.push(fragment);
   }
 
@@ -267,7 +268,7 @@ function buildSocialLine(social: SocialPattern | undefined): string | null {
       hurt: 'Criticism lands personally and stings.',
       grateful: 'Criticism feels useful to you, and you try to receive it with gratitude.',
     };
-    const fragment = criticismMap[criticismResponse];
+    const fragment = getRecord(criticismMap, criticismResponse);
     if (fragment) fragments.push(fragment);
   }
 
@@ -279,7 +280,7 @@ function buildSocialLine(social: SocialPattern | undefined): string | null {
       nonexistent:
         'Your boundaries are almost nonexistent, making it hard to protect yourself from other people\'s needs and emotions.',
     };
-    const fragment = boundariesMap[boundaries];
+    const fragment = getRecord(boundariesMap, boundaries);
     if (fragment) fragments.push(fragment);
   }
 

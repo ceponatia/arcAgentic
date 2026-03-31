@@ -2,22 +2,22 @@
  * NPCs Step - Select and configure NPC cast for the session
  */
 
-import React, { useState } from 'react';
-import { useWorkspaceStore } from '../store.js';
-import { SelectableCard } from '../components/SelectableCard.js';
-import type { CharacterSummary } from '../../../types.js';
-import type { NpcSessionConfig, NpcRole, SessionNpcTier } from '../store.js';
-import { Search, Filter, X } from 'lucide-react';
+import React, { useState } from "react";
+import { useWorkspaceStore } from "../store.js";
+import { SelectableCard } from "../components/SelectableCard.js";
+import type { CharacterSummary } from "../../../types.js";
+import type { NpcSessionConfig, NpcRole, SessionNpcTier } from "../store.js";
+import { Search, Filter, X } from "lucide-react";
 
 /**
  * Guard for session NPC tier values from UI inputs.
  */
 function isSessionNpcTier(value: string): value is SessionNpcTier {
-  return value === 'major' || value === 'minor' || value === 'transient';
+  return value === "major" || value === "minor" || value === "transient";
 }
 
 function getSessionNpcTier(value: string): SessionNpcTier {
-  return isSessionNpcTier(value) ? value : 'minor';
+  return isSessionNpcTier(value) ? value : "minor";
 }
 
 /**
@@ -25,12 +25,19 @@ function getSessionNpcTier(value: string): SessionNpcTier {
  */
 function isNpcRole(value: string): value is NpcRole {
   return (
-    value === 'primary' ||
-    value === 'supporting' ||
-    value === 'background' ||
-    value === 'antagonist'
+    value === "primary" ||
+    value === "supporting" ||
+    value === "background" ||
+    value === "antagonist"
   );
 }
+
+const NPC_ROLE_OPTIONS: { value: NpcRole; label: string }[] = [
+  { value: "primary", label: "Primary" },
+  { value: "supporting", label: "Supporting" },
+  { value: "background", label: "Background" },
+  { value: "antagonist", label: "Antagonist" },
+];
 
 interface NpcsStepProps {
   characters: CharacterSummary[];
@@ -47,29 +54,35 @@ export const NpcsStep: React.FC<NpcsStepProps> = ({
 }) => {
   const npcs = useWorkspaceStore((state) => state.npcs);
   const { addNpc, removeNpc, updateNpc } = useWorkspaceStore();
-  const [selectedForConfig, setSelectedForConfig] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedForConfig, setSelectedForConfig] = useState<string | null>(
+    null,
+  );
+  const [searchQuery, setSearchQuery] = useState("");
   const [filterArchetype, setFilterArchetype] = useState<string | null>(null);
 
   const selectedNpcIds = npcs.map((n: NpcSessionConfig) => n.characterId);
 
   // Get unique archetypes
   const archetypes = Array.from(
-    new Set(characters.map((c) => c.archetype).filter(Boolean))
+    new Set(characters.map((c) => c.archetype).filter(Boolean)),
   ) as string[];
 
   // Filter characters
   const filteredCharacters = characters.filter((c) => {
-    const matchesSearch = c.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesArchetype = filterArchetype ? c.archetype === filterArchetype : true;
+    const matchesSearch = c.name
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
+    const matchesArchetype = filterArchetype
+      ? c.archetype === filterArchetype
+      : true;
     return matchesSearch && matchesArchetype;
   });
 
   const handleAddNpc = (character: CharacterSummary) => {
     const config: NpcSessionConfig = {
       characterId: character.id,
-      role: 'supporting',
-      tier: 'minor',
+      role: "supporting",
+      tier: "minor",
     };
     addNpc(config);
   };
@@ -82,14 +95,16 @@ export const NpcsStep: React.FC<NpcsStepProps> = ({
   };
 
   const selectedNpcConfig = selectedForConfig
-    ? (npcs.find((n: NpcSessionConfig) => n.characterId === selectedForConfig) ?? null)
+    ? (npcs.find(
+        (n: NpcSessionConfig) => n.characterId === selectedForConfig,
+      ) ?? null)
     : null;
-  const selectedNpcTier = getSessionNpcTier(selectedNpcConfig?.tier ?? 'minor');
+  const selectedNpcTier = getSessionNpcTier(selectedNpcConfig?.tier ?? "minor");
 
   // Get character name from characters list
   const getCharacterName = (characterId: string): string => {
     const char = characters.find((c) => c.id === characterId);
-    return char?.name ?? 'Unknown';
+    return char?.name ?? "Unknown";
   };
 
   return (
@@ -98,8 +113,8 @@ export const NpcsStep: React.FC<NpcsStepProps> = ({
       <div>
         <h2 className="text-lg font-semibold text-slate-100">Select NPCs</h2>
         <p className="text-sm text-slate-400 mt-1">
-          Choose which characters will appear in this session. Configure their starting state and
-          role.
+          Choose which characters will appear in this session. Configure their
+          starting state and role.
         </p>
       </div>
 
@@ -107,7 +122,9 @@ export const NpcsStep: React.FC<NpcsStepProps> = ({
         {/* Available Characters */}
         <div className="border border-slate-800 rounded-lg bg-slate-900/30">
           <div className="px-4 py-3 border-b border-slate-800 flex items-center justify-between">
-            <span className="text-sm font-medium text-slate-300">Available Characters</span>
+            <span className="text-sm font-medium text-slate-300">
+              Available Characters
+            </span>
             <div className="flex items-center gap-2">
               <button
                 onClick={onRefresh}
@@ -140,7 +157,7 @@ export const NpcsStep: React.FC<NpcsStepProps> = ({
               {searchQuery && (
                 <button
                   onClick={() => {
-                    setSearchQuery('');
+                    setSearchQuery("");
                   }}
                   className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
                 >
@@ -151,7 +168,7 @@ export const NpcsStep: React.FC<NpcsStepProps> = ({
             {archetypes.length > 0 && (
               <div className="relative">
                 <select
-                  value={filterArchetype ?? ''}
+                  value={filterArchetype ?? ""}
                   onChange={(e) => {
                     setFilterArchetype(e.currentTarget.value || null);
                   }}
@@ -171,10 +188,14 @@ export const NpcsStep: React.FC<NpcsStepProps> = ({
 
           <div className="p-4 max-h-96 overflow-y-auto">
             {loading ? (
-              <p className="text-sm text-slate-500 text-center py-8">Loading characters...</p>
+              <p className="text-sm text-slate-500 text-center py-8">
+                Loading characters...
+              </p>
             ) : characters.length === 0 ? (
               <div className="text-center py-8">
-                <p className="text-sm text-slate-500 mb-3">No characters available</p>
+                <p className="text-sm text-slate-500 mb-3">
+                  No characters available
+                </p>
                 <button
                   onClick={onNavigateToBuilder}
                   className="text-sm px-4 py-2 rounded bg-violet-600 text-white hover:bg-violet-500"
@@ -184,10 +205,12 @@ export const NpcsStep: React.FC<NpcsStepProps> = ({
               </div>
             ) : filteredCharacters.length === 0 ? (
               <div className="text-center py-8">
-                <p className="text-sm text-slate-500 mb-2">No characters match your search</p>
+                <p className="text-sm text-slate-500 mb-2">
+                  No characters match your search
+                </p>
                 <button
                   onClick={() => {
-                    setSearchQuery('');
+                    setSearchQuery("");
                     setFilterArchetype(null);
                   }}
                   className="text-xs text-violet-400 hover:text-violet-300"
@@ -209,18 +232,20 @@ export const NpcsStep: React.FC<NpcsStepProps> = ({
                       actions={
                         <button
                           onClick={() =>
-                            isSelected ? handleRemoveNpc(character.id) : handleAddNpc(character)
+                            isSelected
+                              ? handleRemoveNpc(character.id)
+                              : handleAddNpc(character)
                           }
                           className={`
                             text-xs px-3 py-1.5 rounded transition-colors
                             ${
                               isSelected
-                                ? 'bg-slate-700 text-slate-400 hover:bg-red-900/50 hover:text-red-400'
-                                : 'bg-violet-600 text-white hover:bg-violet-500'
+                                ? "bg-slate-700 text-slate-400 hover:bg-red-900/50 hover:text-red-400"
+                                : "bg-violet-600 text-white hover:bg-violet-500"
                             }
                           `}
                         >
-                          {isSelected ? 'Remove' : 'Add'}
+                          {isSelected ? "Remove" : "Add"}
                         </button>
                       }
                     />
@@ -234,7 +259,9 @@ export const NpcsStep: React.FC<NpcsStepProps> = ({
         {/* Selected NPCs & Configuration */}
         <div className="border border-slate-800 rounded-lg bg-slate-900/30">
           <div className="px-4 py-3 border-b border-slate-800">
-            <span className="text-sm font-medium text-slate-300">Session Cast ({npcs.length})</span>
+            <span className="text-sm font-medium text-slate-300">
+              Session Cast ({npcs.length})
+            </span>
           </div>
 
           <div className="p-4">
@@ -251,13 +278,36 @@ export const NpcsStep: React.FC<NpcsStepProps> = ({
                     selected={selectedForConfig === npc.characterId}
                     onClick={() =>
                       setSelectedForConfig(
-                        selectedForConfig === npc.characterId ? null : npc.characterId
+                        selectedForConfig === npc.characterId
+                          ? null
+                          : npc.characterId,
                       )
                     }
                     badges={
-                      <span className="text-xs px-2 py-0.5 rounded bg-slate-700 text-slate-400">
-                        {npc.role}
-                      </span>
+                      <select
+                        aria-label={`Role for ${getCharacterName(npc.characterId)}`}
+                        value={npc.role}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
+                        onChange={(e) => {
+                          e.stopPropagation();
+                          const nextRole = isNpcRole(e.currentTarget.value)
+                            ? e.currentTarget.value
+                            : "supporting";
+                          updateNpc(npc.characterId, { role: nextRole });
+                        }}
+                        className="text-xs px-2 py-0.5 rounded bg-slate-700 text-slate-300 border border-slate-600 focus:outline-none focus:ring-1 focus:ring-violet-500"
+                      >
+                        {NPC_ROLE_OPTIONS.map((roleOption) => (
+                          <option
+                            key={roleOption.value}
+                            value={roleOption.value}
+                          >
+                            {roleOption.label}
+                          </option>
+                        ))}
+                      </select>
                     }
                     actions={
                       <button
@@ -294,15 +344,19 @@ export const NpcsStep: React.FC<NpcsStepProps> = ({
                 onChange={(e) => {
                   const nextRole = isNpcRole(e.currentTarget.value)
                     ? e.currentTarget.value
-                    : 'supporting';
+                    : "supporting";
                   updateNpc(selectedNpcConfig.characterId, { role: nextRole });
                 }}
                 className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded text-slate-200"
               >
-                <option value="primary">Primary (Main character)</option>
-                <option value="supporting">Supporting (Secondary)</option>
-                <option value="background">Background (World flavor)</option>
-                <option value="antagonist">Antagonist</option>
+                {NPC_ROLE_OPTIONS.map((roleOption) => (
+                  <option key={roleOption.value} value={roleOption.value}>
+                    {roleOption.label}
+                    {roleOption.value === "primary" ? " (Main character)" : ""}
+                    {roleOption.value === "supporting" ? " (Secondary)" : ""}
+                    {roleOption.value === "background" ? " (World flavor)" : ""}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -325,13 +379,18 @@ export const NpcsStep: React.FC<NpcsStepProps> = ({
 
             {/* Starting Location */}
             <div>
-              <label className="block text-sm text-slate-400 mb-1">Starting Location</label>
+              <label className="block text-sm text-slate-400 mb-1">
+                Starting Location
+              </label>
               <input
                 type="text"
-                value={selectedNpcConfig.startLocationId ?? ''}
+                value={selectedNpcConfig.startLocationId ?? ""}
                 onChange={(e) => {
                   const value = e.currentTarget.value;
-                  updateNpc(selectedNpcConfig.characterId, value ? { startLocationId: value } : {});
+                  updateNpc(
+                    selectedNpcConfig.characterId,
+                    value ? { startLocationId: value } : {},
+                  );
                 }}
                 placeholder="Default location"
                 className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded text-slate-200 placeholder-slate-500"
@@ -343,10 +402,13 @@ export const NpcsStep: React.FC<NpcsStepProps> = ({
               <label className="block text-sm text-slate-400 mb-1">Label</label>
               <input
                 type="text"
-                value={selectedNpcConfig.label ?? ''}
+                value={selectedNpcConfig.label ?? ""}
                 onChange={(e) => {
                   const value = e.currentTarget.value;
-                  updateNpc(selectedNpcConfig.characterId, value ? { label: value } : {});
+                  updateNpc(
+                    selectedNpcConfig.characterId,
+                    value ? { label: value } : {},
+                  );
                 }}
                 placeholder="Custom label for this session..."
                 className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded text-slate-200 placeholder-slate-500"
@@ -362,10 +424,26 @@ export const NpcsStep: React.FC<NpcsStepProps> = ({
           <div className="flex items-center justify-between text-sm">
             <span className="text-slate-400">{npcs.length} NPCs selected</span>
             <span className="text-slate-500">
-              {npcs.filter((n: NpcSessionConfig) => n.role === 'primary').length} primary,{' '}
-              {npcs.filter((n: NpcSessionConfig) => n.role === 'supporting').length} supporting,{' '}
-              {npcs.filter((n: NpcSessionConfig) => n.role === 'background').length} background,{' '}
-              {npcs.filter((n: NpcSessionConfig) => n.role === 'antagonist').length} antagonist
+              {
+                npcs.filter((n: NpcSessionConfig) => n.role === "primary")
+                  .length
+              }{" "}
+              primary,{" "}
+              {
+                npcs.filter((n: NpcSessionConfig) => n.role === "supporting")
+                  .length
+              }{" "}
+              supporting,{" "}
+              {
+                npcs.filter((n: NpcSessionConfig) => n.role === "background")
+                  .length
+              }{" "}
+              background,{" "}
+              {
+                npcs.filter((n: NpcSessionConfig) => n.role === "antagonist")
+                  .length
+              }{" "}
+              antagonist
             </span>
           </div>
         </div>

@@ -9,6 +9,7 @@ import { mapZodErrorsToFields } from "@arcagentic/utils";
 import { EntityUsagePanel } from "@arcagentic/ui";
 import { useEntityUsage } from "../../shared/hooks/useEntityUsage.js";
 import { persistPersona, removePersona, loadPersona } from "./api.js";
+import { AppealTagPicker } from "./components/AppealTagPicker.js";
 import {
   usePersonaBuilderForm,
   buildProfileFromForm,
@@ -128,6 +129,7 @@ export function PersonaBuilder(props: PersonaBuilderProps) {
               gender: "gender",
               summary: "summary",
               appearance: "appearance",
+              appealTags: "appealTags",
             };
             const key = p[0];
             if (!key) return undefined;
@@ -275,6 +277,21 @@ export function PersonaBuilder(props: PersonaBuilderProps) {
                 className={textareaClasses}
               />
             </Field>
+          </Section>
+
+          <Section title="What draws your attention?">
+            <p className="text-sm text-slate-400">
+              Select features you find appealing about other characters. This
+              shapes how NPCs describe themselves during romantic or intimate
+              moments.
+            </p>
+            <AppealTagPicker
+              selectedIds={formState.appealTags}
+              onChange={(ids) => {
+                updateField("appealTags", ids);
+              }}
+              error={errors.appealTags}
+            />
           </Section>
         </div>
 

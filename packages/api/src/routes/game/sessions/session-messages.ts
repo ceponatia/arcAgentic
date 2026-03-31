@@ -12,6 +12,7 @@ import {
   eq,
   and,
   getEventsForSession,
+  listNarratorMessagesBySession,
 } from '@arcagentic/db/node';
 import { notFound } from '../../../utils/responses.js';
 import { MessageRequestSchema } from './shared.js';
@@ -42,7 +43,13 @@ export async function handleListMessages(c: Context): Promise<Response> {
     (event): event is SpokeEventRecord => event.type === 'SPOKE' && typeof event.actorId === 'string'
   );
 
-  const messages = await mapSpokeEventsToMessages(spokeEvents, createMessageMappingDeps(id));
+  const narratorMessages = await listNarratorMessagesBySession(toSessionId(id));
+
+  const messages = await mapSpokeEventsToMessages(
+    spokeEvents,
+    createMessageMappingDeps(id),
+    narratorMessages
+  );
 
   return c.json(messages, 200);
 }

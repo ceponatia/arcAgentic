@@ -476,9 +476,18 @@ importers:
 
   packages/generator:
     dependencies:
+      '@arcagentic/llm':
+        specifier: workspace:*
+        version: link:../llm
       '@arcagentic/schemas':
         specifier: workspace:*
         version: link:../schemas
+      effect:
+        specifier: 'catalog:'
+        version: 3.10.13
+      zod:
+        specifier: 'catalog:'
+        version: 4.1.12
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -545,6 +554,9 @@ importers:
       '@arcagentic/llm':
         specifier: workspace:*
         version: link:../llm
+      '@arcagentic/logger':
+        specifier: workspace:*
+        version: link:../logger
       '@arcagentic/schemas':
         specifier: workspace:*
         version: link:../schemas

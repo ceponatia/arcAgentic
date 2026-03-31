@@ -7,17 +7,17 @@
  */
 
 import type {
-  RetrievalService,
-  RetrievalQuery,
-  RetrievalResult,
-  RetrievalConfig,
-  RetrievalMetadata,
   KnowledgeNode,
-  ScoredNode,
-  ScoringWeights,
   NodeIngestionInput,
   NodeIngestionResult,
-  EmbeddingService,
+  RetrievalConfig,
+  RetrievalEmbeddingService,
+  RetrievalMetadata,
+  RetrievalQuery,
+  RetrievalResult,
+  RetrievalService,
+  ScoredNode,
+  ScoringWeights,
 } from '../types.js';
 
 import {
@@ -149,11 +149,11 @@ export class NodeStore {
 export class InMemoryRetrievalService implements RetrievalService {
   private readonly config: Required<RetrievalConfig>;
   private readonly store: NodeStore;
-  private readonly embeddingService: EmbeddingService | undefined;
+  private readonly embeddingService: RetrievalEmbeddingService | undefined;
 
   constructor(
     config: RetrievalConfig = {},
-    embeddingService?: EmbeddingService,
+    embeddingService?: RetrievalEmbeddingService,
     store?: NodeStore
   ) {
     this.config = {

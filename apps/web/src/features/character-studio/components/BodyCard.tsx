@@ -326,14 +326,28 @@ const RegionRow: React.FC<{
     key: "size" | "shape",
     value: string,
   ): void => {
-    const currentAppearance = { ...(overrideData?.appearance ?? {}) };
-    if (value) {
-      currentAppearance[key] = value;
-    } else {
-      delete currentAppearance[key];
+    const currentSize = getRecordOptional(overrideData?.appearance, "size");
+    const currentShape = getRecordOptional(overrideData?.appearance, "shape");
+    const nextSize =
+      key === "size" ? (value.length > 0 ? value : undefined) : currentSize;
+    const nextShape =
+      key === "shape" ? (value.length > 0 ? value : undefined) : currentShape;
+    const nextAppearanceEntries: [string, string][] = [];
+
+    if (nextSize) {
+      nextAppearanceEntries.push(["size", nextSize]);
     }
-    const hasAny = Object.keys(currentAppearance).length > 0;
-    onUpdate({ appearance: hasAny ? currentAppearance : undefined });
+
+    if (nextShape) {
+      nextAppearanceEntries.push(["shape", nextShape]);
+    }
+
+    const nextAppearance = Object.fromEntries(nextAppearanceEntries);
+
+    onUpdate({
+      appearance:
+        Object.keys(nextAppearance).length > 0 ? nextAppearance : undefined,
+    });
   };
 
   return (

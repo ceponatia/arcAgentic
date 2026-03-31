@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import type { PersonaProfile, Gender } from '@arcagentic/schemas';
+import { useEffect, useState } from 'react';
+import { isAppealTagId, type PersonaProfile, type Gender } from '@arcagentic/schemas';
 import {
   type PersonaFormState,
   type PersonaFormFieldErrors,
@@ -18,6 +18,12 @@ export function usePersonaBuilderForm(initialProfile?: PersonaProfile) {
     initialProfile ? mapProfileToForm(initialProfile) : createInitialState()
   );
   const [errors, setErrors] = useState<PersonaFormFieldErrors>({});
+
+  useEffect(() => {
+    if (initialProfile) {
+      setFormState(mapProfileToForm(initialProfile));
+    }
+  }, [initialProfile]);
 
   const updateField = <K extends PersonaFormKey>(key: K, value: PersonaFormState[K]) => {
     setFormState((prev) => {
@@ -61,6 +67,7 @@ export function usePersonaBuilderForm(initialProfile?: PersonaProfile) {
  */
 export function mapProfileToForm(profile: PersonaProfile): PersonaFormState {
   const appearanceStr = typeof profile.appearance === 'string' ? profile.appearance : '';
+  const appealTags = (profile.appealTags ?? []).filter(isAppealTagId);
 
   return {
     id: profile.id,
@@ -69,6 +76,7 @@ export function mapProfileToForm(profile: PersonaProfile): PersonaFormState {
     gender: profile.gender ?? '',
     summary: profile.summary ?? '',
     appearance: appearanceStr,
+    appealTags,
     appearances: [createAppearanceEntry()],
     bodySensory: [createBodySensoryEntry()],
   };
@@ -98,6 +106,11 @@ export function buildProfileFromForm(formState: PersonaFormState): PersonaProfil
   const appearanceTrimmed = formState.appearance.trim();
   if (appearanceTrimmed) {
     profile.appearance = appearanceTrimmed;
+  }
+
+  const appealTags = formState.appealTags.filter(isAppealTagId);
+  if (appealTags.length > 0) {
+    profile.appealTags = appealTags;
   }
 
   // Body sensory data is not applicable to personas; it applies only to full characters.

@@ -23,7 +23,7 @@ describe('http', () => {
   });
 
   it('returns parsed JSON for a successful request', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(
       new Response(JSON.stringify({ ok: true }), {
         status: 200,
         headers: { 'Content-Type': 'application/json' },
@@ -32,34 +32,36 @@ describe('http', () => {
     vi.stubGlobal('fetch', fetchMock);
 
     await expect(http<{ ok: boolean }>('/health')).resolves.toEqual({ ok: true });
-    expect(fetchMock).toHaveBeenCalledWith(
-      'http://localhost:3001/health',
-      expect.objectContaining({ signal: expect.any(AbortSignal) })
-    );
+    const healthRequest = fetchMock.mock.calls[0];
+    expect(healthRequest?.[0]).toBe('http://localhost:3001/health');
+    expect(healthRequest?.[1]?.signal).toBeInstanceOf(AbortSignal);
   });
 
   it('injects the auth token as a bearer header', async () => {
     getAccessTokenMock.mockResolvedValue('token-123');
-    const fetchMock = vi.fn().mockResolvedValue(
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(
       new Response(JSON.stringify({ ok: true }), { status: 200 })
     );
     vi.stubGlobal('fetch', fetchMock);
 
     await http('/secure');
 
-    expect(fetchMock).toHaveBeenCalledWith(
-      'http://localhost:3001/secure',
-      expect.objectContaining({
-        headers: expect.objectContaining({ Authorization: 'Bearer token-123' }),
-      })
-    );
+    const secureRequest = fetchMock.mock.calls[0];
+    expect(secureRequest?.[0]).toBe('http://localhost:3001/secure');
+
+    const secureHeaders = secureRequest?.[1]?.headers;
+    if (!secureHeaders || secureHeaders instanceof Headers || Array.isArray(secureHeaders)) {
+      throw new Error('Expected object headers');
+    }
+
+    expect(secureHeaders.Authorization).toBe('Bearer token-123');
   });
 
   it('aborts the request when the timeout is reached', async () => {
     vi.useFakeTimers();
 
-    const fetchMock = vi.fn(
-      (_url: string, init?: RequestInit) =>
+    const fetchMock = vi.fn<typeof fetch>().mockImplementation(
+      (_input, init?: RequestInit) =>
         new Promise<Response>((_resolve, reject) => {
           init?.signal?.addEventListener('abort', () => {
             reject(new DOMException('Aborted', 'AbortError'));
@@ -77,14 +79,14 @@ describe('http', () => {
   });
 
   it('returns undefined for 204 no content responses', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 204 }));
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(new Response(null, { status: 204 }));
     vi.stubGlobal('fetch', fetchMock);
 
     await expect(http<void>('/empty')).resolves.toBeUndefined();
   });
 
   it('surfaces server-provided JSON error messages', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(
       new Response(JSON.stringify({ error: 'Something went wrong' }), {
         status: 500,
         headers: { 'Content-Type': 'application/json' },
@@ -96,7 +98,7 @@ describe('http', () => {
   });
 
   it('rethrows network failures with their message', async () => {
-    const fetchMock = vi.fn().mockRejectedValue(new TypeError('Failed to fetch'));
+    const fetchMock = vi.fn<typeof fetch>().mockRejectedValue(new TypeError('Failed to fetch'));
     vi.stubGlobal('fetch', fetchMock);
 
     await expect(http('/offline')).rejects.toThrow('Failed to fetch');

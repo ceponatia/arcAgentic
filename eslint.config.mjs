@@ -300,7 +300,6 @@ const sharedArcagenticRules = {
     'error',
     {
       repoRoot: import.meta.dirname,
-      ignoreTypeNames: [],
     },
   ],
   'arcagentic/package-layer-boundaries': [
@@ -339,6 +338,16 @@ export default [
     rules: {
       ...sharedArcagenticRules,
       ...sourceAndTestImportRules,
+    },
+  },
+  {
+    files: ['apps/web/src/**/*.{ts,tsx}'],
+    languageOptions: {
+      parserOptions: {
+        project: ['./apps/web/tsconfig.eslint.json'],
+        projectService: false,
+        tsconfigRootDir: import.meta.dirname,
+      },
     },
   },
   {

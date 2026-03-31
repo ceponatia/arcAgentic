@@ -1,6 +1,10 @@
 export {
+  NpcAgentIntentSchema,
+  type NpcAgentIntent,
   NpcNarrationIntentSchema,
   type NpcNarrationIntent,
+  NpcCharacterSummarySchema,
+  type NpcCharacterSummary,
   NarratorContextSchema,
   type NarratorContext,
   NarrationSourceSchema,

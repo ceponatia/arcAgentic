@@ -154,10 +154,10 @@ await service.applyDecay();
 ```ts
 import {
   InMemoryRetrievalService,
-  EmbeddingService,
+  RetrievalEmbeddingService,
 } from "@arcagentic/retrieval";
 
-const embeddingService: EmbeddingService = {
+const embeddingService: RetrievalEmbeddingService = {
   embed: async (texts) => {
     // Call your embedding API (OpenAI, etc.)
     return texts.map(() => new Array(1536).fill(0));
@@ -175,10 +175,10 @@ const service = new InMemoryRetrievalService({}, embeddingService);
 ```ts
 import {
   PgRetrievalService,
-  type EmbeddingService,
+  type RetrievalEmbeddingService,
 } from "@arcagentic/retrieval";
 
-const embeddingService: EmbeddingService = {
+const embeddingService: RetrievalEmbeddingService = {
   embed: async (texts) => texts.map(() => new Array(1536).fill(0)),
   getDimensions: () => 1536,
 };
@@ -204,7 +204,7 @@ Main interface for querying knowledge nodes:
 - `updateSalience(nodeIds, boost)`: Boost importance of accessed nodes
 - `applyDecay(sessionId)`: Apply decay factor to narrative importance
 
-### EmbeddingService
+### RetrievalEmbeddingService
 
 Interface for computing vector embeddings:
 
