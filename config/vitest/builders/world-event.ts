@@ -1,4 +1,4 @@
-import type { WorldEvent } from '@arcagentic/schemas';
+import type { PlayerInputMode, WorldEvent } from '@arcagentic/schemas';
 
 type MoveIntent = Extract<WorldEvent, { type: 'MOVE_INTENT' }>;
 type SpeakIntent = Extract<WorldEvent, { type: 'SPEAK_INTENT' }>;
@@ -32,6 +32,15 @@ export function buildSpeakIntent(overrides: Partial<SpeakIntent> = {}): SpeakInt
   };
 }
 
+export function buildClassifiedSpeakIntent(
+  overrides: Partial<SpeakIntent> & { inputMode: PlayerInputMode } = { inputMode: 'speech' },
+): SpeakIntent {
+  return {
+    ...buildSpeakIntent(),
+    ...overrides,
+  };
+}
+
 export function buildMovedEffect(overrides: Partial<MovedEffect> = {}): MovedEffect {
   return {
     type: 'MOVED',
@@ -51,6 +60,15 @@ export function buildSpokeEffect(overrides: Partial<SpokeEffect> = {}): SpokeEff
     content: 'Test message',
     sessionId: 'session-test-001',
     timestamp: DEFAULT_TIMESTAMP,
+    ...overrides,
+  };
+}
+
+export function buildClassifiedSpokeEffect(
+  overrides: Partial<SpokeEffect> & { inputMode: PlayerInputMode } = { inputMode: 'speech' },
+): SpokeEffect {
+  return {
+    ...buildSpokeEffect(),
     ...overrides,
   };
 }

@@ -30,6 +30,7 @@ export interface Message {
   createdAt: string; // ISO timestamp
   idx?: number; // Legacy/Display index OR Sequence for back-compat
   sequence?: number; // World Bus event sequence
+  addressedActorId?: string;
   turnMetadata?: TurnMetadata;
   speaker?: Speaker;
 }

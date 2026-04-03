@@ -264,8 +264,8 @@ export class TurnOrchestrator {
 
     const result = await CognitionLayer.decideLLM(context, profile, this.llmProvider);
 
-    if (result?.intent?.type === 'SPEAK_INTENT') {
-      const content = (result.intent as { content?: string }).content;
+    if (result.type === 'action' && result.result?.intent.type === 'SPEAK_INTENT') {
+      const content = (result.result.intent as { content?: string }).content;
       return content ?? null;
     }
 

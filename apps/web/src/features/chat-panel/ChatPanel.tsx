@@ -155,10 +155,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ sessionId }) => {
         setSelectedNpcId((prev) => {
           if (!results.length) return null;
           if (prev && results.some((npc) => npc.id === prev)) return prev;
-          const primary =
-            results.find((npc) => npc.role === "primary") ?? results[0];
-          if (!primary) return null;
-          return primary.id;
+          return null;
         });
       } catch (err) {
         if (!active || isAbortError(err)) return;
@@ -182,6 +179,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ sessionId }) => {
     if (!effectiveSessionId) return;
     const text = draft.trim();
     if (!text || sending) return;
+    const addressedActorId = selectedNpcId ?? undefined;
 
     setDraft("");
     setSending(true);
@@ -191,15 +189,19 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ sessionId }) => {
       role: "user",
       content: text,
       createdAt: new Date().toISOString(),
+      ...(addressedActorId ? { addressedActorId } : {}),
     };
     setSession((prev) =>
       prev ? { ...prev, messages: [...prev.messages, userMsg] } : prev,
     );
 
     try {
-      const res = await sendMessage(effectiveSessionId, text, undefined, {
-        npcId: selectedNpcId ?? null,
-      });
+      const res = await sendMessage(
+        effectiveSessionId,
+        text,
+        undefined,
+        addressedActorId ? { npcId: addressedActorId } : undefined,
+      );
       const assistant = res.message;
       const isPlaceholder = assistant.content.trim() === "The world is quiet.";
 
@@ -299,6 +301,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ sessionId }) => {
 
     const userContent = userMessage.content;
     const userSequence = userMessage.idx;
+    const addressedActorId = userMessage.addressedActorId ?? undefined;
 
     if (userSequence === undefined) {
       console.warn("[ChatPanel] Cannot redo message without sequence");
@@ -337,6 +340,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ sessionId }) => {
         role: "user",
         content: userContent,
         createdAt: new Date().toISOString(),
+        ...(addressedActorId ? { addressedActorId } : {}),
       };
       setSession((prev) =>
         prev ? { ...prev, messages: [...prev.messages, userMsg] } : prev,
@@ -347,9 +351,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ sessionId }) => {
         effectiveSessionId,
         userContent,
         undefined,
-        {
-          npcId: selectedNpcId ?? null,
-        },
+        addressedActorId ? { npcId: addressedActorId } : undefined,
       );
 
       const assistant = res.message;
@@ -408,7 +410,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ sessionId }) => {
     npcs.length > 0 || npcError || npcsLoading ? (
       <div className="flex flex-col gap-1 text-xs text-slate-300">
         <div className="px-1 text-[11px] uppercase tracking-wide text-slate-400">
-          Target NPC
+          Address NPC (optional)
         </div>
         <select
           className="bg-slate-900 text-slate-200 ring-1 ring-slate-800 focus:ring-2 focus:ring-violet-500 rounded-md px-2 py-1 text-sm"
@@ -419,7 +421,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ sessionId }) => {
           }}
           disabled={disabled || npcsLoading}
         >
-          <option value="">Auto (primary/default)</option>
+          <option value="">Open to the room</option>
           {npcs.map((npc) => {
             const label = npc.label ?? npc.name ?? npc.role;
             return (

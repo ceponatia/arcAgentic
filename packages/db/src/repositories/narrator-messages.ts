@@ -93,3 +93,23 @@ export async function listRecentNarratorMessages(
 
   return [...rows].reverse();
 }
+
+/**
+ * Delete a narrator-composed message for a specific session turn and return the deleted row.
+ */
+export async function deleteNarratorMessage(
+  sessionId: UUID,
+  turnSequence: bigint
+): Promise<NarratorMessageRecord | null> {
+  const [row] = await db
+    .delete(narratorMessages)
+    .where(
+      and(
+        eq(narratorMessages.sessionId, sessionId),
+        eq(narratorMessages.turnSequence, turnSequence)
+      )
+    )
+    .returning();
+
+  return row ?? null;
+}

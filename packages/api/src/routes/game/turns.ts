@@ -75,6 +75,7 @@ import {
   buildToolExecutorMap,
   resolveNpcCognitionWithTools,
 } from '../../game/cognition-tools.js';
+import { classifyPlayerInput } from '../../game/classify-input.js';
 
 const log = createLogger('api', 'turns');
 
@@ -1331,6 +1332,7 @@ export function registerTurnRoutes(app: Hono): void {
 
     const playerActorId = `player:${ownerEmail}`;
     const turnStartedAt = new Date();
+    const classification = classifyPlayerInput(input);
     const playerSpoke: WorldEvent = {
       type: 'SPOKE',
       actorId: playerActorId,
@@ -1338,6 +1340,13 @@ export function registerTurnRoutes(app: Hono): void {
       targetActorId: targetNpcId ?? undefined,
       sessionId: sessionKey,
       timestamp: turnStartedAt,
+      inputMode: classification.mode,
+      ...(classification.speechContent != null
+        ? { speechContent: classification.speechContent }
+        : {}),
+      ...(classification.narrationContent != null
+        ? { narrationContent: classification.narrationContent }
+        : {}),
     };
 
     try {

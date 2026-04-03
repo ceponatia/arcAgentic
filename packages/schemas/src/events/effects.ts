@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { classifiedSpeechFields } from './classification.js';
 import { coercedDate } from '../utils/schema-helpers.js';
 
 export const EffectTypeSchema = z.enum([
@@ -42,6 +43,7 @@ const createSpokeEffectSchema = (timestampSchema: z.ZodType<Date>) =>
     internalState: z.string().optional(),
     sensoryDetail: z.string().optional(),
     emotion: z.string().optional(),
+    ...classifiedSpeechFields,
     ...baseEffectFields(timestampSchema),
   });
 

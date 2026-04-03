@@ -11,8 +11,11 @@ import {
   events,
   eq,
   and,
+  inArray,
   getEventsForSession,
   listNarratorMessagesBySession,
+  narratorMessages,
+  deleteNarratorMessage,
 } from '@arcagentic/db/node';
 import { notFound } from '../../../utils/responses.js';
 import { MessageRequestSchema } from './shared.js';
@@ -121,34 +124,58 @@ export async function handleDeleteMessage(c: Context): Promise<Response> {
 
   log.info({ sessionId: id, idx }, 'message delete request received');
 
-  const session = await getSession(toSessionId(id), ownerEmail);
+  const sessionId = toSessionId(id);
+  const turnSequence = BigInt(idx);
+
+  const session = await getSession(sessionId, ownerEmail);
   if (!session) return notFound(c, 'session not found');
 
   const [existing] = await drizzle
     .select()
     .from(events)
     .where(
+      and(eq(events.sessionId, sessionId), eq(events.sequence, turnSequence), eq(events.type, 'SPOKE'))
+    )
+    .limit(1);
+
+  if (existing) {
+    await drizzle
+      .delete(events)
+      .where(
+        and(
+          eq(events.sessionId, sessionId),
+          eq(events.sequence, turnSequence),
+          eq(events.type, 'SPOKE')
+        )
+      );
+
+    return c.body(null, 204);
+  }
+
+  const [existingNarratorMessage] = await drizzle
+    .select()
+    .from(narratorMessages)
+    .where(
       and(
-        eq(events.sessionId, toSessionId(id)),
-        eq(events.sequence, BigInt(idx)),
-        eq(events.type, 'SPOKE')
+        eq(narratorMessages.sessionId, sessionId),
+        eq(narratorMessages.turnSequence, turnSequence)
       )
     )
     .limit(1);
 
-  if (!existing) {
+  if (!existingNarratorMessage) {
     return notFound(c, 'message not found');
   }
 
-  await drizzle
-    .delete(events)
-    .where(
-      and(
-        eq(events.sessionId, toSessionId(id)),
-        eq(events.sequence, BigInt(idx)),
-        eq(events.type, 'SPOKE')
-      )
-    );
+  const deletedNarratorMessage = await deleteNarratorMessage(sessionId, turnSequence);
+
+  if (!deletedNarratorMessage) {
+    return notFound(c, 'message not found');
+  }
+
+  if (deletedNarratorMessage.spokeEventIds.length > 0) {
+    await drizzle.delete(events).where(inArray(events.id, deletedNarratorMessage.spokeEventIds));
+  }
 
   return c.body(null, 204);
 }
